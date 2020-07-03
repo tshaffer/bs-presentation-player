@@ -1,0 +1,17 @@
+node_modules
+.idea
+.vscode
+dist
+dist/*
+dist/standalone/*
+src/*.js
+src/*.d.ts
+src/*.map
+src/*/*.d.ts
+src/*/*.js
+src/*/*.map
+src/*/*/*.js
+src/*/*/*.map
+src/*/*/*.d.ts
+
+
