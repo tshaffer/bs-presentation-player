@@ -2,11 +2,11 @@
 
 import { combineReducers } from 'redux';
 import {
-  PpHsmState,
-  PpHsm,
-  PpHsmMap,
-  PpHStateMap,
-  PpHState,
+  HsmState,
+  Hsm,
+  HsmMap,
+  HStateMap,
+  HState,
   HStateData,
   HsmData,
 } from '../type';
@@ -31,9 +31,9 @@ export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
 export const SET_HSTATE_DATA = 'SET_HSTATE_DATA';
 
-export type AddHsmAction = BsPpModelAction<Partial<PpHsm>>;
+export type AddHsmAction = BsPpModelAction<Partial<Hsm>>;
 export function addHsm(
-  hsm: PpHsm,
+  hsm: Hsm,
 ): AddHsmAction {
   return {
     type: ADD_HSM,
@@ -59,7 +59,7 @@ export function setHsmTop(
   };
 }
 
-export type SetHsmInitializedAction = BsPpModelAction<Partial<PpHsm>>;
+export type SetHsmInitializedAction = BsPpModelAction<Partial<Hsm>>;
 export function setHsmInitialized(
   id: string,
   initialized: boolean,
@@ -73,7 +73,7 @@ export function setHsmInitialized(
   };
 }
 
-export type SetHsmDataAction = BsPpModelAction<Partial<PpHsm>>;
+export type SetHsmDataAction = BsPpModelAction<Partial<Hsm>>;
 export function setHsmData(
   id: string,
   hsmData: HsmData): SetHsmDataAction {
@@ -86,10 +86,10 @@ export function setHsmData(
   };
 }
 
-export type SetActiveHStateAction = BsPpModelAction<PpHState | null | any>;
+export type SetActiveHStateAction = BsPpModelAction<HState | null | any>;
 export function setActiveHState(
   hsmId: string,
-  activeState: PpHState | null,
+  activeState: HState | null,
 ): SetActiveHStateAction {
   return {
     type: SET_ACTIVE_HSTATE,
@@ -100,9 +100,9 @@ export function setActiveHState(
   };
 }
 
-export type AddHStateAction = BsPpModelAction<Partial<PpHState>>;
+export type AddHStateAction = BsPpModelAction<Partial<HState>>;
 export function addHState(
-  hState: PpHState,
+  hState: HState,
 ): AddHStateAction {
   return {
     type: ADD_HSTATE,
@@ -110,7 +110,7 @@ export function addHState(
   };
 }
 
-export type SetHStateDataAction = BsPpModelAction<Partial<PpHState>>;
+export type SetHStateDataAction = BsPpModelAction<Partial<HState>>;
 export function setHStateData(
   id: string,
   hStateData: HStateData,
@@ -127,43 +127,43 @@ export function setHStateData(
 // ------------------------------------
 // Reducer
 // ------------------------------------
-const initialHsmByIdState: PpHsmMap = {};
+const initialHsmByIdState: HsmMap = {};
 const hsmById = (
-  state: PpHsmMap = initialHsmByIdState,
+  state: HsmMap = initialHsmByIdState,
   action: AddHsmAction | SetHsmTopAction | SetHsmInitializedAction
-): PpHsmMap => {
+): HsmMap => {
   switch (action.type) {
     case ADD_HSM: {
-      const id: string = (action.payload as PpHsm).id;
-      return { ...state, [id]: (action.payload as PpHsm) };
+      const id: string = (action.payload as Hsm).id;
+      return { ...state, [id]: (action.payload as Hsm) };
     }
     case SET_HSM_TOP: {
       const { hsmId, topStateId } = action.payload as SetHsmTopActionParams;
-      const newState = cloneDeep(state) as PpHsmMap;
-      const hsm: PpHsm = newState[hsmId];
+      const newState = cloneDeep(state) as HsmMap;
+      const hsm: Hsm = newState[hsmId];
       hsm.topStateId = topStateId;
       return newState;
     }
     case SET_HSM_INITIALIZED: {
       const id: string = (action as SetHsmInitializedAction).payload.id as string;
       const initialized: boolean = (action as SetHsmInitializedAction).payload.initialized!;
-      const newState = cloneDeep(state) as PpHsmMap;
-      const hsm: PpHsm = newState[id];
+      const newState = cloneDeep(state) as HsmMap;
+      const hsm: Hsm = newState[id];
       hsm.initialized = initialized;
       return newState;
     }
     case SET_HSM_DATA: {
       const id: string = (action as SetHsmDataAction).payload.id as string;
       const hsmData: HsmData = (action as SetHsmDataAction).payload.hsmData!;
-      const newState = cloneDeep(state) as PpHsmMap;
-      const hsm: PpHsm = newState[id];
+      const newState = cloneDeep(state) as HsmMap;
+      const hsm: Hsm = newState[id];
       hsm.hsmData = hsmData;
       return newState;
     }
     case SET_ACTIVE_HSTATE: {
       const newState = Object.assign({}, state);
       const hsmId: string = (action.payload as any).id;
-      const activeState: PpHState = (action.payload as any).activeState;
+      const activeState: HState = (action.payload as any).activeState;
       if (isNil(activeState)) {
         newState[hsmId].activeStateId = null;
       } else {
@@ -176,19 +176,19 @@ const hsmById = (
   }
 };
 
-const initialHStateByIdState: PpHStateMap = {};
+const initialHStateByIdState: HStateMap = {};
 const hStateById = (
-  state: PpHStateMap = initialHStateByIdState,
+  state: HStateMap = initialHStateByIdState,
   action: AddHStateAction,
-): PpHStateMap => {
+): HStateMap => {
   switch (action.type) {
     case ADD_HSTATE: {
-      const id: string = (action.payload as PpHState).id;
-      return { ...state, [id]: (action.payload as PpHState) };
+      const id: string = (action.payload as HState).id;
+      return { ...state, [id]: (action.payload as HState) };
     }
     case SET_HSTATE_DATA: {
-      const { id, hStateData } = action.payload as PpHState;
-      const newState = cloneDeep(state) as PpHStateMap;
+      const { id, hStateData } = action.payload as HState;
+      const newState = cloneDeep(state) as HStateMap;
       const ppHState = newState[id];
       ppHState.hStateData = hStateData;
       return newState;
@@ -199,11 +199,11 @@ const hStateById = (
 };
 
 // TEDTODO - remove??
-const initialActiveHStateByHsm: PpHStateMap = {};
+const initialActiveHStateByHsm: HStateMap = {};
 const activeHStateByHsm = (
-  state: PpHStateMap = initialActiveHStateByHsm,
+  state: HStateMap = initialActiveHStateByHsm,
   action: SetActiveHStateAction,
-): PpHStateMap => {
+): HStateMap => {
   switch (action.type) {
     // case SET_ACTIVE_HSTATE: {
     //   const newState: PpHStateMap = Object.assign({}, state);
@@ -219,7 +219,7 @@ const activeHStateByHsm = (
   }
 };
 
-export const hsmReducer = combineReducers<PpHsmState>(
+export const hsmReducer = combineReducers<HsmState>(
   { hsmById, hStateById, activeHStateByHsm });
 
 // -----------------------------------------------------------------------

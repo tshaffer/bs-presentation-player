@@ -3,7 +3,7 @@ import { Action } from 'redux';
 import { Dispatch } from 'redux';
 
 import { DmState } from '@brightsign/bsdatamodel';
-import { PpHsmState } from './hsm';
+import { HsmState } from './hsm';
 import { PresentationDataState } from './presentation';
 
 export type DeepPartial<T> = {
@@ -18,15 +18,15 @@ export interface BsPpState {
 }
 
 export interface BsPpModelState {
-  hsmState: PpHsmState;
+  hsmState: HsmState;
   presentationData: PresentationDataState;
 }
 
-export interface PpBaseObject {
+export interface BsPpBaseObject {
   id: string;
 }
 
-export interface PpMap<T extends PpBaseObject> {
+export interface BsPpMap<T extends BsPpBaseObject> {
   [id: string]: T;    // really '[id:BsDmId]: T;' -- but Typescript doesn't like that, even though BsDmId = string
 }
 

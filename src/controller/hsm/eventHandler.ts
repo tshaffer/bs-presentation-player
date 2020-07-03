@@ -1,10 +1,10 @@
 import {
   ArEventType,
   HSMStateData,
-  PpHState,
-  PpStateType,
+  HState,
+  HStateType,
   BsPpDispatch,
-  PpHsmType,
+  HsmType,
 } from '../../type';
 import { isNil } from 'lodash';
 import {
@@ -37,7 +37,7 @@ export const ppInitialPseudoStateHandler = (hsmId: string) => {
   return (dispatch: BsPpDispatch, getState: any) => {
     const hsm = getHsmById(getState(), hsmId);
     switch (hsm.type) {
-      case PpHsmType.Player:
+      case HsmType.Player:
         return dispatch(initializePlayerStateMachine());
       case 'VideoOrImages':
         // TEDTODO
@@ -50,22 +50,22 @@ export const ppInitialPseudoStateHandler = (hsmId: string) => {
 };
 
 export const HStateEventHandler = (
-  hState: PpHState,
+  hState: HState,
   event: ArEventType,
   stateData: HSMStateData
 ): any => {
   return ((dispatch: BsPpDispatch) => {
     if (!isNil(hState)) {
       switch (hState.type) {
-        case PpStateType.Top:
+        case HStateType.Top:
           return dispatch(STTopEventHandler(hState, event, stateData));
-        case PpStateType.Player:
+        case HStateType.Player:
           return dispatch(STPlayerEventHandler(hState, event, stateData));
-        case PpStateType.Playing:
+        case HStateType.Playing:
           return dispatch(STPlayingEventHandler(hState, event, stateData));
-        case PpStateType.Waiting:
+        case HStateType.Waiting:
           return dispatch(STWaitingEventHandler(hState, event, stateData));
-        case PpStateType.Image:
+        case HStateType.Image:
           return dispatch(STImageStateEventHandler(hState, event, stateData));
         default:
           debugger;
@@ -77,7 +77,7 @@ export const HStateEventHandler = (
   });
 };
 
-const STTopEventHandler = (hState: PpHState, _: ArEventType, stateData: HSMStateData) => {
+const STTopEventHandler = (hState: HState, _: ArEventType, stateData: HSMStateData) => {
   return ((dispatch: BsPpDispatch) => {
     stateData.nextStateId = null;
     return 'IGNORED';

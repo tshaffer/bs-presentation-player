@@ -13,9 +13,9 @@ import {
   getHStateByName,
 } from '../../selector/hsm';
 import {
-  PpHState,
-  PpHsmType,
-  PpStateType,
+  HState,
+  HsmType,
+  HStateType,
   ArEventType,
   HSMStateData,
   BsPpAnyPromiseThunkAction,
@@ -26,10 +26,10 @@ import { setHsmTop } from '../../model';
 export const ppCreatePlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
     console.log('invoke ppCreatePlayerHsm');
-    const playerHsmId: string = dispatch(ppCreateHsm('player', PpHsmType.Player));
+    const playerHsmId: string = dispatch(ppCreateHsm('player', HsmType.Player));
 
     const stTopId = dispatch(ppCreateHState(
-      PpStateType.Top,
+      HStateType.Top,
       playerHsmId,
       '',
       {
@@ -38,15 +38,15 @@ export const ppCreatePlayerHsm = (): any => {
 
     dispatch(setHsmTop(playerHsmId, stTopId));
 
-    const stPlayerId = dispatch(ppCreateHState(PpStateType.Player, playerHsmId, stTopId, {
+    const stPlayerId = dispatch(ppCreateHState(HStateType.Player, playerHsmId, stTopId, {
       name: 'player',
     }));
 
-    dispatch(ppCreateHState(PpStateType.Playing, playerHsmId, stPlayerId, {
+    dispatch(ppCreateHState(HStateType.Playing, playerHsmId, stPlayerId, {
       name: 'playing',
     }));
 
-    dispatch(ppCreateHState(PpStateType.Waiting, playerHsmId, stPlayerId, {
+    dispatch(ppCreateHState(HStateType.Waiting, playerHsmId, stPlayerId, {
       name: 'waiting',
     }));
   });
@@ -80,7 +80,7 @@ export const initializePlayerStateMachine = (): BsPpAnyPromiseThunkAction => {
 };
 
 export const STPlayerEventHandler = (
-  hState: PpHState,
+  hState: HState,
   event: ArEventType,
   stateData: HSMStateData
 ): any => {
@@ -94,7 +94,7 @@ export const STPlayerEventHandler = (
 };
 
 export const STPlayingEventHandler = (
-  hState: PpHState,
+  hState: HState,
   event: ArEventType,
   stateData: HSMStateData
 ): any => {
@@ -119,7 +119,7 @@ export const STPlayingEventHandler = (
 };
 
 export const STWaitingEventHandler = (
-  hState: PpHState,
+  hState: HState,
   event: ArEventType,
   stateData: HSMStateData
 ): any => {
@@ -134,7 +134,7 @@ export const STWaitingEventHandler = (
       console.log(hState.id + ': TRANSITION_TO_PLAYING event received');
       // const hsmId: string = hState.hsmId;
       // const hsm: PpHsm = getHsmById(getState(), hsmId);
-      const stPlayingState: PpHState | null = getHStateByName(getState, 'Playing');
+      const stPlayingState: HState | null = getHStateByName(getState, 'Playing');
       if (!isNil(stPlayingState)) {
         stateData.nextStateId = stPlayingState.id;
         return 'TRANSITION';

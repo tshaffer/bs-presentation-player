@@ -11,9 +11,9 @@ import {
   BsPpVoidPromiseThunkAction,
   BsPpAnyPromiseThunkAction,
   ArEventType,
-  PpHsmMap,
-  PpHsm,
-  PpHState,
+  HsmMap,
+  Hsm,
+  HState,
   BsPpDispatch,
   BsPpVoidThunkAction,
 } from '../type';
@@ -185,13 +185,13 @@ function dispatchHsmEvent(
 
     const state: BsPpState = getState();
 
-    const playerHsm: PpHsm | null = getHsmByName(state, 'player');
+    const playerHsm: Hsm | null = getHsmByName(state, 'player');
     if (!isNil(playerHsm)) {
       dispatch(hsmDispatch(event, playerHsm.id, playerHsm.activeStateId));
-      const hsmMap: PpHsmMap = getHsms(state);
+      const hsmMap: HsmMap = getHsms(state);
       for (const hsmId in hsmMap) {
         if (hsmId !== playerHsm.id) {
-          const activeState: PpHState | null = getActiveStateIdByHsmId(state, hsmId);
+          const activeState: HState | null = getActiveStateIdByHsmId(state, hsmId);
           if (!isNil(activeState)) {
             dispatch(hsmDispatch(event, hsmId, activeState.id));
           } else {
@@ -205,10 +205,10 @@ function dispatchHsmEvent(
 
 const hsmInitialized = (state: BsPpState): boolean => {
 
-  const hsmMap: PpHsmMap = getHsms(state);
+  const hsmMap: HsmMap = getHsms(state);
   for (const hsmId in hsmMap) {
     if (hsmMap.hasOwnProperty(hsmId)) {
-      const hsm: PpHsm = hsmMap[hsmId];
+      const hsm: Hsm = hsmMap[hsmId];
       if (!hsm.initialized) {
         return false;
       }

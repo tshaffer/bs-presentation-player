@@ -1,26 +1,26 @@
 import {
   BsPpState,
-  PpHsm,
-  PpHState,
+  Hsm,
+  HState,
   HStateData,
-  PpHStateMap,
+  HStateMap,
   PlayerHStateData,
   MediaHStateData,
   // PpHsmType,
 } from '../type';
 import { isNil, isString } from 'lodash';
-import { PpHsmMap } from '../type';
+import { HsmMap } from '../type';
 // import { DmMediaState, dmGetMediaStateById, dmFilterDmState } from '@brightsign/bsdatamodel';
 
 // ------------------------------------
 // Selectors
 // ------------------------------------
-export function getHsmById(state: BsPpState, hsmId: string): PpHsm {
+export function getHsmById(state: BsPpState, hsmId: string): Hsm {
   return state.bsPlayer.hsmState.hsmById[hsmId];
 }
 
-export function getHsmByName(state: BsPpState, hsmName: string): PpHsm | null {
-  const hsmMap: PpHsmMap = getHsms(state);
+export function getHsmByName(state: BsPpState, hsmName: string): Hsm | null {
+  const hsmMap: HsmMap = getHsms(state);
   for (const hsmId in hsmMap) {
     if (hsmMap.hasOwnProperty(hsmId)) {
       const hsm = hsmMap[hsmId];
@@ -32,22 +32,22 @@ export function getHsmByName(state: BsPpState, hsmName: string): PpHsm | null {
   return null;
 }
 
-export function getHsms(state: BsPpState): PpHsmMap {
+export function getHsms(state: BsPpState): HsmMap {
   return state.bsPlayer.hsmState.hsmById;
 }
 
 export const getActiveStateIdByHsmId = (
   state: BsPpState,
   hsmId: string
-): PpHState | null => {
-  const hsm: PpHsm = getHsmById(state, hsmId);
+): HState | null => {
+  const hsm: Hsm = getHsmById(state, hsmId);
   if (!isNil(hsm)) {
     return getHStateById(state, hsm.activeStateId);
   }
   return null;
 };
 
-export function getHStateById(state: BsPpState, hStateId: string | null): PpHState | null {
+export function getHStateById(state: BsPpState, hStateId: string | null): HState | null {
   if (isNil(hStateId)) {
     return null;
   }
@@ -58,11 +58,11 @@ export function getHStateById(state: BsPpState, hStateId: string | null): PpHSta
   return hState;
 }
 
-export function getHStateByName(state: BsPpState, name: string | null): PpHState | null {
+export function getHStateByName(state: BsPpState, name: string | null): HState | null {
   if (isNil(name)) {
     return null;
   }
-  const hStateMap: PpHStateMap = state.bsPlayer.hsmState.hStateById;
+  const hStateMap: HStateMap = state.bsPlayer.hsmState.hStateById;
 
   for (const hStateId in hStateMap) {
     if (hStateMap.hasOwnProperty(hStateId)) {
@@ -79,11 +79,11 @@ export function getHStateByName(state: BsPpState, name: string | null): PpHState
   return null;
 }
 
-export function getHStateByMediaStateId(state: BsPpState, mediaStateId: string | null): PpHState | null {
+export function getHStateByMediaStateId(state: BsPpState, mediaStateId: string | null): HState | null {
   if (isNil(mediaStateId)) {
     return null;
   }
-  const hStateMap: PpHStateMap = state.bsPlayer.hsmState.hStateById;
+  const hStateMap: HStateMap = state.bsPlayer.hsmState.hStateById;
 
   for (const hStateId in hStateMap) {
     if (hStateMap.hasOwnProperty(hStateId)) {
@@ -104,7 +104,7 @@ export function getHStateData(state: BsPpState, hStateId: string | null): HState
   if (isNil(hStateId)) {
     return null;
   }
-  const hState: PpHState | null = getHStateById(state, hStateId);
+  const hState: HState | null = getHStateById(state, hStateId);
   if (isNil(hState)) {
     return null;
   }
@@ -118,12 +118,12 @@ export function getHsmInitialized(state: BsPpState, hsmId: string): boolean {
   return state.bsPlayer.hsmState.hsmById[hsmId].initialized;
 }
 
-export function getZoneHsmList(state: BsPpState): PpHsm[] {
-  const hsmList: PpHsm[] = [];
-  const hsmById: PpHsmMap = state.bsPlayer.hsmState.hsmById;
+export function getZoneHsmList(state: BsPpState): Hsm[] {
+  const hsmList: Hsm[] = [];
+  const hsmById: HsmMap = state.bsPlayer.hsmState.hsmById;
   for (const hsmId in hsmById) {
     if (hsmById.hasOwnProperty(hsmId)) {
-      const hsm: PpHsm = hsmById[hsmId];
+      const hsm: Hsm = hsmById[hsmId];
       if (hsm.type === 'VideoOrImages') {
         hsmList.push(hsm);
       }
@@ -133,11 +133,11 @@ export function getZoneHsmList(state: BsPpState): PpHsm[] {
 }
 
 export function getActiveMediaStateId(state: BsPpState, zoneId: string): string {
-  const zoneHsmList: PpHsm[] = getZoneHsmList(state);
+  const zoneHsmList: Hsm[] = getZoneHsmList(state);
   for (const zoneHsm of zoneHsmList) {
     if (!isNil(zoneHsm.hsmData)) {
       if (zoneHsm.hsmData.zoneId === zoneId) {
-        const hState: PpHState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
+        const hState: HState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
         if (!isNil(hState)
           && !isNil(hState.hStateData)
           && isString((hState.hStateData as MediaHStateData).mediaStateId)

@@ -1,4 +1,4 @@
-import { HSMStateData, PpHState, PpHsm, HsmData } from '../../type/hsm';
+import { HSMStateData, HState, Hsm, HsmData } from '../../type/hsm';
 import { isNil } from 'lodash';
 import {
   ArEventType,
@@ -80,9 +80,9 @@ function completeHsmInitialization(
 
     // TEDTODO - necessary to have separate variables activeState and reduxActiveState?
 
-    const hsm: PpHsm = getHsmById(getState(), hsmId);
-    let reduxActiveState: PpHState | null = getHStateById(getState(), hsm.activeStateId);
-    const reduxTopState: PpHState | null = getHStateById(getState(), hsm.topStateId);
+    const hsm: Hsm = getHsmById(getState(), hsmId);
+    let reduxActiveState: HState | null = getHStateById(getState(), hsm.activeStateId);
+    const reduxTopState: HState | null = getHStateById(getState(), hsm.topStateId);
 
     const stateData: HSMStateData = { nextStateId: null };
 
@@ -104,7 +104,7 @@ function completeHsmInitialization(
     }
 
     if (!isNil(reduxActiveState)) {
-      let activeState: PpHState = reduxActiveState;
+      let activeState: HState = reduxActiveState;
 
       // start at the top state
       if (isNil(reduxTopState)) {
@@ -124,16 +124,16 @@ function completeHsmInitialization(
         action = HStateEventHandler((reduxActiveState as any), emptyEvent, stateData);
         status = dispatch(action);
 
-        activeState = getHStateById(getState(), stateData.nextStateId) as PpHState;
+        activeState = getHStateById(getState(), stateData.nextStateId) as HState;
         reduxActiveState = activeState;
 
         // walk up the tree until the current source state is hit
-        while (activeState.id !== (sourceState as PpHState).id) {
+        while (activeState.id !== (sourceState as HState).id) {
           entryStateIndex = entryStateIndex + 1;
           entryStates[entryStateIndex] = activeState;
           action = HStateEventHandler((reduxActiveState as any), emptyEvent, stateData);
           status = dispatch(action);
-          activeState = getHStateById(getState(), stateData.nextStateId) as PpHState;
+          activeState = getHStateById(getState(), stateData.nextStateId) as HState;
           reduxActiveState = activeState;
         }
 
@@ -158,7 +158,7 @@ function completeHsmInitialization(
           return;
         }
 
-        activeState = getHStateById(getState(), stateData.nextStateId) as PpHState;
+        activeState = getHStateById(getState(), stateData.nextStateId) as HState;
         reduxActiveState = activeState;
       }
     }
@@ -210,9 +210,9 @@ export function hsmDispatch(
     let t = reduxActiveState;                                                      // save the current state
 
     status = 'SUPER';
-    let s: PpHState = reduxActiveState as PpHState; // TODO - initialized to reduce ts errors. TEDTODO - legit?
+    let s: HState = reduxActiveState as HState; // TODO - initialized to reduce ts errors. TEDTODO - legit?
     while (status === 'SUPER') {                                                 // process the event hierarchically
-      s = reduxActiveState as PpHState;
+      s = reduxActiveState as HState;
       action = HStateEventHandler((s as any), event, stateData);
       status = dispatch(action);
       reduxActiveState = getHStateById(getState(), stateData.nextStateId);
@@ -232,10 +232,10 @@ export function hsmDispatch(
           action = HStateEventHandler((t as any), emptyEvent, stateData);
           status = dispatch(action);
         }
-        t = getHStateById(getState(), stateData.nextStateId) as PpHState;
+        t = getHStateById(getState(), stateData.nextStateId) as HState;
       }
 
-      t = path[0] as PpHState;                                                            // target of the transition
+      t = path[0] as HState;                                                            // target of the transition
 
       // s is the source of the transition
       let ip: number = -1; // TEDTODO - initialization legit?
@@ -247,7 +247,7 @@ export function hsmDispatch(
       } else {
         action = HStateEventHandler((t as any), emptyEvent, stateData);               // superstate of target
         status = dispatch(action);
-        t = getHStateById(getState(), stateData.nextStateId) as PpHState;
+        t = getHStateById(getState(), stateData.nextStateId) as HState;
         if (s.id === t.id) {                                                 // check source == target->super
           ip = 0;                                                         // enter the target
         } else {
@@ -255,12 +255,12 @@ export function hsmDispatch(
           status = dispatch(action);
 
           // check source->super == target->super
-          if ((getHStateById(getState(), stateData.nextStateId) as PpHState).id === t.id) {
+          if ((getHStateById(getState(), stateData.nextStateId) as HState).id === t.id) {
             action = HStateEventHandler((s as any), exitEvent, stateData);        // exit the source
             status = dispatch(action);
             ip = 0;                                                     // enter the target
           } else {
-            if ((getHStateById(getState(), stateData.nextStateId) as PpHState).id === (path as PpHState[])[0].id) {
+            if ((getHStateById(getState(), stateData.nextStateId) as HState).id === (path as HState[])[0].id) {
               // check source->super == target
               action = HStateEventHandler((s as any), exitEvent, stateData);    // exit the source
               status = dispatch(action);
@@ -268,20 +268,20 @@ export function hsmDispatch(
               let iq = 0;                                             // indicate LCA not found
               ip = 1;                                                 // enter target and its superstate
               path[1] = t;                                            // save the superstate of the target
-              t = getHStateById(getState(), stateData.nextStateId) as PpHState;       // save source->super
+              t = getHStateById(getState(), stateData.nextStateId) as HState;       // save source->super
               // get target->super->super
-              const aState: any = (path as PpHState[])[1];
+              const aState: any = (path as HState[])[1];
               action = HStateEventHandler(aState, emptyEvent, stateData);
               status = dispatch(action);
               while (status === 'SUPER') {
                 ip = ip + 1;
                 path[ip] = getHStateById(getState(), stateData.nextStateId);                     // store the entry path
-                if ((getHStateById(getState(), stateData.nextStateId) as PpHState).id === s.id) { // is it the source?
+                if ((getHStateById(getState(), stateData.nextStateId) as HState).id === s.id) { // is it the source?
                   iq = 1;                                         // indicate that LCA found
                   ip = ip - 1;                                    // do not enter the source
                   status = 'HANDLED';                             // terminate the loop
                 } else {                                              // it is not the source; keep going up
-                  const bState: any = (getHStateById(getState(), stateData.nextStateId) as PpHState);
+                  const bState: any = (getHStateById(getState(), stateData.nextStateId) as HState);
                   action = HStateEventHandler(bState, emptyEvent, stateData);
                   status = dispatch(action);
                 }
@@ -295,7 +295,7 @@ export function hsmDispatch(
                 iq = ip;
                 status = 'IGNORED';                                 // indicate LCA not found
                 while (iq >= 0) {
-                  if (t.id === (path as PpHState[])[iq].id) {                      // is this the LCA?
+                  if (t.id === (path as HState[])[iq].id) {                      // is this the LCA?
                     status = 'HANDLED';                         // indicate LCA found
                     ip = iq - 1;                                // do not enter LCA
                     iq = -1;                                    // terminate the loop
@@ -315,10 +315,10 @@ export function hsmDispatch(
                       action = HStateEventHandler((t as any), emptyEvent, stateData);
                       status = dispatch(action);
                     }
-                    t = getHStateById(getState(), stateData.nextStateId) as PpHState;    // set to super of t
+                    t = getHStateById(getState(), stateData.nextStateId) as HState;    // set to super of t
                     iq = ip;
                     while (iq > 0) {
-                      if (t.id === (path as PpHState[])[iq].id) {              // is this the LCA?
+                      if (t.id === (path as HState[])[iq].id) {              // is this the LCA?
                         ip = iq - 1;                        // do not enter LCA
                         iq = -1;                            // break inner
                         status = 'HANDLED';                 // break outer
@@ -336,14 +336,14 @@ export function hsmDispatch(
 
       // retrace the entry path in reverse (desired) order...
       while (ip >= 0) {
-        const cState: any = (path as PpHState[])[ip];
+        const cState: any = (path as HState[])[ip];
         action = HStateEventHandler((cState as any), entryEvent, stateData);        // enter path[ip]
         status = dispatch(action);
         ip = ip - 1;
       }
 
       // stick the target into register */
-      t = (path as PpHState[])[0];
+      t = (path as HState[])[0];
       reduxActiveState = t;                                                   // update the current state */
 
       // console.log('HSM.ts#Dispatch: invoke handler with initEvent');
@@ -357,27 +357,27 @@ export function hsmDispatch(
         ip = 0;
         path[0] = reduxActiveState;
         action =
-          HStateEventHandler((reduxActiveState as PpHState as any), emptyEvent, stateData); // find superstate
+          HStateEventHandler((reduxActiveState as HState as any), emptyEvent, stateData); // find superstate
         status = dispatch(action);
         reduxActiveState = getHStateById(getState(), stateData.nextStateId);
-        while ((reduxActiveState as PpHState).id !== t.id) {
+        while ((reduxActiveState as HState).id !== t.id) {
           ip = ip + 1;
           path[ip] = reduxActiveState;
           action =
-            HStateEventHandler((reduxActiveState as PpHState as any), emptyEvent, stateData); // find superstate
+            HStateEventHandler((reduxActiveState as HState as any), emptyEvent, stateData); // find superstate
           status = dispatch(action);
           reduxActiveState = getHStateById(getState(), stateData.nextStateId);
         }
         reduxActiveState = path[0];
 
         while (ip >= 0) {
-          const dState: any = (path as PpHState[])[ip];
+          const dState: any = (path as HState[])[ip];
           action = HStateEventHandler(dState, entryEvent, stateData);
           status = dispatch(action);
           ip = ip - 1;
         }
 
-        t = (path as PpHState[])[0];
+        t = (path as HState[])[0];
 
         action = HStateEventHandler((t as any), initEvent, stateData);
         status = dispatch(action);

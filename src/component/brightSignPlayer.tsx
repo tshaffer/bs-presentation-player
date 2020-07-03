@@ -8,7 +8,7 @@ import {
   initPresentation,
 } from '../controller/appController';
 import {
-  PpSchedule, PpHsmMap,
+  PpSchedule, HsmMap,
 } from '../type';
 import { getAutoschedule, getHsms } from '../selector';
 import { Sign } from './sign';
@@ -21,7 +21,7 @@ import { Sign } from './sign';
 export interface BrightSignPlayerProps {
   autoschedule: PpSchedule;
   bsdm: DmState;
-  hsmMap: PpHsmMap;
+  hsmMap: HsmMap;
   onInitPresentation: () => any;
 }
 

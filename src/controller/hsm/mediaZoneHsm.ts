@@ -11,13 +11,13 @@ import {
 } from '@brightsign/bsdatamodel';
 import {
   MediaZoneHsmData,
-  PpHState,
+  HState,
   BsPpVoidThunkAction,
 } from '../../type';
 import { ContentItemType } from '@brightsign/bscore';
 import { ppCreateImageState } from './imageState';
 import { isNil } from 'lodash';
-import { PpHsm } from '../../type';
+import { Hsm } from '../../type';
 import { getHsmById, getHStateById, getHStateByMediaStateId } from '../../selector/hsm';
 import { setActiveHState, setHsmData } from '../../model';
 
@@ -41,7 +41,7 @@ export const ppCreateMediaZoneHsm = (hsmName: string, hsmType: string, bsdmZone:
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
       dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
-      const hState: PpHState | null = getHStateByMediaStateId(getState(), bsdmMediaState.id);
+      const hState: HState | null = getHStateByMediaStateId(getState(), bsdmMediaState.id);
       if (!isNil(hState)) {
         hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
         dispatch(setHsmData(hsmId, hsmData));
@@ -54,7 +54,7 @@ const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superSta
 
   return ((dispatch: any, getState: any) => {
 
-    const hsm: PpHsm = getHsmById(getState(), hsmId);
+    const hsm: Hsm = getHsmById(getState(), hsmId);
     if (!isNil(hsm)) {
       const contentItemType = bsdmMediaState.contentItem.type;
       switch (contentItemType) {
@@ -77,8 +77,8 @@ export const videoOrImagesZoneConstructor = (hsmId: string): BsPpVoidThunkAction
 
     // get the initial media state for the zone
     const bsdm: DmState = dmFilterDmState(getState());
-    const hsm: PpHsm = getHsmById(getState(), hsmId);
-    let activeState: PpHState | null = null;
+    const hsm: Hsm = getHsmById(getState(), hsmId);
+    let activeState: HState | null = null;
     const initialMediaStateId: BsDmId | null =
       dmGetInitialMediaStateIdForZone(bsdm, { id: hsm.hsmData!.zoneId });
     if (!isNil(initialMediaStateId)) {
@@ -94,7 +94,7 @@ export const videoOrImagesZoneGetInitialState = (hsmId: string): any => {
   return (dispatch: any, getState: any) => {
     console.log('videoOrImagesZoneGetInitialState');
     console.log(getState());
-    const hsm: PpHsm = getHsmById(getState(), hsmId);
+    const hsm: Hsm = getHsmById(getState(), hsmId);
     console.log(getState());
     const initialState = getHStateById(getState(), hsm.activeStateId);
     return Promise.resolve(initialState);

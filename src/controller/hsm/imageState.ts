@@ -1,7 +1,7 @@
 import { DmMediaState } from '@brightsign/bsdatamodel';
 import {
-  PpHState,
-  PpStateType,
+  HState,
+  HStateType,
   ArEventType,
   HSMStateData,
   BsPpDispatch,
@@ -17,7 +17,7 @@ export const ppCreateImageState = (
 ): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     dispatch(ppCreateHState(
-      PpStateType.Image,
+      HStateType.Image,
       hsmId,
       superStateId,
       {
@@ -28,7 +28,7 @@ export const ppCreateImageState = (
 };
 
 export const STImageStateEventHandler = (
-  hState: PpHState,
+  hState: HState,
   event: ArEventType,
   stateData: HSMStateData
 ): BsPpVoidThunkAction => {

@@ -1,23 +1,23 @@
-import { PpMap } from './base';
+import { BsPpMap } from './base';
 import {
-  PpHsmType,
-  PpStateType
+  HsmType,
+  HStateType
 } from './hsmTypes';
 import { LUT } from './base';
 
-export type PpHsmMap = PpMap<PpHsm>;
-export type PpHStateMap = PpMap<PpHState>;
+export type HsmMap = BsPpMap<Hsm>;
+export type HStateMap = BsPpMap<HState>;
 
-export interface PpHsmState {
-  hsmById: PpHsmMap;
-  hStateById: PpHStateMap;
-  activeHStateByHsm: PpHStateMap;
+export interface HsmState {
+  hsmById: HsmMap;
+  hStateById: HStateMap;
+  activeHStateByHsm: HStateMap;
 }
 
-export interface PpHsm {
+export interface Hsm {
   id: string;
   name: string;
-  type: PpHsmType;
+  type: HsmType;
   topStateId: string;
   activeStateId: string | null;
   initialized: boolean;
@@ -40,15 +40,15 @@ export interface MediaZoneHsmData extends ZoneHsmData {
   mediaStateIdToHState: LUT;
 }
 
-export interface PpHState {
+export interface HState {
   id: string;
-  type: PpStateType;
+  type: HStateType;
   hsmId: string;
   superStateId: string;
   hStateData?: HStateData;
 }
 
-export interface MediaHState extends PpHState {
+export interface MediaHState extends HState {
   mediaStateId: string;
 }
 

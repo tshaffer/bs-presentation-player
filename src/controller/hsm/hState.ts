@@ -1,4 +1,4 @@
-import { PpHState, HStateData } from '../../type/hsm';
+import { HState, HStateData } from '../../type/hsm';
 import { addHState } from '../../model';
 import { BsPpDispatch, BsPpStringThunkAction } from '../../type';
 import { newBsPpId } from '../../utility';
@@ -11,7 +11,7 @@ export const ppCreateHState = (
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     const id: string = newBsPpId();
-    const hState: PpHState = {
+    const hState: HState = {
       id,
       type,
       hsmId,

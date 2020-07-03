@@ -1,4 +1,4 @@
-import { PpHState } from './hsm';
+import { HState } from './hsm';
 import { DmState } from '@brightsign/bsdatamodel';
 
 export interface ArEventType {
@@ -32,7 +32,7 @@ export interface ArSyncSpec {
 
 export interface ArFileLUT { [fileName: string]: string; }
 
-export interface SubscribedEvents { [eventKey: string]: PpHState; }
+export interface SubscribedEvents { [eventKey: string]: HState; }
 
 export interface ArState {
   bsdm?: DmState;

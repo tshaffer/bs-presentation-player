@@ -5,7 +5,7 @@ import {
   ArEventType,
   HSMStateData,
   MediaHState,
-  PpHsm,
+  Hsm,
   MediaZoneHsmData,
   MediaHStateData,
 } from '../../type';
@@ -25,7 +25,7 @@ import {
   DmSuperStateContentItem,
 } from '@brightsign/bsdatamodel';
 import {
-  PpHState,
+  HState,
 } from '../../type';
 import { EventType, EventIntrinsicAction, ContentItemType } from '@brightsign/bscore';
 import {
@@ -41,7 +41,7 @@ import {
 } from '../playbackEngine';
 
 export const mediaHStateEventHandler = (
-  hState: PpHState,
+  hState: HState,
   event: ArEventType,
   stateData: HSMStateData
 ): BsPpVoidThunkAction => {
@@ -70,7 +70,7 @@ export const mediaHStateEventHandler = (
 
 const executeEventMatchAction = (
   state: BsPpState,
-  hState: PpHState,
+  hState: HState,
   event: DmcEvent,
   stateData: HSMStateData
 ): string => {
@@ -93,7 +93,7 @@ const executeEventMatchAction = (
     const transition: DmcTransition = event.transitionList[0]; // AUTOTRONTODO - or event.defaultTransition?
     const targetMediaStateId: BsDmId = transition.targetMediaStateId;
     const hsmId: string = hState.hsmId;
-    const zoneHsm: PpHsm = getHsmById(state, hsmId);
+    const zoneHsm: Hsm = getHsmById(state, hsmId);
 
     const mediaZoneHsmData: MediaZoneHsmData = zoneHsm.hsmData as MediaZoneHsmData;
 
@@ -162,11 +162,11 @@ export const mediaHStateExitHandler = (
 };
 
 interface TimeoutEventCallbackParams {
-  hState: PpHState;
+  hState: HState;
 }
 
 export const launchTimer = (
-  hState: PpHState,
+  hState: HState,
 ): BsPpVoidThunkAction => {
 
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {

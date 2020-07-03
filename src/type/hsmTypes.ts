@@ -1,13 +1,13 @@
-export class PpHsmType {
+export class HsmType {
   static Player = 'Player';
 }
-Object.freeze(PpHsmType);
+Object.freeze(HsmType);
 
-export class PpStateType {
+export class HStateType {
   static Top = 'Top';
   static Player = 'Player';
   static Playing = 'Playing';
   static Waiting = 'Waiting';
   static Image = 'Image';
 }
-Object.freeze(PpStateType);
+Object.freeze(HStateType);
