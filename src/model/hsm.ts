@@ -11,7 +11,7 @@ import {
   HsmData,
 } from '../type';
 import {
-  BsPpModelAction,
+  BsPpAction,
 } from './baseAction';
 import {
   cloneDeep,
@@ -31,7 +31,7 @@ export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
 export const SET_HSTATE_DATA = 'SET_HSTATE_DATA';
 
-export type AddHsmAction = BsPpModelAction<Partial<Hsm>>;
+export type AddHsmAction = BsPpAction<Partial<Hsm>>;
 export function addHsm(
   hsm: Hsm,
 ): AddHsmAction {
@@ -45,7 +45,7 @@ interface SetHsmTopActionParams {
   hsmId: string;
   topStateId: string;
 }
-export type SetHsmTopAction = BsPpModelAction<{}>;
+export type SetHsmTopAction = BsPpAction<{}>;
 export function setHsmTop(
   hsmId: string,
   topStateId: string,
@@ -59,7 +59,7 @@ export function setHsmTop(
   };
 }
 
-export type SetHsmInitializedAction = BsPpModelAction<Partial<Hsm>>;
+export type SetHsmInitializedAction = BsPpAction<Partial<Hsm>>;
 export function setHsmInitialized(
   id: string,
   initialized: boolean,
@@ -73,7 +73,7 @@ export function setHsmInitialized(
   };
 }
 
-export type SetHsmDataAction = BsPpModelAction<Partial<Hsm>>;
+export type SetHsmDataAction = BsPpAction<Partial<Hsm>>;
 export function setHsmData(
   id: string,
   hsmData: HsmData): SetHsmDataAction {
@@ -86,7 +86,7 @@ export function setHsmData(
   };
 }
 
-export type SetActiveHStateAction = BsPpModelAction<HState | null | any>;
+export type SetActiveHStateAction = BsPpAction<HState | null | any>;
 export function setActiveHState(
   hsmId: string,
   activeState: HState | null,
@@ -100,7 +100,7 @@ export function setActiveHState(
   };
 }
 
-export type AddHStateAction = BsPpModelAction<Partial<HState>>;
+export type AddHStateAction = BsPpAction<Partial<HState>>;
 export function addHState(
   hState: HState,
 ): AddHStateAction {
@@ -110,7 +110,7 @@ export function addHState(
   };
 }
 
-export type SetHStateDataAction = BsPpModelAction<Partial<HState>>;
+export type SetHStateDataAction = BsPpAction<Partial<HState>>;
 export function setHStateData(
   id: string,
   hStateData: HStateData,

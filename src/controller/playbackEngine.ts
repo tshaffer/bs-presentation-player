@@ -8,15 +8,18 @@ import {
   PpSchedule,
   ArSyncSpecDownload,
   ArSyncSpec,
-  BsPpVoidPromiseThunkAction,
-  BsPpAnyPromiseThunkAction,
   ArEventType,
   HsmMap,
   Hsm,
   HState,
+} from '../type';
+import {
   BsPpDispatch,
   BsPpVoidThunkAction,
-} from '../type';
+  BsPpVoidPromiseThunkAction,
+  BsPpAnyPromiseThunkAction,
+} from '../model';
+
 import {
   ppCreatePlayerHsm,
   ppInitializePlayerHsm,

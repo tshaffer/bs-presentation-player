@@ -4,9 +4,11 @@ import {
   HStateType,
   ArEventType,
   HSMStateData,
+} from '../../type';
+import {
   BsPpDispatch,
   BsPpVoidThunkAction,
-} from '../../type';
+} from '../../model';
 import { launchTimer, mediaHStateExitHandler, mediaHStateEventHandler } from '.';
 import { ppCreateHState } from './hState';
 

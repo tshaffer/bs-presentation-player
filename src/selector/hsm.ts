@@ -6,11 +6,9 @@ import {
   HStateMap,
   PlayerHStateData,
   MediaHStateData,
-  // PpHsmType,
 } from '../type';
 import { isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
-// import { DmMediaState, dmGetMediaStateById, dmFilterDmState } from '@brightsign/bsdatamodel';
 
 // ------------------------------------
 // Selectors

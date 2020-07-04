@@ -1,5 +1,5 @@
 import {
-  BsPpModelAction,
+  BsPpAction,
 } from './baseAction';
 import {
   PresentationDataState,
@@ -15,9 +15,9 @@ export const UPDATE_PRESENTATION_SRC_DIRECTORY = 'UPDATE_PRESENTATION_SRC_DIRECT
 export const UPDATE_SYNC_SPEC = 'UPDATE_SYNC_SPEC';
 export const UPDATE_AUTOSCHEDULE = 'UPDATE_AUTOSCHEDULE';
 
-export type UpdatePresentationDataAction = BsPpModelAction<Partial<PresentationDataState>>;
+export type UpdatePresentationDataAction = BsPpAction<Partial<PresentationDataState>>;
 
-export type UpdatePresentationStringAction = BsPpModelAction<Partial<PresentationDataState>>;
+export type UpdatePresentationStringAction = BsPpAction<Partial<PresentationDataState>>;
 
 export function updatePresentationData(
   presentationDataState: PresentationDataState,

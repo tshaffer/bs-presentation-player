@@ -2,11 +2,14 @@ import { HSMStateData, HState, Hsm, HsmData } from '../../type/hsm';
 import { isNil } from 'lodash';
 import {
   ArEventType,
+  BsPpState,
+} from '../../type';
+import {
   BsPpVoidPromiseThunkAction,
   BsPpDispatch,
-  BsPpState,
   BsPpStringThunkAction,
-} from '../../type';
+} from '../../model';
+
 import { addHsm } from '../../model/hsm';
 import {
   setActiveHState,
@@ -14,7 +17,7 @@ import {
 } from '../../model';
 import { getHsmById, getHStateById, getHsmInitialized } from '../../selector/hsm';
 import {
-  ppInitialPseudoStateHandler,
+  hsmInitialPseudoStateHandler,
   HStateEventHandler
 } from './eventHandler';
 import { newBsPpId } from '../../utility';
@@ -54,7 +57,7 @@ export function ppInitializeHsm(
 
     // execute initial transition
     if (!isNil(initialPseudoStateHandler)) {
-      const action = ppInitialPseudoStateHandler(hsmId);
+      const action = hsmInitialPseudoStateHandler(hsmId);
 
       return dispatch(action).
         then((activeState: any) => {

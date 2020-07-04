@@ -5,11 +5,13 @@ import * as fs from 'fs-extra';
 import {
   BsPpState,
   ArSyncSpec,
+  PpSchedule,
+} from '../type';
+import {
   BsPpDispatch,
   BsPpVoidPromiseThunkAction,
   BsPpVoidThunkAction,
-  PpSchedule,
-} from '../type';
+} from '../model';
 
 import {
   updatePresentationPlatform,

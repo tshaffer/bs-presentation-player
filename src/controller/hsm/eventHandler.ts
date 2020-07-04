@@ -3,7 +3,6 @@ import {
   HSMStateData,
   HState,
   HStateType,
-  BsPpDispatch,
   HsmType,
 } from '../../type';
 import { isNil } from 'lodash';
@@ -16,14 +15,18 @@ import {
 import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from './mediaZoneHsm';
 import { STImageStateEventHandler } from './imageState';
 import { getHsmById } from '../../selector';
+import {
+  BsPpDispatch,
+} from '../../model';
 
 export const hsmConstructorFunction = (hsmId: string): any => {
   return (dispatch: BsPpDispatch, getState: any) => {
     const hsm = getHsmById(getState(), hsmId);
     if (!isNil(hsm)) {
       switch (hsm.type) {
-        // TEDTODO
-        case 'VideoOrImages': {
+        case HsmType.Player:
+          break;
+        case HsmType.VideoOrImages: {
           return dispatch(videoOrImagesZoneConstructor(hsmId));
         }
         default:
@@ -33,14 +36,13 @@ export const hsmConstructorFunction = (hsmId: string): any => {
   };
 };
 
-export const ppInitialPseudoStateHandler = (hsmId: string) => {
+export const hsmInitialPseudoStateHandler = (hsmId: string) => {
   return (dispatch: BsPpDispatch, getState: any) => {
     const hsm = getHsmById(getState(), hsmId);
     switch (hsm.type) {
       case HsmType.Player:
         return dispatch(initializePlayerStateMachine());
-      case 'VideoOrImages':
-        // TEDTODO
+      case HsmType.VideoOrImages:
         return dispatch(videoOrImagesZoneGetInitialState(hsmId));
       default:
         // TEDTODO

@@ -1,10 +1,17 @@
 import { ppCreateHsm } from './hsm';
 import { ppCreateHState } from './hState';
-import { HState, HStateType, HsmData, BsPpStringThunkAction } from '../../type';
+import {
+  HState,
+  HStateType,
+  HsmData,
+} from '../../type';
+import {
+  BsPpStringThunkAction,
+} from '../../model';
+
 import { getHStateByName } from '../../selector/hsm';
 import { isNil } from 'lodash';
 import { setHsmTop } from '../../model';
-// import { PpHsmType } from "../../type/hsmTypes";
 
 export const ppCreateZoneHsm = (
   hsmName: string,

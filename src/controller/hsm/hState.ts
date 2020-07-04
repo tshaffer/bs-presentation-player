@@ -1,7 +1,10 @@
 import { HState, HStateData } from '../../type/hsm';
 import { addHState } from '../../model';
-import { BsPpDispatch, BsPpStringThunkAction } from '../../type';
 import { newBsPpId } from '../../utility';
+import {
+  BsPpDispatch,
+  BsPpStringThunkAction,
+} from '../../model';
 
 export const ppCreateHState = (
   type: string,

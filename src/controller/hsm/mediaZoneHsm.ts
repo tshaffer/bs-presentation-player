@@ -12,8 +12,10 @@ import {
 import {
   MediaZoneHsmData,
   HState,
-  BsPpVoidThunkAction,
 } from '../../type';
+import {
+  BsPpVoidThunkAction,
+} from '../../model';
 import { ContentItemType } from '@brightsign/bscore';
 import { ppCreateImageState } from './imageState';
 import { isNil } from 'lodash';

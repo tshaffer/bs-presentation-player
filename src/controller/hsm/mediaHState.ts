@@ -1,7 +1,5 @@
 import {
   BsPpState,
-  BsPpVoidThunkAction,
-  BsPpDispatch,
   ArEventType,
   HSMStateData,
   MediaHState,
@@ -9,6 +7,10 @@ import {
   MediaZoneHsmData,
   MediaHStateData,
 } from '../../type';
+import {
+  BsPpDispatch,
+  BsPpVoidThunkAction,
+} from '../../model';
 import {
   DmState,
   dmGetEventIdsForMediaState,

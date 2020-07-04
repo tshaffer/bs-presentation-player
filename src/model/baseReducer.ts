@@ -6,7 +6,7 @@ import { isNil } from 'lodash';
 import { BsPpModelState } from '../type';
 import {
   BRIGHTSIGN_PLAYER_MODEL_BATCH,
-  BsPpModelBaseAction,
+  BsPpBaseAction,
   BsPpModelBatchAction,
 } from './baseAction';
 import {
@@ -33,11 +33,11 @@ export type BsBrightSignPlayerReducer = Reducer<BsPpModelState>;
 /** @private */
 export const enableBatching = (
   reduce: (state: BsPpModelState,
-    action: BsPpModelBaseAction | BsPpModelBatchAction) => BsPpModelState,
+    action: BsPpBaseAction | BsPpModelBatchAction) => BsPpModelState,
 ): BsBrightSignPlayerReducer => {
   return function batchingReducer(
     state: BsPpModelState,
-    action: BsPpModelBaseAction | BsPpModelBatchAction,
+    action: BsPpBaseAction | BsPpModelBatchAction,
   ): BsPpModelState {
     switch (action.type) {
       case BRIGHTSIGN_PLAYER_MODEL_BATCH:

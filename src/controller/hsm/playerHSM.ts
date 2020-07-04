@@ -18,8 +18,10 @@ import {
   HStateType,
   ArEventType,
   HSMStateData,
-  BsPpAnyPromiseThunkAction,
 } from '../../type';
+import {
+  BsPpAnyPromiseThunkAction,
+} from '../../model';
 import { isNil } from 'lodash';
 import { setHsmTop } from '../../model';
 
