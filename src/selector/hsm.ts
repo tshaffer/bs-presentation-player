@@ -53,24 +53,24 @@ export function getHStateById(state: BsPpState, hStateId: string | null): HState
 }
 
 export function getHStateByName(state: BsPpState, name: string | null): HState | null {
+
   if (isNil(name)) {
     return null;
   }
+
   const hStateMap: HStateMap = state.bsPlayer.hsmState.hStateById;
 
-  for (const hStateId in hStateMap) {
-    if (hStateMap.hasOwnProperty(hStateId)) {
-      const hState = hStateMap[hStateId];
-      if (!isNil(hState.hStateData)
+  const hStateId = find(Object.keys(hStateMap), (id) => {
+    if (hStateMap.hasOwnProperty(id)) {
+      const hState = hStateMap[id];
+      return (!isNil(hState.hStateData)
         && isString((hState.hStateData as PlayerHStateData).name)
-        && (hState.hStateData as PlayerHStateData).name === name) {
-        return hState;
-      }
+        && (hState.hStateData as PlayerHStateData).name === name);
     }
-  }
+    return false;
+  });
 
-  debugger;
-  return null;
+  return hStateId ? getHStateById(state, hStateId) : null;
 }
 
 export function getHStateByMediaStateId(state: BsPpState, mediaStateId: string | null): HState | null {
