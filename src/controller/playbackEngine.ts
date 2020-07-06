@@ -34,7 +34,7 @@ import {
   getSyncSpec,
   getSrcDirectory,
   getZoneHsmList,
-  getHsms,
+  getHsmMap,
   // getHsmById,
   getActiveStateIdByHsmId,
   getHsmByName
@@ -191,7 +191,7 @@ function dispatchHsmEvent(
     const playerHsm: Hsm | null = getHsmByName(state, 'player');
     if (!isNil(playerHsm)) {
       dispatch(hsmDispatch(event, playerHsm.id, playerHsm.activeStateId));
-      const hsmMap: HsmMap = getHsms(state);
+      const hsmMap: HsmMap = getHsmMap(state);
       for (const hsmId in hsmMap) {
         if (hsmId !== playerHsm.id) {
           const activeState: HState | null = getActiveStateIdByHsmId(state, hsmId);
@@ -208,7 +208,7 @@ function dispatchHsmEvent(
 
 const hsmInitialized = (state: BsPpState): boolean => {
 
-  const hsmMap: HsmMap = getHsms(state);
+  const hsmMap: HsmMap = getHsmMap(state);
   for (const hsmId in hsmMap) {
     if (hsmMap.hasOwnProperty(hsmId)) {
       const hsm: Hsm = hsmMap[hsmId];

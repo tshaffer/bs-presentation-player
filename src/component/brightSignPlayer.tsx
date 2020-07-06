@@ -10,7 +10,7 @@ import {
 import {
   PpSchedule, HsmMap,
 } from '../type';
-import { getAutoschedule, getHsms } from '../selector';
+import { getAutoschedule, getHsmMap } from '../selector';
 import { Sign } from './sign';
 // import { isNil } from 'lodash';
 
@@ -89,7 +89,7 @@ function mapStateToProps(state: any) {
   return {
     bsdm: state.bsdm,
     autoschedule: getAutoschedule(state),
-    hsmMap: getHsms(state),
+    hsmMap: getHsmMap(state),
   };
 }
 

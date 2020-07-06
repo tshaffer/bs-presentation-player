@@ -7,31 +7,27 @@ import {
   PlayerHStateData,
   MediaHStateData,
 } from '../type';
-import { isNil, isString } from 'lodash';
+import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
 
 // ------------------------------------
 // Selectors
 // ------------------------------------
+export function getHsmMap(state: BsPpState): HsmMap {
+  return state.bsPlayer.hsmState.hsmById;
+}
+
 export function getHsmById(state: BsPpState, hsmId: string): Hsm {
   return state.bsPlayer.hsmState.hsmById[hsmId];
 }
 
-export function getHsmByName(state: BsPpState, hsmName: string): Hsm | null {
-  const hsmMap: HsmMap = getHsms(state);
-  for (const hsmId in hsmMap) {
-    if (hsmMap.hasOwnProperty(hsmId)) {
-      const hsm = hsmMap[hsmId];
-      if (hsm.name === hsmName) {
-        return hsm;
-      }
-    }
-  }
-  return null;
-}
-
-export function getHsms(state: BsPpState): HsmMap {
-  return state.bsPlayer.hsmState.hsmById;
+export function getHsmByName(
+  state: BsPpState,
+  hsmName: string
+): Hsm | null {
+  const hsmMap: HsmMap = getHsmMap(state);
+  const hsmId = find(Object.keys(hsmMap), (id) => hsmMap[id].name === hsmName);
+  return hsmId ? getHsmById(state, hsmId) : null;
 }
 
 export const getActiveStateIdByHsmId = (
