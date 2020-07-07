@@ -10,15 +10,15 @@ import {
   BsPpVoidThunkAction,
 } from '../../model';
 import { launchTimer, mediaHStateExitHandler, mediaHStateEventHandler } from '.';
-import { ppCreateHState } from './hState';
+import { createHState } from './hState';
 
-export const ppCreateImageState = (
+export const createImageState = (
   hsmId: string,
   mediaState: DmMediaState,
   superStateId: string,
 ): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch) => {
-    dispatch(ppCreateHState(
+    dispatch(createHState(
       HStateType.Image,
       hsmId,
       superStateId,

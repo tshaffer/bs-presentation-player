@@ -10,7 +10,7 @@ import {
   STPlayerEventHandler,
   STPlayingEventHandler,
   STWaitingEventHandler,
-  initializePlayerStateMachine,
+  playerStateMachineGetInitialTransition as playerStateMachineGetInitialState,
 } from './playerHsm';
 import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from './mediaZoneHsm';
 import { STImageStateEventHandler } from './imageState';
@@ -41,7 +41,7 @@ export const hsmInitialPseudoStateHandler = (hsmId: string) => {
     const hsm = getHsmById(getState(), hsmId);
     switch (hsm.type) {
       case HsmType.Player:
-        return dispatch(initializePlayerStateMachine());
+        return dispatch(playerStateMachineGetInitialState());
       case HsmType.VideoOrImages:
         return dispatch(videoOrImagesZoneGetInitialState(hsmId));
       default:

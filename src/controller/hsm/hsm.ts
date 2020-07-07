@@ -22,13 +22,13 @@ import {
 } from './eventHandler';
 import { newBsPpId } from '../../utility';
 
-export const ppCreateHsm = (
+export const createHsm = (
   name: string,
   type: string,
   data?: HsmData,
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
-    console.log('***** HSM.ts#ppCreateHsm');
+    console.log('***** HSM.ts#createHsm');
     const hsmId: string = newBsPpId();
     dispatch(addHsm({
       id: hsmId,
@@ -43,33 +43,28 @@ export const ppCreateHsm = (
   });
 };
 
-export function ppInitializeHsm(
+export function initializeHsm(
   hsmId: string,
-  initialPseudoStateHandler: () => void,
 ): BsPpVoidPromiseThunkAction {
 
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
 
-    console.log('***** HSM.ts#ppInitializeHsm');
+    console.log('***** HSM.ts#initializeHsm');
 
     // any reason why the following call is necessary? It causes breakage....
     // dispatch(setActiveHState(hsmId, null));
 
     // execute initial transition
-    if (!isNil(initialPseudoStateHandler)) {
-      const action = hsmInitialPseudoStateHandler(hsmId);
+    const action = hsmInitialPseudoStateHandler(hsmId);
 
-      return dispatch(action).
-        then((activeState: any) => {
-          dispatch(setActiveHState(hsmId, activeState));
-          dispatch(completeHsmInitialization(hsmId));
-          const hsmInitializationComplete = getHsmInitialized(getState(), hsmId);
-          console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
-          return Promise.resolve();
-        });
-    } else {
-      debugger;
-    }
+    return dispatch(action).
+      then((activeState: any) => {
+        dispatch(setActiveHState(hsmId, activeState));
+        dispatch(completeHsmInitialization(hsmId));
+        const hsmInitializationComplete = getHsmInitialized(getState(), hsmId);
+        console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
+        return Promise.resolve();
+      });
   });
 }
 

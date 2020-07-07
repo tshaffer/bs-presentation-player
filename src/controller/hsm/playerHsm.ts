@@ -1,9 +1,9 @@
 
 import {
-  ppCreateHsm,
-  ppInitializeHsm
+  createHsm,
+  initializeHsm
 } from './hsm';
-import { ppCreateHState } from './hState';
+import { createHState } from './hState';
 import {
   restartPlayback,
   startPlayback,
@@ -25,12 +25,12 @@ import {
 import { isNil } from 'lodash';
 import { setHsmTop } from '../../model';
 
-export const ppCreatePlayerHsm = (): any => {
+export const createPlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
-    console.log('invoke ppCreatePlayerHsm');
-    const playerHsmId: string = dispatch(ppCreateHsm('player', HsmType.Player));
+    console.log('invoke createPlayerHsm');
+    const playerHsmId: string = dispatch(createHsm('player', HsmType.Player));
 
-    const stTopId = dispatch(ppCreateHState(
+    const stTopId = dispatch(createHState(
       HStateType.Top,
       playerHsmId,
       '',
@@ -40,43 +40,37 @@ export const ppCreatePlayerHsm = (): any => {
 
     dispatch(setHsmTop(playerHsmId, stTopId));
 
-    const stPlayerId = dispatch(ppCreateHState(HStateType.Player, playerHsmId, stTopId, {
+    const stPlayerId = dispatch(createHState(HStateType.Player, playerHsmId, stTopId, {
       name: 'player',
     }));
 
-    dispatch(ppCreateHState(HStateType.Playing, playerHsmId, stPlayerId, {
+    dispatch(createHState(HStateType.Playing, playerHsmId, stPlayerId, {
       name: 'playing',
     }));
 
-    dispatch(ppCreateHState(HStateType.Waiting, playerHsmId, stPlayerId, {
+    dispatch(createHState(HStateType.Waiting, playerHsmId, stPlayerId, {
       name: 'waiting',
     }));
   });
 };
 
-export const ppInitializePlayerHsm = (): any => {
+export const initializePlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
-    console.log('invoke ppInitializePlayerHsm');
+    console.log('invoke initializePlayerHsm');
     const playerHsm = getHsmByName(getState(), 'player');
     if (!isNil(playerHsm)) {
-      dispatch(ppInitializeHsm(
-        playerHsm.id,
-        initializePlayerStateMachine));
+      dispatch(initializeHsm(playerHsm.id));
     }
   });
 };
 
-export const initializePlayerStateMachine = (): BsPpAnyPromiseThunkAction => {
+export const playerStateMachineGetInitialTransition = (): BsPpAnyPromiseThunkAction => {
   return (dispatch: any, getState: any) => {
     console.log('invoke initializePlayerStateMachine');
-
-    // TEDTODO - HOW TO GET restartPlayback here?
-    // it should be stored, though not as a function, in redux
     return dispatch(restartPlayback(''))
       .then(() => {
         console.log('return from invoking playerStateMachine restartPlayback');
         return Promise.resolve(getHStateByName(getState(), 'playing'));
-        //     return Promise.resolve(this.stPlaying);
       });
   };
 };

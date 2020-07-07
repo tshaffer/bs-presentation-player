@@ -21,10 +21,10 @@ import {
 } from '../model';
 
 import {
-  ppCreatePlayerHsm,
-  ppInitializePlayerHsm,
-  ppCreateMediaZoneHsm,
-  ppInitializeHsm,
+  createPlayerHsm,
+  initializePlayerHsm,
+  createMediaZoneHsm,
+  initializeHsm,
   videoOrImagesZoneGetInitialState,
   hsmDispatch,
 } from './hsm';
@@ -63,8 +63,8 @@ export function initPlayer(store: Store<BsPpState>) {
 
 export function launchHSM() {
   return ((dispatch: BsPpDispatch) => {
-    dispatch(ppCreatePlayerHsm());
-    dispatch(ppInitializePlayerHsm());
+    dispatch(createPlayerHsm());
+    dispatch(initializePlayerHsm());
   });
 }
 
@@ -132,7 +132,7 @@ export const startPlayback = (): BsPpVoidThunkAction => {
     const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
     zoneIds.forEach((zoneId: BsDmId) => {
       const bsdmZone: DmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
-      dispatch(ppCreateMediaZoneHsm(zoneId, bsdmZone.type.toString(), bsdmZone));
+      dispatch(createMediaZoneHsm(zoneId, bsdmZone.type.toString(), bsdmZone));
     });
 
     const promises: Array<Promise<void>> = [];
@@ -140,10 +140,7 @@ export const startPlayback = (): BsPpVoidThunkAction => {
     const zoneHsmList = getZoneHsmList(getState());
     for (const zoneHsm of zoneHsmList) {
       dispatch(hsmConstructorFunction(zoneHsm.id));
-      const action: BsPpVoidPromiseThunkAction = ppInitializeHsm(
-        zoneHsm.id,
-        getVideoOrImagesInitialState
-      );
+      const action: BsPpVoidPromiseThunkAction = initializeHsm(zoneHsm.id);
       promises.push(dispatch(action));
     }
 

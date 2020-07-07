@@ -1,4 +1,4 @@
-import { ppCreateZoneHsm } from './zoneHsm';
+import { createZoneHsm } from './zoneHsm';
 import {
   DmZone,
   dmGetMediaStateIdsForZone,
@@ -17,13 +17,13 @@ import {
   BsPpVoidThunkAction,
 } from '../../model';
 import { ContentItemType } from '@brightsign/bscore';
-import { ppCreateImageState } from './imageState';
+import { createImageState } from './imageState';
 import { isNil } from 'lodash';
 import { Hsm } from '../../type';
 import { getHsmById, getHStateById, getHStateByMediaStateId } from '../../selector/hsm';
 import { setActiveHState, setHsmData } from '../../model';
 
-export const ppCreateMediaZoneHsm = (hsmName: string, hsmType: string, bsdmZone: DmZone): BsPpVoidThunkAction => {
+export const createMediaZoneHsm = (hsmName: string, hsmType: string, bsdmZone: DmZone): BsPpVoidThunkAction => {
   return ((dispatch: any, getState: any) => {
     const hsmData: MediaZoneHsmData = {
       zoneId: bsdmZone.id,
@@ -35,7 +35,7 @@ export const ppCreateMediaZoneHsm = (hsmName: string, hsmType: string, bsdmZone:
       mediaStateIdToHState: {},
     };
 
-    const hsmId: string = dispatch(ppCreateZoneHsm(hsmName, hsmType, hsmData));
+    const hsmId: string = dispatch(createZoneHsm(hsmName, hsmType, hsmData));
 
     const bsdm: DmState = dmFilterDmState(getState());
 
@@ -61,11 +61,11 @@ const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superSta
       const contentItemType = bsdmMediaState.contentItem.type;
       switch (contentItemType) {
         case ContentItemType.Image:
-          dispatch(ppCreateImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
           break;
         case ContentItemType.Video:
           debugger;
-          dispatch(ppCreateImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
           break;
         default:
           break;

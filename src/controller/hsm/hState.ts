@@ -6,7 +6,7 @@ import {
   BsPpStringThunkAction,
 } from '../../model';
 
-export const ppCreateHState = (
+export const createHState = (
   type: string,
   hsmId: string,
   superStateId: string,

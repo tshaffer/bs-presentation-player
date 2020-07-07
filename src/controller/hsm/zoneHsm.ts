@@ -1,5 +1,5 @@
-import { ppCreateHsm } from './hsm';
-import { ppCreateHState } from './hState';
+import { createHsm } from './hsm';
+import { createHState } from './hState';
 import {
   HState,
   HStateType,
@@ -13,16 +13,16 @@ import { getHStateByName } from '../../selector/hsm';
 import { isNil } from 'lodash';
 import { setHsmTop } from '../../model';
 
-export const ppCreateZoneHsm = (
+export const createZoneHsm = (
   hsmName: string,
   hsmType: string,
   hsmData: HsmData
 ): BsPpStringThunkAction => {
   return ((dispatch: any, getState: any) => {
-    console.log('invoke ppCreateZoneHsm');
-    const hsmId: string = dispatch(ppCreateHsm(hsmName, hsmType, hsmData));
+    console.log('invoke createZoneHsm');
+    const hsmId: string = dispatch(createHsm(hsmName, hsmType, hsmData));
 
-    dispatch(ppCreateHState(HStateType.Top, hsmId, '', {
+    dispatch(createHState(HStateType.Top, hsmId, '', {
       name: 'top',
     }));
     const stTop: HState | null = getHStateByName(getState(), 'top');
