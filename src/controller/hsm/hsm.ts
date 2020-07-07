@@ -163,6 +163,7 @@ function completeHsmInitialization(
   });
 }
 
+// TEDTODO - used anywhere now, or in the future?
 export function constructorFunction(constructorHandler: () => void): void {
   if (!isNil(constructorHandler)) {
     constructorHandler();
@@ -171,23 +172,22 @@ export function constructorFunction(constructorHandler: () => void): void {
 
 export function hsmDispatch(
   event: ArEventType,
-  reduxHsmId: string,
-  reduxActiveStateId: string | null,
+  hsmId: string,
+  activeStateId: string | null,
 ) {
-
   let action: any;
   let status: string;
 
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
 
-    let reduxActiveState = getHStateById(getState(), reduxActiveStateId);
+    let activeState = getHStateById(getState(), activeStateId);
 
     console.log('***** HSM.ts#Dispatch');
     console.log(event.EventType);
 
     // if there is no activeState, the playlist is empty
-    if (reduxActiveState == null) {
-      dispatch(setActiveHState(reduxHsmId, reduxActiveState));
+    if (isNil(activeState)) {
+      dispatch(setActiveHState(hsmId, null));
       return;
     }
 
@@ -205,21 +205,21 @@ export function hsmDispatch(
     // exit event
     const exitEvent: ArEventType = { EventType: 'EXIT_SIGNAL' };
 
-    let t = reduxActiveState;                                                      // save the current state
+    let t = activeState;                                                      // save the current state
 
     status = 'SUPER';
-    let s: HState = reduxActiveState as HState; // TODO - initialized to reduce ts errors. TEDTODO - legit?
+    let s: HState = activeState as HState; // TODO - initialized to reduce ts errors. TEDTODO - legit?
     while (status === 'SUPER') {                                                 // process the event hierarchically
-      s = reduxActiveState as HState;
+      s = activeState as HState;
       action = HStateEventHandler((s as any), event, stateData);
       status = dispatch(action);
-      reduxActiveState = getHStateById(getState(), stateData.nextStateId);
+      activeState = getHStateById(getState(), stateData.nextStateId);
     }
 
     if (status === 'TRANSITION') {
       const path = [];
 
-      path[0] = reduxActiveState;                                                // save the target of the transition
+      path[0] = activeState;                                                // save the target of the transition
       path[1] = t;                                                            // save the current state
 
       // exit from the current state to the transition s
@@ -342,31 +342,31 @@ export function hsmDispatch(
 
       // stick the target into register */
       t = (path as HState[])[0];
-      reduxActiveState = t;                                                   // update the current state */
+      activeState = t;                                                   // update the current state */
 
       // console.log('HSM.ts#Dispatch: invoke handler with initEvent');
 
       // drill into the target hierarchy...
       action = HStateEventHandler((t as any), initEvent, stateData);
       status = dispatch(action);
-      reduxActiveState = getHStateById(getState(), stateData.nextStateId);
+      activeState = getHStateById(getState(), stateData.nextStateId);
 
       while (status === 'TRANSITION') {
         ip = 0;
-        path[0] = reduxActiveState;
+        path[0] = activeState;
         action =
-          HStateEventHandler((reduxActiveState as HState as any), emptyEvent, stateData); // find superstate
+          HStateEventHandler((activeState as HState as any), emptyEvent, stateData); // find superstate
         status = dispatch(action);
-        reduxActiveState = getHStateById(getState(), stateData.nextStateId);
-        while ((reduxActiveState as HState).id !== t.id) {
+        activeState = getHStateById(getState(), stateData.nextStateId);
+        while ((activeState as HState).id !== t.id) {
           ip = ip + 1;
-          path[ip] = reduxActiveState;
+          path[ip] = activeState;
           action =
-            HStateEventHandler((reduxActiveState as HState as any), emptyEvent, stateData); // find superstate
+            HStateEventHandler((activeState as HState as any), emptyEvent, stateData); // find superstate
           status = dispatch(action);
-          reduxActiveState = getHStateById(getState(), stateData.nextStateId);
+          activeState = getHStateById(getState(), stateData.nextStateId);
         }
-        reduxActiveState = path[0];
+        activeState = path[0];
 
         while (ip >= 0) {
           const dState: any = (path as HState[])[ip];
@@ -383,8 +383,8 @@ export function hsmDispatch(
     }
 
     // set the new state or restore the current state
-    reduxActiveState = t;
+    activeState = t;
 
-    dispatch(setActiveHState(reduxHsmId, reduxActiveState));
+    dispatch(setActiveHState(hsmId, activeState));
   });
 }
