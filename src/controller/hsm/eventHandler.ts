@@ -11,7 +11,7 @@ import {
   STPlayingEventHandler,
   STWaitingEventHandler,
   initializePlayerStateMachine,
-} from './playerHSM';
+} from './playerHsm';
 import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from './mediaZoneHsm';
 import { STImageStateEventHandler } from './imageState';
 import { getHsmById } from '../../selector';
