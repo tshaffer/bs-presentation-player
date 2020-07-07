@@ -8,6 +8,7 @@ import {
   BsPpVoidPromiseThunkAction,
   BsPpDispatch,
   BsPpStringThunkAction,
+  BsPpVoidThunkAction,
 } from '../../model';
 
 import { addHsm } from '../../model/hsm';
@@ -70,17 +71,15 @@ export function initializeHsm(
 
 function completeHsmInitialization(
   hsmId: string,
-): any { // returns dispatch -> promise
+): BsPpVoidThunkAction {
 
   let action: any;
 
-  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-
-    // TEDTODO - necessary to have separate variables activeState and reduxActiveState?
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState): void => {
 
     const hsm: Hsm = getHsmById(getState(), hsmId);
-    let reduxActiveState: HState | null = getHStateById(getState(), hsm.activeStateId);
-    const reduxTopState: HState | null = getHStateById(getState(), hsm.topStateId);
+    let activeState: HState | null = getHStateById(getState(), hsm.activeStateId);
+    const topState: HState | null = getHStateById(getState(), hsm.topStateId);
 
     const stateData: HSMStateData = { nextStateId: null };
 
@@ -94,21 +93,21 @@ function completeHsmInitialization(
     const initEvent: ArEventType = { EventType: 'INIT_SIGNAL' };
 
     // if there is no activeState, the playlist is empty
-    if (isNil(reduxActiveState)) {
+    if (isNil(activeState)) {
       dispatch(setActiveHState(hsmId, null));
       console.log('***** return from HSM.ts#completeHsmInitialization');
       dispatch(setHsmInitialized(hsmId, true));
       return;
     }
 
-    if (!isNil(reduxActiveState)) {
-      let activeState: HState = reduxActiveState;
+    if (!isNil(activeState)) {
+      let tmpActiveState: HState = activeState;
 
       // start at the top state
-      if (isNil(reduxTopState)) {
+      if (isNil(topState)) {
         debugger;
       }
-      let sourceState = reduxTopState;
+      let sourceState = topState;
 
       while (true) {
 
@@ -116,23 +115,23 @@ function completeHsmInitialization(
         let entryStateIndex = 0;
 
         // target of the initial transition
-        entryStates[0] = activeState;
+        entryStates[0] = tmpActiveState;
 
         // send an empty event to get the super state
-        action = HStateEventHandler((reduxActiveState as any), emptyEvent, stateData);
+        action = HStateEventHandler((activeState as any), emptyEvent, stateData);
         status = dispatch(action);
 
-        activeState = getHStateById(getState(), stateData.nextStateId) as HState;
-        reduxActiveState = activeState;
+        tmpActiveState = getHStateById(getState(), stateData.nextStateId) as HState;
+        activeState = tmpActiveState;
 
         // walk up the tree until the current source state is hit
-        while (activeState.id !== (sourceState as HState).id) {
+        while (tmpActiveState.id !== (sourceState as HState).id) {
           entryStateIndex = entryStateIndex + 1;
-          entryStates[entryStateIndex] = activeState;
-          action = HStateEventHandler((reduxActiveState as any), emptyEvent, stateData);
+          entryStates[entryStateIndex] = tmpActiveState;
+          action = HStateEventHandler((activeState as any), emptyEvent, stateData);
           status = dispatch(action);
-          activeState = getHStateById(getState(), stateData.nextStateId) as HState;
-          reduxActiveState = activeState;
+          tmpActiveState = getHStateById(getState(), stateData.nextStateId) as HState;
+          activeState = tmpActiveState;
         }
 
         // retrace the entry path in reverse (desired) order
@@ -149,21 +148,20 @@ function completeHsmInitialization(
         action = HStateEventHandler((sourceState as any), initEvent, stateData);
         status = dispatch(action);
         if (status !== 'TRANSITION') {
-          reduxActiveState = sourceState;
-          dispatch(setActiveHState(hsmId, reduxActiveState));
+          activeState = sourceState;
+          dispatch(setActiveHState(hsmId, activeState));
           console.log('***** return from HSM.ts#completeHsmInitialization');
           dispatch(setHsmInitialized(hsmId, true));
           return;
         }
 
-        activeState = getHStateById(getState(), stateData.nextStateId) as HState;
-        reduxActiveState = activeState;
+        tmpActiveState = getHStateById(getState(), stateData.nextStateId) as HState;
+        activeState = tmpActiveState;
       }
     }
   });
 }
 
-// TEDTODO - used anywhere now, or in the future?
 export function constructorFunction(constructorHandler: () => void): void {
   if (!isNil(constructorHandler)) {
     constructorHandler();
