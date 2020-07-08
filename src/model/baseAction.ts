@@ -16,17 +16,6 @@ export const BRIGHTSIGN_PLAYER_MODEL_RESET = 'BRIGHTSIGN_PLAYER_MODEL_RESET';
 
 export type BsPpModelDispatch = Dispatch<any>;
 
-// export interface BsPpBaseAction extends Action {
-//   type: string;   // override Any - must be a string
-//   payload: {};
-//   error?: boolean;
-//   meta?: {};
-// }
-
-// export interface BsPpAction<T> extends BsPpBaseAction {
-//   payload: T;     // override payload with specific parameter type
-// }
-
 export interface BsPpBaseAction extends Action {
   type: string;
   payload: {} | null;
