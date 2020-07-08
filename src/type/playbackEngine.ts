@@ -1,4 +1,4 @@
-import { HState } from './hsm';
+import { HState } from './hState';
 import { DmState } from '@brightsign/bsdatamodel';
 
 export interface ArEventType {

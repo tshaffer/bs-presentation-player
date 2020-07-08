@@ -1,9 +1,9 @@
 import { BsPpMap } from './base';
 import {
   HsmType,
-  HStateType
 } from './hsmTypes';
 import { LUT } from './base';
+import { HState } from './hState';
 
 export type HsmMap = BsPpMap<Hsm>;
 export type HStateMap = BsPpMap<HState>;
@@ -38,31 +38,4 @@ export interface ZoneHsmData {
 
 export interface MediaZoneHsmData extends ZoneHsmData {
   mediaStateIdToHState: LUT;
-}
-
-export interface HState {
-  id: string;
-  type: HStateType;
-  hsmId: string;
-  superStateId: string;
-  hStateData?: HStateData;
-}
-
-export interface MediaHState extends HState {
-  mediaStateId: string;
-}
-
-export type HStateData = PlayerHStateData | MediaHStateData;
-
-export interface PlayerHStateData {
-  name: string;
-}
-
-export interface MediaHStateData {
-  mediaStateId: string;
-  timeout?: any;
-}
-
-export interface HSMStateData {
-  nextStateId: string | null;
 }

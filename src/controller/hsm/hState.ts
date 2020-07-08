@@ -1,4 +1,4 @@
-import { HState, HStateData } from '../../type/hsm';
+import { HState, HStateData } from '../../type';
 import { addHState } from '../../model';
 import { newBsPpId } from '../../utility';
 import {

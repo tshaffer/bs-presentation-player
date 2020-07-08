@@ -12,7 +12,6 @@ import {
 } from '../type';
 import { getAutoschedule, getHsmMap } from '../selector';
 import { Sign } from './sign';
-// import { isNil } from 'lodash';
 
 // -----------------------------------------------------------------------
 // Types

@@ -1,4 +1,9 @@
-import { HSMStateData, HState, Hsm, HsmData } from '../../type/hsm';
+import {
+  Hsm,
+  HsmData,
+  HSMStateData,
+  HState,
+} from '../../type';
 import { isNil } from 'lodash';
 import {
   ArEventType,
