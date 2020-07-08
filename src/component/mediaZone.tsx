@@ -55,8 +55,8 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
     const mediaType: ContentItemType = mediaContentItem.type;
 
-    switch (mediaType.toString().toLowerCase()) {
-      case 'image': {
+    switch (mediaType) {
+      case ContentItemType.Image: {
         return (
           <Image
             fileName={mediaState.name}
@@ -65,9 +65,8 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
           />
         );
       }
-      default: {
+      default:
         debugger;
-      }
     }
 
     return null;

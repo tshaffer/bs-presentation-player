@@ -4,6 +4,7 @@ import {
   HState,
   HStateType,
   HsmData,
+  HsmType,
 } from '../../type';
 import {
   BsPpStringThunkAction,
@@ -15,11 +16,10 @@ import { setHsmTop } from '../../model';
 
 export const createZoneHsm = (
   hsmName: string,
-  hsmType: string,
+  hsmType: HsmType,
   hsmData: HsmData
 ): BsPpStringThunkAction => {
   return ((dispatch: any, getState: any) => {
-    console.log('invoke createZoneHsm');
     const hsmId: string = dispatch(createHsm(hsmName, hsmType, hsmData));
 
     dispatch(createHState(HStateType.Top, hsmId, '', {

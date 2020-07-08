@@ -3,6 +3,7 @@ import {
   HsmData,
   HSMStateData,
   HState,
+  HsmType,
 } from '../../type';
 import { isNil } from 'lodash';
 import {
@@ -30,7 +31,7 @@ import { newBsPpId } from '../../utility';
 
 export const createHsm = (
   name: string,
-  type: string,
+  type: HsmType,
   data?: HsmData,
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
