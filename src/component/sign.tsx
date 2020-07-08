@@ -28,7 +28,7 @@ class SignComponent extends React.Component<SignProps> {
     super(props);
   }
 
-  getMediaZoneJSX(zone: DmcZone): object {
+  renderMediaZone(zone: DmcZone): object {
 
     return (
       <div
@@ -47,13 +47,12 @@ class SignComponent extends React.Component<SignProps> {
           zone={zone}
           width={Number(zone.absolutePosition.width)}
           height={Number(zone.absolutePosition.height)}
-          activeMediaStateId={''}
         />
       </div>
     );
   }
 
-  getTickerZoneJSX(zone: DmcZone): object {
+  renderTickerZone(zone: DmcZone): object {
 
     return (
       <div
@@ -73,16 +72,16 @@ class SignComponent extends React.Component<SignProps> {
     );
   }
 
-  getZoneJSX(zoneId: string): object | null {
+  renderZone(zoneId: string): object | null {
 
     const zone: DmcZone = dmGetZoneById(this.props.bsdm, { id: zoneId }) as DmcZone;
 
     switch (zone.type) {
       case 'VideoOrImages': {
-        return this.getMediaZoneJSX(zone);
+        return this.renderMediaZone(zone);
       }
       case 'Ticker': {
-        return this.getTickerZoneJSX(zone);
+        return this.renderTickerZone(zone);
       }
       default: {
         debugger;
@@ -100,7 +99,7 @@ class SignComponent extends React.Component<SignProps> {
       <div>
         {
           zoneIds.map((zoneId) =>
-            this.getZoneJSX(zoneId),
+            this.renderZone(zoneId),
           )
         }
       </div>
