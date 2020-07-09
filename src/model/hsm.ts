@@ -233,29 +233,8 @@ const hStateById = (
   }
 };
 
-// TEDTODO - remove??
-const initialActiveHStateByHsm: HStateMap = {};
-const activeHStateByHsm = (
-  state: HStateMap = initialActiveHStateByHsm,
-  action: SetActiveHStateAction,
-): HStateMap => {
-  switch (action.type) {
-    // case SET_ACTIVE_HSTATE: {
-    //   const newState: PpHStateMap = Object.assign({}, state);
-    //   // const hsmId: string = (action.payload as PpHState).hsmId;
-    //   const hsmId: string = (action.payload as any).id;
-    //   // const activeState: PpHState = action.payload as PpHState;
-    //   const activeState: PpHState = (action.payload as any).activeState;
-    //   newState[hsmId] = activeState;
-    //   return newState;
-    // }
-    default:
-      return state;
-  }
-};
-
 export const hsmReducer = combineReducers<HsmState>(
-  { hsmById, hStateById, activeHStateByHsm });
+  { hsmById, hStateById });
 
 // -----------------------------------------------------------------------
 // Validators
