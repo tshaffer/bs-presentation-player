@@ -7,8 +7,9 @@ import {
   HsmMap,
   HStateMap,
   HState,
-  HStateData,
   HsmData,
+  HStateType,
+  HStateSpecification,
 } from '../type';
 import {
   BsPpAction,
@@ -18,6 +19,7 @@ import {
   isObject,
   isNil,
 } from 'lodash';
+import { MediaHState } from '../type';
 
 // ------------------------------------
 // Constants
@@ -28,8 +30,8 @@ export const SET_HSM_TOP: string = 'SET_HSM_TOP';
 export const SET_HSM_INITIALIZED: string = 'SET_HSM_INITIALIZED';
 export const SET_HSM_DATA: string = 'SET_HSM_DATA';
 export const ADD_HSTATE = 'ADD_HSTATE';
+export const SET_MEDIA_H_STATE_TIMEOUT_ID = 'SET_MEDIA_H_STATE_TIMEOUT_ID';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
-export const SET_HSTATE_DATA = 'SET_HSTATE_DATA';
 
 export type AddHsmAction = BsPpAction<Partial<Hsm>>;
 export function addHsm(
@@ -100,27 +102,60 @@ export function setActiveHState(
   };
 }
 
-export type AddHStateAction = BsPpAction<Partial<HState>>;
+export type AddHStateAction = BsPpAction<{
+  id: string;
+  type: HStateType;
+  hsmId: string;
+  superStateId: string;
+  name: string;
+  mediaStateId?: string;
+  timeoutId?: number;
+}>;
+
+export interface AddHStateOptions {
+  mediaStateId: string;
+  timeoutId?: number;
+}
+
 export function addHState(
-  hState: HState,
+  hStateSpecification: HStateSpecification,
+  options?: AddHStateOptions,
 ): AddHStateAction {
+
+  let mediaStateId;
+  let timeoutId;
+
+  if (!isNil(options)) {
+    mediaStateId = options.mediaStateId;
+    timeoutId = options.timeoutId;
+  }
+
+  const { id, type, hsmId, superStateId, name } = hStateSpecification;
+
   return {
     type: ADD_HSTATE,
-    payload: hState,
+    payload: {
+      id,
+      type,
+      hsmId,
+      superStateId,
+      name,
+      mediaStateId,
+      timeoutId,
+    },
   };
 }
 
-export type SetHStateDataAction = BsPpAction<Partial<HState>>;
-export function setHStateData(
-  id: string,
-  hStateData: HStateData,
-): SetHStateDataAction {
+export function setMediaHStateTimeoutId(
+  hStateId: string,
+  timeoutId: number,
+): any {
   return {
-    type: SET_HSTATE_DATA,
+    type: SET_MEDIA_H_STATE_TIMEOUT_ID,
     payload: {
-      id,
-      hStateData,
-    }
+      hStateId,
+      timeoutId,
+    },
   };
 }
 
@@ -186,11 +221,11 @@ const hStateById = (
       const id: string = (action.payload as HState).id;
       return { ...state, [id]: (action.payload as HState) };
     }
-    case SET_HSTATE_DATA: {
-      const { id, hStateData } = action.payload as HState;
+    case SET_MEDIA_H_STATE_TIMEOUT_ID: {
+      const hStateId: string = (action.payload as any).hStateId;
       const newState = cloneDeep(state) as HStateMap;
-      const ppHState = newState[id];
-      ppHState.hStateData = hStateData;
+      const hState: MediaHState = newState[hStateId] as unknown as MediaHState;
+      hState.timeoutId = action.payload.timeoutId;
       return newState;
     }
     default:

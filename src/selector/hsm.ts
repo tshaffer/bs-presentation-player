@@ -2,10 +2,8 @@ import {
   BsPpState,
   Hsm,
   HState,
-  HStateData,
   HStateMap,
-  PlayerHStateData,
-  MediaHStateData,
+  MediaHState,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
@@ -63,9 +61,7 @@ export function getHStateByName(state: BsPpState, name: string | null): HState |
   const hStateId = find(Object.keys(hStateMap), (id) => {
     if (hStateMap.hasOwnProperty(id)) {
       const hState = hStateMap[id];
-      return (!isNil(hState.hStateData)
-        && isString((hState.hStateData as PlayerHStateData).name)
-        && (hState.hStateData as PlayerHStateData).name === name);
+      return (hState.name === name);
     }
     return false;
   });
@@ -82,9 +78,8 @@ export function getHStateByMediaStateId(state: BsPpState, mediaStateId: string |
   for (const hStateId in hStateMap) {
     if (hStateMap.hasOwnProperty(hStateId)) {
       const hState = hStateMap[hStateId];
-      if (!isNil(hState.hStateData)
-        && isString((hState.hStateData as MediaHStateData).mediaStateId)
-        && (hState.hStateData as MediaHStateData).mediaStateId === mediaStateId) {
+      if (isString((hState as MediaHState).mediaStateId)
+        && (hState as MediaHState).mediaStateId === mediaStateId) {
         return hState;
       }
     }
@@ -92,20 +87,6 @@ export function getHStateByMediaStateId(state: BsPpState, mediaStateId: string |
 
   debugger;
   return null;
-}
-
-export function getHStateData(state: BsPpState, hStateId: string | null): HStateData | null {
-  if (isNil(hStateId)) {
-    return null;
-  }
-  const hState: HState | null = getHStateById(state, hStateId);
-  if (isNil(hState)) {
-    return null;
-  }
-  if (isNil(hState.hStateData)) {
-    return null;
-  }
-  return hState.hStateData;
 }
 
 export function getHsmInitialized(state: BsPpState, hsmId: string): boolean {
@@ -132,11 +113,9 @@ export function getActiveMediaStateId(state: BsPpState, zoneId: string): string 
     if (!isNil(zoneHsm.hsmData)) {
       if (zoneHsm.hsmData.zoneId === zoneId) {
         const hState: HState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
-        if (!isNil(hState)
-          && !isNil(hState.hStateData)
-          && isString((hState.hStateData as MediaHStateData).mediaStateId)
+        if (isString((hState as MediaHState).mediaStateId)
         ) {
-          return (hState.hStateData as MediaHStateData).mediaStateId;
+          return (hState as MediaHState).mediaStateId;
         }
       }
     }

@@ -1,5 +1,5 @@
-import { HState, HStateData } from '../../type';
-import { addHState } from '../../model';
+import { HStateSpecification } from '../../type';
+import { addHState, AddHStateOptions } from '../../model';
 import { newBsPpId } from '../../utility';
 import {
   BsPpDispatch,
@@ -10,18 +10,19 @@ export const createHState = (
   type: string,
   hsmId: string,
   superStateId: string,
-  hStateData?: HStateData,
+  name: string,
+  options?: AddHStateOptions,
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     const id: string = newBsPpId();
-    const hState: HState = {
+    const hStateSpecification: HStateSpecification = {
       id,
       type,
       hsmId,
       superStateId,
-      hStateData,
+      name,
     };
-    dispatch(addHState(hState));
+    dispatch(addHState(hStateSpecification, options));
     return id;
   });
 };

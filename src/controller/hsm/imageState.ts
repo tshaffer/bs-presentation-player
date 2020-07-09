@@ -22,6 +22,7 @@ export const createImageState = (
       HStateType.Image,
       hsmId,
       superStateId,
+      '',
       {
         mediaStateId: mediaState.id,
       },

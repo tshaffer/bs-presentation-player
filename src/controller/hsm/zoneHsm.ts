@@ -22,9 +22,7 @@ export const createZoneHsm = (
   return ((dispatch: any, getState: any) => {
     const hsmId: string = dispatch(createHsm(hsmName, hsmType, hsmData));
 
-    dispatch(createHState(HStateType.Top, hsmId, '', {
-      name: 'top',
-    }));
+    dispatch(createHState(HStateType.Top, hsmId, '', 'top'));
     const stTop: HState | null = getHStateByName(getState(), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop.id;
 

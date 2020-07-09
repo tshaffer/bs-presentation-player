@@ -37,7 +37,7 @@ export interface MediaZoneProps {
   width: number;
   height: number;
   activeMediaStateId: string;
-  postBSPMessage: any;
+  postMessage: any;
 }
 
 // -----------------------------------------------------------------------

@@ -12,22 +12,20 @@ export interface HState {
   type: HStateType;
   hsmId: string;
   superStateId: string;
-  hStateData?: HStateData;
+  name: string;
+}
+
+export interface HStateSpecification {
+  id: string;
+  type: HStateType;
+  hsmId: string;
+  superStateId: string;
+  name: string;
 }
 
 export interface MediaHState extends HState {
   mediaStateId: string;
-}
-
-export type HStateData = PlayerHStateData | MediaHStateData;
-
-export interface PlayerHStateData {
-  name: string;
-}
-
-export interface MediaHStateData {
-  mediaStateId: string;
-  timeout?: any;
+  timeoutId?: number;
 }
 
 export interface HSMStateData {

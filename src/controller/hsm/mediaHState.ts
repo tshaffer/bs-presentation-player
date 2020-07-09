@@ -5,11 +5,11 @@ import {
   MediaHState,
   Hsm,
   MediaZoneHsmData,
-  MediaHStateData,
 } from '../../type';
 import {
   BsPpDispatch,
   BsPpVoidThunkAction,
+  setMediaHStateTimeoutId,
 } from '../../model';
 import {
   DmState,
@@ -31,12 +31,9 @@ import {
 } from '../../type';
 import { EventType, EventIntrinsicAction, ContentItemType } from '@brightsign/bscore';
 import {
-  setHStateData,
-} from '../../model';
-import {
-  getHStateData, getHsmById,
+  getHsmById, getHStateById,
 } from '../../selector';
-import { isNil } from 'lodash';
+import { isNil, isNumber } from 'lodash';
 import {
   _bsPpStore,
   queueHsmEvent
@@ -54,7 +51,7 @@ export const mediaHStateEventHandler = (
 
     const mediaState: DmMediaState = dmGetMediaStateById(
       dmFilterDmState(getState()),
-      { id: (hState.hStateData as MediaHStateData).mediaStateId }) as DmMediaState;
+      { id: (hState as MediaHState).mediaStateId }) as DmMediaState;
     if (isNil(mediaState)) {
       debugger;
     }
@@ -106,7 +103,7 @@ const executeEventMatchAction = (
       const targetMediaState: DmMediaState | null = dmGetMediaStateById(
         dmFilterDmState(state),
         {
-          id: (targetHState.hStateData! as MediaHStateData).mediaStateId,
+          id: (targetHState as MediaHState).mediaStateId,
         }
       );
       if (!isNil(targetMediaState)) {
@@ -145,20 +142,16 @@ const getMatchedEvent = (mediaState: DmMediaState, dispatchedEvent: ArEventType)
 export const mediaHStateExitHandler = (
   hStateId: string,
 ): BsPpVoidThunkAction => {
-
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
     console.log('mediaHStateExitHandler');
-    const hStateData: MediaHStateData | null = getHStateData(getState(), hStateId) as MediaHStateData;
-    if (!isNil(hStateData) && !isNil(hStateData.timeout)) {
-      clearTimeout(hStateData.timeout);
-      // TEDTODO - is it okay to dispatching an action inside of a whatever
-      dispatch(setHStateData(hStateId,
-        {
-          // TEDTODO - add the ability to set individual data items
-          mediaStateId: hStateData.mediaStateId,
-          timeout: null,
-        }
-      ));
+    const hState: HState | null = getHStateById(getState(), hStateId);
+    if (!isNil(hState)) {
+      const mediaHState: MediaHState = hState as MediaHState;
+      if (isNumber(mediaHState.timeoutId)) {
+        clearTimeout(mediaHState.timeoutId);
+        // TEDTODO - is it okay to dispatching an action inside of a whatever
+        dispatch(setMediaHStateTimeoutId(hStateId, 0));
+      }
     }
   };
 };
@@ -179,7 +172,7 @@ export const launchTimer = (
     const eventIds: BsDmId[] = dmGetEventIdsForMediaState(
       bsdm,
       {
-        id: (hState.hStateData as MediaHStateData).mediaStateId
+        id: (hState as MediaHState).mediaStateId
       });
     for (const eventId of eventIds) {
       const event: DmEvent = dmGetEventStateById(bsdm, { id: eventId }) as DmEvent;
@@ -189,11 +182,9 @@ export const launchTimer = (
           const timeoutEventCallbackParams: TimeoutEventCallbackParams = {
             hState,
           };
-          const timeout = setTimeout(timeoutHandler, interval * 1000, timeoutEventCallbackParams);
-          dispatch(setHStateData(hState.id, {
-            mediaStateId: (hState.hStateData as MediaHStateData).mediaStateId,
-            timeout,
-          }));
+          const timeoutId: number =
+            setTimeout(timeoutHandler, interval * 1000, timeoutEventCallbackParams) as unknown as number;
+          dispatch(setMediaHStateTimeoutId(hState.id, timeoutId));
         }
       }
     }

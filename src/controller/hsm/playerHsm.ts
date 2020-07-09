@@ -34,23 +34,16 @@ export const createPlayerHsm = (): any => {
       HStateType.Top,
       playerHsmId,
       '',
-      {
-        name: 'top',
-      }));
+      'top'
+    ));
 
     dispatch(setHsmTop(playerHsmId, stTopId));
 
-    const stPlayerId = dispatch(createHState(HStateType.Player, playerHsmId, stTopId, {
-      name: 'player',
-    }));
+    const stPlayerId = dispatch(createHState(HStateType.Player, playerHsmId, stTopId, 'player'));
 
-    dispatch(createHState(HStateType.Playing, playerHsmId, stPlayerId, {
-      name: 'playing',
-    }));
+    dispatch(createHState(HStateType.Playing, playerHsmId, stPlayerId, 'playing'));
 
-    dispatch(createHState(HStateType.Waiting, playerHsmId, stPlayerId, {
-      name: 'waiting',
-    }));
+    dispatch(createHState(HStateType.Waiting, playerHsmId, stPlayerId, 'waiting'));
   });
 };
 
