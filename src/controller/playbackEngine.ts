@@ -17,7 +17,6 @@ import {
   BsPpDispatch,
   BsPpVoidThunkAction,
   BsPpVoidPromiseThunkAction,
-  BsPpAnyPromiseThunkAction,
 } from '../model';
 
 import {
@@ -25,7 +24,6 @@ import {
   initializePlayerHsm,
   createMediaZoneHsm,
   initializeHsm,
-  videoOrImagesZoneGetInitialState,
   hsmDispatch,
 } from './hsm';
 import {
@@ -61,13 +59,15 @@ export function initPlayer(store: Store<BsPpState>) {
   });
 }
 
-export function launchHSM() {
+// wdtb - called from AppController
+export function launchHsm() {
   return ((dispatch: BsPpDispatch) => {
     dispatch(createPlayerHsm());
     dispatch(initializePlayerHsm());
   });
 }
 
+// wdtb - currently called from restartPlayback. Will get called from various event handlers as well 
 function getSyncSpecReferencedFile(fileName: string, syncSpec: ArSyncSpec, rootPath: string): Promise<object> {
 
   const syncSpecFile: ArSyncSpecDownload | null = getFile(syncSpec, fileName);
@@ -92,6 +92,7 @@ function getSyncSpecReferencedFile(fileName: string, syncSpec: ArSyncSpec, rootP
     });
 }
 
+// wdtb - playerHsm
 export const restartPlayback = (presentationName: string): BsPpVoidPromiseThunkAction => {
   console.log('invoke restartPlayback');
 
@@ -120,6 +121,7 @@ export const restartPlayback = (presentationName: string): BsPpVoidPromiseThunkA
   };
 };
 
+// wdtb - playerHsm
 export const startPlayback = (): BsPpVoidThunkAction => {
   console.log('invoke startPlayback');
 
@@ -160,6 +162,7 @@ export const startPlayback = (): BsPpVoidThunkAction => {
 };
 
 // TEDTODO - separate queues for each hsm?
+// wdtb - mediaHState currently - other hstates
 export const queueHsmEvent = (event: ArEventType): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     if (event.EventType !== 'NOP') {
@@ -174,6 +177,7 @@ export const queueHsmEvent = (event: ArEventType): BsPpVoidThunkAction => {
   });
 };
 
+// wdtb - queueHsmEvent
 function dispatchHsmEvent(
   event: ArEventType
 ): BsPpVoidThunkAction {
@@ -203,6 +207,7 @@ function dispatchHsmEvent(
   });
 }
 
+// wdtb - local
 const hsmInitialized = (state: BsPpState): boolean => {
 
   const hsmMap: HsmMap = getHsmMap(state);
@@ -220,11 +225,4 @@ const hsmInitialized = (state: BsPpState): boolean => {
   console.log(Object.keys(hsmMap).length);
 
   return true;
-};
-
-export const getVideoOrImagesInitialState = (): BsPpAnyPromiseThunkAction => {
-  return () => {
-    console.log('invoke getVideoOrImagesInitialState');
-    return Promise.resolve(videoOrImagesZoneGetInitialState);
-  };
 };

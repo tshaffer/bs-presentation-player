@@ -67,8 +67,8 @@ export const SET_HSM_TOP: string;
 export const SET_HSM_INITIALIZED: string;
 export const SET_HSM_DATA: string;
 export const ADD_HSTATE = "ADD_HSTATE";
+export const SET_MEDIA_H_STATE_TIMEOUT_ID = "SET_MEDIA_H_STATE_TIMEOUT_ID";
 export const SET_ACTIVE_HSTATE = "SET_ACTIVE_HSTATE";
-export const SET_HSTATE_DATA = "SET_HSTATE_DATA";
 export type AddHsmAction = BsPpAction<Partial<Hsm>>;
 export function addHsm(hsm: Hsm): AddHsmAction;
 export type SetHsmTopAction = BsPpAction<{}>;
@@ -79,10 +79,21 @@ export type SetHsmDataAction = BsPpAction<Partial<Hsm>>;
 export function setHsmData(id: string, hsmData: HsmData): SetHsmDataAction;
 export type SetActiveHStateAction = BsPpAction<HState | null | any>;
 export function setActiveHState(hsmId: string, activeState: HState | null): SetActiveHStateAction;
-export type AddHStateAction = BsPpAction<Partial<HState>>;
-export function addHState(hState: HState): AddHStateAction;
-export type SetHStateDataAction = BsPpAction<Partial<HState>>;
-export function setHStateData(id: string, hStateData: HStateData): SetHStateDataAction;
+export type AddHStateAction = BsPpAction<{
+    id: string;
+    type: HStateType;
+    hsmId: string;
+    superStateId: string;
+    name: string;
+    mediaStateId?: string;
+    timeoutId?: number;
+}>;
+export interface AddHStateOptions {
+    mediaStateId: string;
+    timeoutId?: number;
+}
+export function addHState(hStateSpecification: HStateSpecification, options?: AddHStateOptions): AddHStateAction;
+export function setMediaHStateTimeoutId(hStateId: string, timeoutId: number): any;
 export const hsmReducer: import("redux").Reducer<HsmState>;
 /** @private */
 export const isValidHsmState: (state: any) => boolean;
@@ -137,38 +148,39 @@ export interface ZoneHsmData {
 export interface MediaZoneHsmData extends ZoneHsmData {
     mediaStateIdToHState: LUT;
 }
-export interface HState {
-    id: string;
-    type: HStateType;
-    hsmId: string;
-    superStateId: string;
-    hStateData?: HStateData;
-}
-export interface MediaHState extends HState {
-    mediaStateId: string;
-}
-export type HStateData = PlayerHStateData | MediaHStateData;
-export interface PlayerHStateData {
-    name: string;
-}
-export interface MediaHStateData {
-    mediaStateId: string;
-    timeout?: any;
-}
-export interface HSMStateData {
-    nextStateId: string | null;
-}
 
 export class HsmType {
     static Player: string;
     static VideoOrImages: string;
 }
+
 export class HStateType {
     static Top: string;
     static Player: string;
     static Playing: string;
     static Waiting: string;
     static Image: string;
+}
+export interface HState {
+    id: string;
+    type: HStateType;
+    hsmId: string;
+    superStateId: string;
+    name: string;
+}
+export interface HStateSpecification {
+    id: string;
+    type: HStateType;
+    hsmId: string;
+    superStateId: string;
+    name: string;
+}
+export interface MediaHState extends HState {
+    mediaStateId: string;
+    timeoutId?: number;
+}
+export interface HSMStateData {
+    nextStateId: string | null;
 }
 
 export interface ArEventType {

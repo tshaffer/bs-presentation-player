@@ -24,12 +24,12 @@ import {
   getSrcDirectory,
   getSyncSpecFile
 } from '../selector';
-import { launchHSM } from './playbackEngine';
+import { launchHsm } from './playbackEngine';
 
 export const initPresentation = (): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     dispatch(loadPresentationData()).then(() => {
-      dispatch(launchHSM());
+      dispatch(launchHsm());
     });
   });
 };

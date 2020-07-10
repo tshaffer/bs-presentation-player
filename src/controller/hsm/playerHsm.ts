@@ -63,7 +63,8 @@ export const playerStateMachineGetInitialTransition = (): BsPpAnyPromiseThunkAct
     return dispatch(restartPlayback(''))
       .then(() => {
         console.log('return from invoking playerStateMachine restartPlayback');
-        return Promise.resolve(getHStateByName(getState(), 'playing'));
+        const hState = getHStateByName(getState(), 'playing');
+        return Promise.resolve(hState);
       });
   };
 };
