@@ -1,13 +1,8 @@
 import { isNil } from 'lodash';
-import * as fs from 'fs-extra';
-import isomorphicPath from 'isomorphic-path';
 import { Store } from 'redux';
 
 import {
   BsPpState,
-  PpSchedule,
-  ArSyncSpecDownload,
-  ArSyncSpec,
   ArEventType,
   HsmMap,
   Hsm,
@@ -16,37 +11,18 @@ import {
 import {
   BsPpDispatch,
   BsPpVoidThunkAction,
-  BsPpVoidPromiseThunkAction,
 } from '../model';
 
 import {
   createPlayerHsm,
   initializePlayerHsm,
-  createMediaZoneHsm,
-  initializeHsm,
   hsmDispatch,
 } from './hsm';
 import {
-  getAutoschedule,
-  getFile,
-  getSyncSpec,
-  getSrcDirectory,
-  getZoneHsmList,
   getHsmMap,
-  // getHsmById,
   getActiveStateIdByHsmId,
   getHsmByName
 } from '../selector';
-import {
-  BsDmId,
-  DmSignState,
-  dmOpenSign,
-  DmState,
-  dmGetZoneById,
-  DmZone,
-  dmGetZonesForSign,
-} from '@brightsign/bsdatamodel';
-import { hsmConstructorFunction } from './hsm/eventHandler';
 
 export let _bsPpStore: Store<BsPpState>;
 
@@ -66,100 +42,6 @@ export function launchHsm() {
     dispatch(initializePlayerHsm());
   });
 }
-
-// wdtb - currently called from restartPlayback. Will get called from various event handlers as well 
-function getSyncSpecReferencedFile(fileName: string, syncSpec: ArSyncSpec, rootPath: string): Promise<object> {
-
-  const syncSpecFile: ArSyncSpecDownload | null = getFile(syncSpec, fileName);
-  if (syncSpecFile == null) {
-    return Promise.reject('file not found');
-  }
-
-  // const fileSize = syncSpecFile.size;
-  const filePath: string = isomorphicPath.join(rootPath, syncSpecFile.link);
-
-  return fs.readFile(filePath, 'utf8')
-    .then((fileStr: string) => {
-
-      const file: object = JSON.parse(fileStr);
-
-      // I have commented out the following code to allow hacking of files -
-      // that is, overwriting files in the pool without updating the sync spec with updated sha1
-      // if (fileSize !== fileStr.length) {
-      //   debugger;
-      // }
-      return Promise.resolve(file);
-    });
-}
-
-// wdtb - playerHsm
-export const restartPlayback = (presentationName: string): BsPpVoidPromiseThunkAction => {
-  console.log('invoke restartPlayback');
-
-  return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    const autoSchedule: PpSchedule | null = getAutoschedule(getState());
-    if (!isNil(autoSchedule)) {
-      //  - only a single scheduled item is currently supported
-      const scheduledPresentation = autoSchedule.scheduledPresentations[0];
-      const presentationToSchedule = scheduledPresentation.presentationToSchedule;
-      presentationName = presentationToSchedule.name;
-      const autoplayFileName = presentationName + '.bml';
-
-      const syncSpec = getSyncSpec(getState());
-      if (!isNil(syncSpec)) {
-        return getSyncSpecReferencedFile(autoplayFileName, syncSpec, getSrcDirectory(getState()))
-          .then((bpfxState: any) => {
-            const autoPlay: any = bpfxState.bsdm;
-            const signState = autoPlay as DmSignState;
-            dispatch(dmOpenSign(signState));
-          });
-      }
-      return Promise.resolve();
-    } else {
-      return Promise.resolve();
-    }
-  };
-};
-
-// wdtb - playerHsm
-export const startPlayback = (): BsPpVoidThunkAction => {
-  console.log('invoke startPlayback');
-
-  return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
-
-    const bsdm: DmState = getState().bsdm;
-    console.log('startPlayback');
-    console.log(bsdm);
-
-    const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
-    zoneIds.forEach((zoneId: BsDmId) => {
-      const bsdmZone: DmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
-      dispatch(createMediaZoneHsm(zoneId, bsdmZone.type.toString(), bsdmZone));
-    });
-
-    const promises: Array<Promise<void>> = [];
-
-    const zoneHsmList = getZoneHsmList(getState());
-    for (const zoneHsm of zoneHsmList) {
-      dispatch(hsmConstructorFunction(zoneHsm.id));
-      const action: BsPpVoidPromiseThunkAction = initializeHsm(zoneHsm.id);
-      promises.push(dispatch(action));
-    }
-
-    Promise.all(promises).then(() => {
-      console.log('startPlayback nearly complete');
-      console.log('wait for HSM initialization complete');
-      const hsmInitializationComplete = hsmInitialized(getState());
-      if (hsmInitializationComplete) {
-        const event: ArEventType = {
-          EventType: 'NOP',
-        };
-        dispatch(queueHsmEvent(event));
-      }
-    });
-
-  };
-};
 
 // TEDTODO - separate queues for each hsm?
 // wdtb - mediaHState currently - other hstates
@@ -207,8 +89,8 @@ function dispatchHsmEvent(
   });
 }
 
-// wdtb - local
-const hsmInitialized = (state: BsPpState): boolean => {
+// wdtb - ?
+export const hsmInitialized = (state: BsPpState): boolean => {
 
   const hsmMap: HsmMap = getHsmMap(state);
   for (const hsmId in hsmMap) {

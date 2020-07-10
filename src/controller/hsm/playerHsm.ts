@@ -5,10 +5,6 @@ import {
 } from './hsm';
 import { createHState } from './hState';
 import {
-  restartPlayback,
-  startPlayback,
-} from '../playbackEngine';
-import {
   getHsmByName,
   getHStateByName,
 } from '../../selector/hsm';
@@ -24,6 +20,36 @@ import {
 } from '../../model';
 import { isNil } from 'lodash';
 import { setHsmTop } from '../../model';
+
+import {
+  BsPpState,
+  PpSchedule,
+} from '../../type';
+import {
+  BsPpDispatch,
+  BsPpVoidThunkAction,
+  BsPpVoidPromiseThunkAction,
+} from '../../model';
+
+import {
+  getAutoschedule,
+  getSyncSpec,
+  getSrcDirectory,
+  getZoneHsmList,
+  getSyncSpecReferencedFile,
+} from '../../selector';
+import {
+  BsDmId,
+  DmSignState,
+  dmOpenSign,
+  DmState,
+  dmGetZoneById,
+  DmZone,
+  dmGetZonesForSign,
+} from '@brightsign/bsdatamodel';
+import { hsmConstructorFunction } from '../hsm/eventHandler';
+import { createMediaZoneHsm } from './mediaZoneHsm';
+import { hsmInitialized, queueHsmEvent } from '../playbackEngine';
 
 export const createPlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
@@ -134,5 +160,72 @@ export const STWaitingEventHandler = (
 
     stateData.nextStateId = hState.superStateId;
     return 'SUPER';
+  };
+};
+
+export const restartPlayback = (presentationName: string): BsPpVoidPromiseThunkAction => {
+  console.log('invoke restartPlayback');
+
+  return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
+    const autoSchedule: PpSchedule | null = getAutoschedule(getState());
+    if (!isNil(autoSchedule)) {
+      //  - only a single scheduled item is currently supported
+      const scheduledPresentation = autoSchedule.scheduledPresentations[0];
+      const presentationToSchedule = scheduledPresentation.presentationToSchedule;
+      presentationName = presentationToSchedule.name;
+      const autoplayFileName = presentationName + '.bml';
+
+      const syncSpec = getSyncSpec(getState());
+      if (!isNil(syncSpec)) {
+        return getSyncSpecReferencedFile(autoplayFileName, syncSpec, getSrcDirectory(getState()))
+          .then((bpfxState: any) => {
+            const autoPlay: any = bpfxState.bsdm;
+            const signState = autoPlay as DmSignState;
+            dispatch(dmOpenSign(signState));
+          });
+      }
+      return Promise.resolve();
+    } else {
+      return Promise.resolve();
+    }
+  };
+};
+
+export const startPlayback = (): BsPpVoidThunkAction => {
+  console.log('invoke startPlayback');
+
+  return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
+
+    const bsdm: DmState = getState().bsdm;
+    console.log('startPlayback');
+    console.log(bsdm);
+
+    const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
+    zoneIds.forEach((zoneId: BsDmId) => {
+      const bsdmZone: DmZone = dmGetZoneById(bsdm, { id: zoneId }) as DmZone;
+      dispatch(createMediaZoneHsm(zoneId, bsdmZone.type.toString(), bsdmZone));
+    });
+
+    const promises: Array<Promise<void>> = [];
+
+    const zoneHsmList = getZoneHsmList(getState());
+    for (const zoneHsm of zoneHsmList) {
+      dispatch(hsmConstructorFunction(zoneHsm.id));
+      const action: BsPpVoidPromiseThunkAction = initializeHsm(zoneHsm.id);
+      promises.push(dispatch(action));
+    }
+
+    Promise.all(promises).then(() => {
+      console.log('startPlayback nearly complete');
+      console.log('wait for HSM initialization complete');
+      const hsmInitializationComplete = hsmInitialized(getState());
+      if (hsmInitializationComplete) {
+        const event: ArEventType = {
+          EventType: 'NOP',
+        };
+        dispatch(queueHsmEvent(event));
+      }
+    });
+
   };
 };

@@ -102,3 +102,27 @@ export function getFile(syncSpec: ArSyncSpec, fileName: string): ArSyncSpecDownl
 
   return file;
 }
+
+export function getSyncSpecReferencedFile(fileName: string, syncSpec: ArSyncSpec, rootPath: string): Promise<object> {
+
+  const syncSpecFile: ArSyncSpecDownload | null = getFile(syncSpec, fileName);
+  if (syncSpecFile == null) {
+    return Promise.reject('file not found');
+  }
+
+  // const fileSize = syncSpecFile.size;
+  const filePath: string = isomorphicPath.join(rootPath, syncSpecFile.link);
+
+  return fs.readFile(filePath, 'utf8')
+    .then((fileStr: string) => {
+
+      const file: object = JSON.parse(fileStr);
+
+      // I have commented out the following code to allow hacking of files -
+      // that is, overwriting files in the pool without updating the sync spec with updated sha1
+      // if (fileSize !== fileStr.length) {
+      //   debugger;
+      // }
+      return Promise.resolve(file);
+    });
+}
