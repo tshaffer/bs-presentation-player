@@ -29,14 +29,8 @@ import { launchHSM } from './playbackEngine';
 export const initPresentation = (): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     dispatch(loadPresentationData()).then(() => {
-      dispatch(launchPlayback());
+      dispatch(launchHSM());
     });
-  });
-};
-
-const launchPlayback = (): BsPpVoidThunkAction => {
-  return ((dispatch: BsPpDispatch) => {
-    dispatch(launchHSM());
   });
 };
 

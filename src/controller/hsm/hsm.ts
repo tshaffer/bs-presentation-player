@@ -75,6 +75,7 @@ export function initializeHsm(
   });
 }
 
+// TEDTODO - complete analysis to determine if tmpActiveState and activeState are both required.
 function completeHsmInitialization(
   hsmId: string,
 ): BsPpVoidThunkAction {
