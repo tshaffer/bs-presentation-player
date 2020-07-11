@@ -10,9 +10,10 @@ import {
   HsmData,
   HStateType,
   HStateSpecification,
+  ArEventType,
 } from '../type';
 import {
-  BsPpAction,
+  BsPpAction, BsPpBaseAction,
 } from './baseAction';
 import {
   cloneDeep,
@@ -32,6 +33,8 @@ export const SET_HSM_DATA: string = 'SET_HSM_DATA';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_MEDIA_H_STATE_TIMEOUT_ID = 'SET_MEDIA_H_STATE_TIMEOUT_ID';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
+export const PUSH_EVENT = 'PUSH_EVENT';
+export const POP_EVENT = 'POP_EVENT';
 
 export type AddHsmAction = BsPpAction<Partial<Hsm>>;
 export function addHsm(
@@ -159,6 +162,25 @@ export function setMediaHStateTimeoutId(
   };
 }
 
+export type EventAction = BsPpAction<ArEventType>;
+
+export function pushEvent(
+  event: ArEventType
+): EventAction {
+  return {
+    type: PUSH_EVENT,
+    payload: event,
+  };
+}
+
+export function popEvent(
+): BsPpBaseAction {
+  return {
+    type: POP_EVENT,
+    payload: null,
+  };
+}
+
 // ------------------------------------
 // Reducer
 // ------------------------------------
@@ -233,8 +255,30 @@ const hStateById = (
   }
 };
 
+const initialEventStack: ArEventType[] = [];
+const eventStack = (
+  state: ArEventType[] = initialEventStack,
+  action: EventAction | BsPpBaseAction,
+): ArEventType[] => {
+  switch (action.type) {
+    case PUSH_EVENT: {
+      //      _queuedEvents.push(event);
+      return [...state, action.payload as ArEventType];
+    }
+    // TEDTODO - THIS IS NOT A POP!!
+    case POP_EVENT: {
+      // _queuedEvents.shift();
+      const newState = cloneDeep(state) as ArEventType[];
+      newState.shift();
+      return newState;
+    }
+    default:
+      return state;
+  }
+};
+
 export const hsmReducer = combineReducers<HsmState>(
-  { hsmById, hStateById });
+  { hsmById, hStateById, eventStack });
 
 // -----------------------------------------------------------------------
 // Validators

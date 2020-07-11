@@ -4,6 +4,7 @@ import {
   HState,
   HStateMap,
   MediaHState,
+  ArEventType,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
@@ -121,4 +122,8 @@ export function getActiveMediaStateId(state: BsPpState, zoneId: string): string 
     }
   }
   return '';
+}
+
+export function getEvents(state: BsPpState): ArEventType[] {
+  return state.bsPlayer.hsmState.eventStack;
 }

@@ -11,6 +11,8 @@ import {
 import {
   BsPpDispatch,
   BsPpVoidThunkAction,
+  pushEvent,
+  popEvent,
 } from '../model';
 
 import {
@@ -21,12 +23,13 @@ import {
 import {
   getHsmMap,
   getActiveStateIdByHsmId,
-  getHsmByName
+  getHsmByName,
+  getEvents
 } from '../selector';
 
 export let _bsPpStore: Store<BsPpState>;
 
-const _queuedEvents: ArEventType[] = [];
+// const _queuedEvents: ArEventType[] = [];
 
 export function initPlayer(store: Store<BsPpState>) {
   _bsPpStore = store;
@@ -48,12 +51,18 @@ export function launchHsm() {
 export const queueHsmEvent = (event: ArEventType): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     if (event.EventType !== 'NOP') {
-      _queuedEvents.push(event);
+      dispatch(pushEvent(event));
+      // _queuedEvents.push(event);
     }
     if (hsmInitialized(getState())) {
-      while (_queuedEvents.length > 0) {
-        dispatch(dispatchHsmEvent(_queuedEvents[0]));
-        _queuedEvents.shift();
+      let events: ArEventType[] = getEvents(getState());
+
+      while (events.length > 0) {
+        // dispatch(dispatchHsmEvent(_queuedEvents[0]));
+        // _queuedEvents.shift();
+        dispatch(dispatchHsmEvent(events[0]));
+        dispatch(popEvent());
+        events = getEvents(getState());
       }
     }
   });

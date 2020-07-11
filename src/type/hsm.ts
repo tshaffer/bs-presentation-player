@@ -4,6 +4,7 @@ import {
 } from './hsmTypes';
 import { LUT } from './base';
 import { HState } from './hState';
+import { ArEventType } from '../..';
 
 export type HsmMap = BsPpMap<Hsm>;
 export type HStateMap = BsPpMap<HState>;
@@ -12,6 +13,7 @@ export interface HsmState {
   hsmById: HsmMap;
   hStateById: HStateMap;
   activeHStateByHsm: HStateMap;
+  eventStack: ArEventType[];
 }
 
 export interface Hsm {
