@@ -75,7 +75,7 @@ const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superSta
   });
 };
 
-export const videoOrImagesZoneConstructor = (hsmId: string): BsPpVoidThunkAction => {
+export const initializeVideoOrImagesZoneHsm = (hsmId: string): BsPpVoidThunkAction => {
   return (dispatch: any, getState: any) => {
 
     // get the initial media state for the zone
@@ -93,7 +93,7 @@ export const videoOrImagesZoneConstructor = (hsmId: string): BsPpVoidThunkAction
   };
 };
 
-export const videoOrImagesZoneGetInitialState = (hsmId: string): any => {
+export const videoOrImagesZoneHsmGetInitialState = (hsmId: string): any => {
   return (dispatch: any, getState: any) => {
     console.log('videoOrImagesZoneGetInitialState');
     console.log(getState());

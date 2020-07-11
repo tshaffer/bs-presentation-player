@@ -84,12 +84,12 @@ export const initializePlayerHsm = (): any => {
   });
 };
 
-export const playerStateMachineGetInitialTransition = (): BsPpAnyPromiseThunkAction => {
+export const playerHsmGetInitialState = (): BsPpAnyPromiseThunkAction => {
   return (dispatch: any, getState: any) => {
-    console.log('invoke initializePlayerStateMachine');
-    return dispatch(restartPlayback(''))
+    console.log('invoke playerHsmGetInitialState');
+    return dispatch(launchSchedulePlayback(''))
       .then(() => {
-        console.log('return from invoking playerStateMachine restartPlayback');
+        console.log('return from invoking playerHsmGetInitialState restartPlayback');
         const hState = getHStateByName(getState(), 'playing');
         return Promise.resolve(hState);
       });
@@ -124,7 +124,7 @@ export const STPlayingEventHandler = (
     if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
       console.log(hState.id + ': entry signal');
 
-      const action: any = startPlayback();
+      const action: any = launchPresentationPlayback();
       dispatch(action);
 
       return 'HANDLED';
@@ -164,7 +164,7 @@ export const STWaitingEventHandler = (
   };
 };
 
-export const restartPlayback = (presentationName: string): BsPpVoidPromiseThunkAction => {
+export const launchSchedulePlayback = (presentationName: string): BsPpVoidPromiseThunkAction => {
   console.log('invoke restartPlayback');
 
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -192,7 +192,7 @@ export const restartPlayback = (presentationName: string): BsPpVoidPromiseThunkA
   };
 };
 
-export const startPlayback = (): BsPpVoidThunkAction => {
+export const launchPresentationPlayback = (): BsPpVoidThunkAction => {
   console.log('invoke startPlayback');
 
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {

@@ -10,9 +10,9 @@ import {
   STPlayerEventHandler,
   STPlayingEventHandler,
   STWaitingEventHandler,
-  playerStateMachineGetInitialTransition,
+  playerHsmGetInitialState,
 } from './playerHsm';
-import { videoOrImagesZoneConstructor, videoOrImagesZoneGetInitialState } from './mediaZoneHsm';
+import { initializeVideoOrImagesZoneHsm, videoOrImagesZoneHsmGetInitialState } from './mediaZoneHsm';
 import { STImageStateEventHandler } from './imageState';
 import { getHsmById } from '../../selector';
 import {
@@ -27,7 +27,7 @@ export const hsmConstructorFunction = (hsmId: string): any => {
         case HsmType.Player:
           break;
         case HsmType.VideoOrImages: {
-          return dispatch(videoOrImagesZoneConstructor(hsmId));
+          return dispatch(initializeVideoOrImagesZoneHsm(hsmId));
         }
         default:
           debugger;
@@ -41,11 +41,11 @@ export const hsmInitialPseudoStateHandler = (hsmId: string) => {
     const hsm = getHsmById(getState(), hsmId);
     switch (hsm.type) {
       case HsmType.Player:
-        const playerStateMachineAction = playerStateMachineGetInitialTransition();
-        return dispatch(playerStateMachineAction);
+        const playerHsmAction = playerHsmGetInitialState();
+        return dispatch(playerHsmAction);
       case HsmType.VideoOrImages:
-        const videoOrImagesStateMachineAction = videoOrImagesZoneGetInitialState(hsmId);
-        return dispatch(videoOrImagesStateMachineAction);
+        const videoOrImagesZoneHsmAction = videoOrImagesZoneHsmGetInitialState(hsmId);
+        return dispatch(videoOrImagesZoneHsmAction);
       default:
         // TEDTODO
         debugger;

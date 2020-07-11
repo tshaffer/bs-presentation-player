@@ -35,7 +35,7 @@ export interface SubscribedEvents { [eventKey: string]: HState; }
 
 export interface ArState {
   bsdm?: DmState;
-  stateMachine?: any;
+  hsm?: any;
   stateName?: string;
 }
 
