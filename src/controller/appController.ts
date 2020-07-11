@@ -4,8 +4,9 @@ import * as fs from 'fs-extra';
 
 import {
   BsPpState,
-  ArSyncSpec,
+  ArRawSyncSpec,
   PpSchedule,
+  SyncSpecFileMap,
 } from '../type';
 import {
   BsPpDispatch,
@@ -16,7 +17,7 @@ import {
 import {
   updatePresentationPlatform,
   updatePresentationSrcDirectory,
-  updatePresentationSyncSpec,
+  updatePresentationSyncSpecFileMap,
   updatePresentationAutoschedule
 } from '../model/presentation';
 import {
@@ -80,7 +81,11 @@ const setSyncSpec = (): BsPpVoidPromiseThunkAction => {
     const srcDirectory = getSrcDirectory(getState());
     return getSyncSpec(srcDirectory)
       .then((syncSpec) => {
-        dispatch(updatePresentationSyncSpec(syncSpec));
+        const syncSpecFileMap: SyncSpecFileMap = {};
+        for (const syncSpecDownload of syncSpec.files.download) {
+          syncSpecFileMap[syncSpecDownload.name] = syncSpecDownload;
+        }
+        dispatch(updatePresentationSyncSpecFileMap(syncSpecFileMap));
         return Promise.resolve();
       });
   });
@@ -98,7 +103,7 @@ const setAutoschedule = (): BsPpVoidPromiseThunkAction => {
   });
 };
 
-function getSyncSpec(rootDirectory: string): Promise<ArSyncSpec> {
+function getSyncSpec(rootDirectory: string): Promise<ArRawSyncSpec> {
   return getSyncSpecFilePath(rootDirectory)
     .then((syncSpecFilePath: string | null) => {
       if (!syncSpecFilePath) {
@@ -153,10 +158,10 @@ function getNetworkedSyncSpecFilePath(rootDirectory: string): string {
   return isomorphicPath.join(rootDirectory, 'current-sync.json');
 }
 
-function readSyncSpec(syncSpecFilePath: string): Promise<ArSyncSpec> {
+function readSyncSpec(syncSpecFilePath: string): Promise<ArRawSyncSpec> {
   return fs.readFile(syncSpecFilePath, 'utf8')
     .then((syncSpecStr: string) => {
-      const syncSpec: ArSyncSpec = JSON.parse(syncSpecStr);
+      const syncSpec: ArRawSyncSpec = JSON.parse(syncSpecStr);
       return Promise.resolve(syncSpec);
     });
 }

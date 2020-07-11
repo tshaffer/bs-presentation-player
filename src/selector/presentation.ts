@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import isomorphicPath from 'isomorphic-path';
 
 import {
-  BsPpState, ArSyncSpec, ArFileLUT, ArSyncSpecDownload, PpSchedule,
+  BsPpState, ArRawSyncSpec, ArFileLUT, ArSyncSpecDownload, PpSchedule, SyncSpecFileMap,
 } from '../type';
 
 // ------------------------------------
@@ -29,10 +29,10 @@ export function getSrcDirectory(state: BsPpState): string {
   return '';
 }
 
-export const getSyncSpec = (state: BsPpState): ArSyncSpec | null => {
+export const getSyncSpecFileMap = (state: BsPpState): SyncSpecFileMap | null => {
   if (!isNil(state.bsPlayer)
     && !isNil(state.bsPlayer.presentationData)) {
-    return state.bsPlayer.presentationData.syncSpec;
+    return state.bsPlayer.presentationData.syncSpecFileMap;
   }
   return null;
 };
@@ -49,13 +49,16 @@ export function getPoolAssetFiles(state: BsPpState): ArFileLUT {
 
   const poolAssetFiles: ArFileLUT = {};
 
-  const syncSpec = getSyncSpec(state);
+  const syncSpecFileMap = getSyncSpecFileMap(state);
   const rootDirectory = getSrcDirectory(state);
 
-  if (!isNil(syncSpec) && isString(rootDirectory) && rootDirectory.length > 0) {
-    syncSpec.files.download.forEach((syncSpecFile: ArSyncSpecDownload) => {
-      poolAssetFiles[syncSpecFile.name] = isomorphicPath.join(rootDirectory, syncSpecFile.link);
-    });
+  if (!isNil(syncSpecFileMap) && isString(rootDirectory) && rootDirectory.length > 0) {
+    for (const fileName in syncSpecFileMap) {
+      if (syncSpecFileMap.hasOwnProperty(fileName)) {
+        const syncSpecDownload: ArSyncSpecDownload = syncSpecFileMap[fileName];
+        poolAssetFiles[fileName] = isomorphicPath.join(rootDirectory, syncSpecDownload.link);
+      }
+    }
   }
 
   return poolAssetFiles;
@@ -67,15 +70,15 @@ export function getPoolFilePath(state: BsPpState, fileName: string): string {
 
 export const getSyncSpecFile = (state: BsPpState, fileName: string): Promise<object> => {
 
-  const syncSpec = getSyncSpec(state);
-  if (isNil(syncSpec)) {
+  const syncSpecFileMap = getSyncSpecFileMap(state);
+  if (isNil(syncSpecFileMap)) {
     return Promise.reject('No sync spec');
   }
 
-  const syncSpecFile: ArSyncSpecDownload | null = getFile(syncSpec, fileName);
-  if (syncSpecFile == null) {
+  if (!syncSpecFileMap.hasOwnProperty(fileName)) {
     return Promise.reject('file not found');
   }
+  const syncSpecFile: ArSyncSpecDownload = syncSpecFileMap[fileName];
 
   const rootDirectory = getSrcDirectory(state);
 
@@ -88,7 +91,7 @@ export const getSyncSpecFile = (state: BsPpState, fileName: string): Promise<obj
     });
 };
 
-export function getFile(syncSpec: ArSyncSpec, fileName: string): ArSyncSpecDownload | null {
+export function getFile(syncSpec: ArRawSyncSpec, fileName: string): ArSyncSpecDownload | null {
 
   let file: ArSyncSpecDownload | null = null;
 
@@ -103,12 +106,13 @@ export function getFile(syncSpec: ArSyncSpec, fileName: string): ArSyncSpecDownl
   return file;
 }
 
-export function getSyncSpecReferencedFile(fileName: string, syncSpec: ArSyncSpec, rootPath: string): Promise<object> {
+export function
+  getSyncSpecReferencedFile(fileName: string, syncSpecFileMap: SyncSpecFileMap, rootPath: string): Promise<object> {
 
-  const syncSpecFile: ArSyncSpecDownload | null = getFile(syncSpec, fileName);
-  if (syncSpecFile == null) {
+  if (!syncSpecFileMap.hasOwnProperty(fileName)) {
     return Promise.reject('file not found');
   }
+  const syncSpecFile: ArSyncSpecDownload = syncSpecFileMap[fileName];
 
   // const fileSize = syncSpecFile.size;
   const filePath: string = isomorphicPath.join(rootPath, syncSpecFile.link);

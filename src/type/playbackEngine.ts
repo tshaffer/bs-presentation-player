@@ -13,15 +13,20 @@ export interface ArSyncSpecDownload {
   link: string;
 }
 
-export interface ArSyncSpecFiles {
+export interface ArSyncSpecMeta {
+  client: any;
+  server: any;
+}
+
+export interface ArRawSyncSpecFiles {
   download: ArSyncSpecDownload[];
   ignore: any;
   delete: any;
 }
 
-export interface ArSyncSpec {
-  meta: any;
-  files: any;
+export interface ArRawSyncSpec {
+  meta: ArSyncSpecMeta;
+  files: ArRawSyncSpecFiles;
 }
 
 export interface ArFileLUT { [fileName: string]: string; }
@@ -32,4 +37,8 @@ export interface ArState {
   bsdm?: DmState;
   stateMachine?: any;
   stateName?: string;
+}
+
+export interface SyncSpecFileMap {
+  [name: string]: ArSyncSpecDownload;
 }

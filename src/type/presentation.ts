@@ -1,9 +1,9 @@
-import { ArSyncSpec } from './playbackEngine';
 import { PpSchedule } from './schedule';
+import { SyncSpecFileMap } from './playbackEngine';
 
 export interface PresentationDataState {
   platform: string;
   srcDirectory: string;
-  syncSpec: ArSyncSpec | null;
+  syncSpecFileMap: SyncSpecFileMap | null;
   autoSchedule: PpSchedule | null;
 }

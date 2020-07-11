@@ -5,14 +5,14 @@ import {
   PresentationDataState,
   //  ScheduledPresentation,
   PpSchedule,
+  SyncSpecFileMap,
 } from '../type';
 import { isObject } from 'lodash';
-import { ArSyncSpec } from '../type';
 
 export const UPDATE_PRESENTATION_DATA = 'UPDATE_PRESENTATION_DATA';
 export const UPDATE_PRESENTATION_PLATFORM = 'UPDATE_PRESENTATION_PLATFORM';
 export const UPDATE_PRESENTATION_SRC_DIRECTORY = 'UPDATE_PRESENTATION_SRC_DIRECTORY';
-export const UPDATE_SYNC_SPEC = 'UPDATE_SYNC_SPEC';
+export const UPDATE_SYNC_SPEC_FILE_MAP = 'UPDATE_SYNC_SPEC_FILE_MAP';
 export const UPDATE_AUTOSCHEDULE = 'UPDATE_AUTOSCHEDULE';
 
 export type UpdatePresentationDataAction = BsPpAction<Partial<PresentationDataState>>;
@@ -53,13 +53,13 @@ export const updatePresentationSrcDirectory = (
   };
 };
 
-export const updatePresentationSyncSpec = (
-  syncSpec: any,
+export const updatePresentationSyncSpecFileMap = (
+  syncSpecFileMap: SyncSpecFileMap,
 ): UpdatePresentationDataAction => {
   return {
-    type: UPDATE_SYNC_SPEC,
+    type: UPDATE_SYNC_SPEC_FILE_MAP,
     payload: {
-      syncSpec,
+      syncSpecFileMap,
     }
   };
 };
@@ -78,7 +78,7 @@ export const updatePresentationAutoschedule = (
 export const presentationDataDefaults: PresentationDataState = {
   platform: '',
   srcDirectory: '',
-  syncSpec: null,
+  syncSpecFileMap: null,
   autoSchedule: null,
 };
 Object.freeze(presentationDataDefaults);
@@ -102,10 +102,10 @@ export const presentationDataReducer = (
         ...state,
         srcDirectory: payload.srcDirectory as string,
       };
-    case UPDATE_SYNC_SPEC:
+    case UPDATE_SYNC_SPEC_FILE_MAP:
       return {
         ...state,
-        syncSpec: payload.syncSpec as ArSyncSpec,
+        syncSpecFileMap: payload.syncSpecFileMap as SyncSpecFileMap,
       };
     case UPDATE_AUTOSCHEDULE:
       return {

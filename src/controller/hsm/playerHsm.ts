@@ -34,7 +34,7 @@ import {
 
 import {
   getAutoschedule,
-  getSyncSpec,
+  getSyncSpecFileMap,
   getSrcDirectory,
   getZoneHsmList,
   getSyncSpecReferencedFile,
@@ -176,9 +176,9 @@ export const restartPlayback = (presentationName: string): BsPpVoidPromiseThunkA
       presentationName = presentationToSchedule.name;
       const autoplayFileName = presentationName + '.bml';
 
-      const syncSpec = getSyncSpec(getState());
-      if (!isNil(syncSpec)) {
-        return getSyncSpecReferencedFile(autoplayFileName, syncSpec, getSrcDirectory(getState()))
+      const syncSpecFileMap = getSyncSpecFileMap(getState());
+      if (!isNil(syncSpecFileMap)) {
+        return getSyncSpecReferencedFile(autoplayFileName, syncSpecFileMap, getSrcDirectory(getState()))
           .then((bpfxState: any) => {
             const autoPlay: any = bpfxState.bsdm;
             const signState = autoPlay as DmSignState;
