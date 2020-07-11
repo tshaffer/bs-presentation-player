@@ -7,7 +7,7 @@ import {
 } from '../../type';
 import { isNil } from 'lodash';
 import {
-  ArEventType,
+  HsmEventType,
   BsPpState,
 } from '../../type';
 import {
@@ -17,17 +17,31 @@ import {
   BsPpVoidThunkAction,
 } from '../../model';
 
-import { addHsm } from '../../model/hsm';
+import { addHsm, queueHsmEvent } from '../../model/hsm';
 import {
   setActiveHState,
   setHsmInitialized
 } from '../../model';
-import { getHsmById, getHStateById, getHsmInitialized } from '../../selector/hsm';
+import { getHsmById, getHStateById, getHsmInitialized, getEvents, getIsHsmInitialized } from '../../selector/hsm';
 import {
   hsmInitialPseudoStateHandler,
   HStateEventHandler
 } from './eventHandler';
 import { newBsPpId } from '../../utility';
+
+import {
+  HsmMap,
+} from '../../type';
+import {
+  dequeueHsmEvent,
+} from '../../model';
+
+import {
+  getHsmMap,
+  getActiveStateIdByHsmId,
+  getHsmByName,
+} from '../../selector';
+// import { getIsHsmInitialized } from '../playbackEngine';
 
 export const createHsm = (
   name: string,
@@ -91,13 +105,13 @@ function completeHsmInitialization(
     const stateData: HSMStateData = { nextStateId: null };
 
     // empty event used to get super states
-    const emptyEvent: ArEventType = { EventType: 'EMPTY_SIGNAL' };
+    const emptyEvent: HsmEventType = { EventType: 'EMPTY_SIGNAL' };
 
     // entry event
-    const entryEvent: ArEventType = { EventType: 'ENTRY_SIGNAL' };
+    const entryEvent: HsmEventType = { EventType: 'ENTRY_SIGNAL' };
 
     // init event
-    const initEvent: ArEventType = { EventType: 'INIT_SIGNAL' };
+    const initEvent: HsmEventType = { EventType: 'INIT_SIGNAL' };
 
     // if there is no activeState, the playlist is empty
     if (isNil(activeState)) {
@@ -176,7 +190,7 @@ export function constructorFunction(constructorHandler: () => void): void {
 }
 
 export function hsmDispatch(
-  event: ArEventType,
+  event: HsmEventType,
   hsmId: string,
   activeStateId: string | null,
 ) {
@@ -199,16 +213,16 @@ export function hsmDispatch(
     const stateData: HSMStateData = { nextStateId: null };
 
     // empty event used to get super states
-    const emptyEvent: ArEventType = { EventType: 'EMPTY_SIGNAL' };
+    const emptyEvent: HsmEventType = { EventType: 'EMPTY_SIGNAL' };
 
     // entry event
-    const entryEvent: ArEventType = { EventType: 'ENTRY_SIGNAL' };
+    const entryEvent: HsmEventType = { EventType: 'ENTRY_SIGNAL' };
 
     // init event
-    const initEvent: ArEventType = { EventType: 'INIT_SIGNAL' };
+    const initEvent: HsmEventType = { EventType: 'INIT_SIGNAL' };
 
     // exit event
-    const exitEvent: ArEventType = { EventType: 'EXIT_SIGNAL' };
+    const exitEvent: HsmEventType = { EventType: 'EXIT_SIGNAL' };
 
     let t = activeState;                                                      // save the current state
 
@@ -391,5 +405,52 @@ export function hsmDispatch(
     activeState = t;
 
     dispatch(setActiveHState(hsmId, activeState));
+  });
+}
+
+export const addHsmEvent = (event: HsmEventType): BsPpVoidThunkAction => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
+    if (event.EventType !== 'NOP') {
+      dispatch(queueHsmEvent(event));
+    }
+    if (getIsHsmInitialized(getState())) {
+      let events: HsmEventType[] = getEvents(getState());
+
+      while (events.length > 0) {
+        dispatch(dispatchHsmEvent(events[0]));
+        dispatch(dequeueHsmEvent());
+        events = getEvents(getState());
+      }
+    }
+  });
+};
+
+function dispatchHsmEvent(
+  event: HsmEventType
+): BsPpVoidThunkAction {
+
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
+
+    console.log('dispatchHsmEvent:');
+    console.log(event.EventType);
+
+    const state: BsPpState = getState();
+
+    // TEDTODO - as this refers to specific hsm's, I think this should go into a different controller
+    const playerHsm: Hsm | null = getHsmByName(state, 'player');
+    if (!isNil(playerHsm)) {
+      dispatch(hsmDispatch(event, playerHsm.id, playerHsm.activeStateId));
+      const hsmMap: HsmMap = getHsmMap(state);
+      for (const hsmId in hsmMap) {
+        if (hsmId !== playerHsm.id) {
+          const activeState: HState | null = getActiveStateIdByHsmId(state, hsmId);
+          if (!isNil(activeState)) {
+            dispatch(hsmDispatch(event, hsmId, activeState.id));
+          } else {
+            debugger;
+          }
+        }
+      }
+    }
   });
 }

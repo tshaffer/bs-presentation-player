@@ -1,6 +1,6 @@
 import {
   BsPpState,
-  ArEventType,
+  HsmEventType,
   HSMStateData,
   MediaHState,
   Hsm,
@@ -36,12 +36,12 @@ import {
 import { isNil, isNumber } from 'lodash';
 import {
   _bsPpStore,
-  queueHsmEvent
 } from '../playbackEngine';
+import { addHsmEvent } from './hsm';
 
 export const mediaHStateEventHandler = (
   hState: HState,
-  event: ArEventType,
+  event: HsmEventType,
   stateData: HSMStateData
 ): BsPpVoidThunkAction => {
 
@@ -123,11 +123,11 @@ const executeEventMatchAction = (
   return '';
 };
 
-const eventDataMatches = (matchedEvent: DmcEvent, dispatchedEvent: ArEventType): boolean => {
+const eventDataMatches = (matchedEvent: DmcEvent, dispatchedEvent: HsmEventType): boolean => {
   return true;
 };
 
-const getMatchedEvent = (mediaState: DmMediaState, dispatchedEvent: ArEventType): DmcEvent | null => {
+const getMatchedEvent = (mediaState: DmMediaState, dispatchedEvent: HsmEventType): DmcEvent | null => {
   const mediaStateEvents: DmcEvent[] = (mediaState as DmcMediaState).eventList;
   for (const mediaStateEvent of mediaStateEvents) {
     if (mediaStateEvent.type === dispatchedEvent.EventType) {
@@ -193,7 +193,7 @@ export const launchTimer = (
 
 const timeoutHandler = (callbackParams: TimeoutEventCallbackParams): void => {
 
-  const event: ArEventType = {
+  const event: HsmEventType = {
     EventType: EventType.Timer,
   };
 
@@ -204,5 +204,5 @@ const timeoutHandler = (callbackParams: TimeoutEventCallbackParams): void => {
   // const hsmId = hState.hsmId;
   // const hsm = getHsmById(store.getState(), hsmId);
   // TEDTODO - circular reference?
-  _bsPpStore.dispatch(queueHsmEvent(event));
+  _bsPpStore.dispatch(addHsmEvent(event));
 };

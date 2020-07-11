@@ -10,7 +10,7 @@ import {
   HsmData,
   HStateType,
   HStateSpecification,
-  ArEventType,
+  HsmEventType,
 } from '../type';
 import {
   BsPpAction, BsPpBaseAction,
@@ -33,8 +33,8 @@ export const SET_HSM_DATA: string = 'SET_HSM_DATA';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_MEDIA_H_STATE_TIMEOUT_ID = 'SET_MEDIA_H_STATE_TIMEOUT_ID';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
-export const PUSH_EVENT = 'PUSH_EVENT';
-export const POP_EVENT = 'POP_EVENT';
+export const QUEUE_HSM_EVENT = 'QUEUE_HSM_EVENT';
+export const DEQUEUE_HSM_EVENT = 'DEQUEUE_HSM_EVENT';
 
 export type AddHsmAction = BsPpAction<Partial<Hsm>>;
 export function addHsm(
@@ -162,21 +162,21 @@ export function setMediaHStateTimeoutId(
   };
 }
 
-export type EventAction = BsPpAction<ArEventType>;
+export type HsmEventAction = BsPpAction<HsmEventType>;
 
-export function pushEvent(
-  event: ArEventType
-): EventAction {
+export function queueHsmEvent(
+  event: HsmEventType
+): HsmEventAction {
   return {
-    type: PUSH_EVENT,
+    type: QUEUE_HSM_EVENT,
     payload: event,
   };
 }
 
-export function popEvent(
+export function dequeueHsmEvent(
 ): BsPpBaseAction {
   return {
-    type: POP_EVENT,
+    type: DEQUEUE_HSM_EVENT,
     payload: null,
   };
 }
@@ -255,20 +255,18 @@ const hStateById = (
   }
 };
 
-const initialEventStack: ArEventType[] = [];
-const eventStack = (
-  state: ArEventType[] = initialEventStack,
-  action: EventAction | BsPpBaseAction,
-): ArEventType[] => {
+const initialHsmEventQueue: HsmEventType[] = [];
+const hsmEventQueue = (
+  state: HsmEventType[] = initialHsmEventQueue,
+  action: HsmEventAction | BsPpBaseAction,
+): HsmEventType[] => {
   switch (action.type) {
-    case PUSH_EVENT: {
-      //      _queuedEvents.push(event);
-      return [...state, action.payload as ArEventType];
+    case QUEUE_HSM_EVENT: {
+      return [...state, action.payload as HsmEventType];
     }
-    // TEDTODO - THIS IS NOT A POP!!
-    case POP_EVENT: {
-      // _queuedEvents.shift();
-      const newState = cloneDeep(state) as ArEventType[];
+    case DEQUEUE_HSM_EVENT: {
+      // TEDTODO - fancier way to do this?
+      const newState = cloneDeep(state) as HsmEventType[];
       newState.shift();
       return newState;
     }
@@ -278,7 +276,7 @@ const eventStack = (
 };
 
 export const hsmReducer = combineReducers<HsmState>(
-  { hsmById, hStateById, eventStack });
+  { hsmById, hStateById, hsmEventQueue });
 
 // -----------------------------------------------------------------------
 // Validators

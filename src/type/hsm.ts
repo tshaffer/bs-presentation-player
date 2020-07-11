@@ -4,7 +4,6 @@ import {
 } from './hsmTypes';
 import { LUT } from './base';
 import { HState } from './hState';
-import { ArEventType } from '../..';
 
 export type HsmMap = BsPpMap<Hsm>;
 export type HStateMap = BsPpMap<HState>;
@@ -12,8 +11,7 @@ export type HStateMap = BsPpMap<HState>;
 export interface HsmState {
   hsmById: HsmMap;
   hStateById: HStateMap;
-  activeHStateByHsm: HStateMap;
-  eventStack: ArEventType[];
+  hsmEventQueue: HsmEventType[];
 }
 
 export interface Hsm {
@@ -40,4 +38,10 @@ export interface ZoneHsmData {
 
 export interface MediaZoneHsmData extends ZoneHsmData {
   mediaStateIdToHState: LUT;
+}
+
+export interface HsmEventType {
+  EventType: string;
+  data?: any;
+  EventData?: any;
 }

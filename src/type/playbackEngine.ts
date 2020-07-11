@@ -1,12 +1,6 @@
 import { HState } from './hState';
 import { DmState } from '@brightsign/bsdatamodel';
 
-export interface ArEventType {
-  EventType: string;
-  data?: any;
-  EventData?: any;
-}
-
 export interface ArSyncSpecHash {
   method: string;
   hex: string;

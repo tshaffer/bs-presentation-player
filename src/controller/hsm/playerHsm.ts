@@ -1,7 +1,8 @@
 
 import {
   createHsm,
-  initializeHsm
+  initializeHsm,
+  addHsmEvent
 } from './hsm';
 import { createHState } from './hState';
 import {
@@ -12,7 +13,7 @@ import {
   HState,
   HsmType,
   HStateType,
-  ArEventType,
+  HsmEventType,
   HSMStateData,
 } from '../../type';
 import {
@@ -49,7 +50,7 @@ import {
 } from '@brightsign/bsdatamodel';
 import { hsmConstructorFunction } from '../hsm/eventHandler';
 import { createMediaZoneHsm } from './mediaZoneHsm';
-import { hsmInitialized, queueHsmEvent } from '../playbackEngine';
+import { getIsHsmInitialized } from '../../selector';
 
 export const createPlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
@@ -97,7 +98,7 @@ export const playerStateMachineGetInitialTransition = (): BsPpAnyPromiseThunkAct
 
 export const STPlayerEventHandler = (
   hState: HState,
-  event: ArEventType,
+  event: HsmEventType,
   stateData: HSMStateData
 ): any => {
   return (dispatch: any, getState: any) => {
@@ -111,7 +112,7 @@ export const STPlayerEventHandler = (
 
 export const STPlayingEventHandler = (
   hState: HState,
-  event: ArEventType,
+  event: HsmEventType,
   stateData: HSMStateData
 ): any => {
 
@@ -136,7 +137,7 @@ export const STPlayingEventHandler = (
 
 export const STWaitingEventHandler = (
   hState: HState,
-  event: ArEventType,
+  event: HsmEventType,
   stateData: HSMStateData
 ): any => {
 
@@ -218,12 +219,12 @@ export const startPlayback = (): BsPpVoidThunkAction => {
     Promise.all(promises).then(() => {
       console.log('startPlayback nearly complete');
       console.log('wait for HSM initialization complete');
-      const hsmInitializationComplete = hsmInitialized(getState());
+      const hsmInitializationComplete = getIsHsmInitialized(getState());
       if (hsmInitializationComplete) {
-        const event: ArEventType = {
+        const event: HsmEventType = {
           EventType: 'NOP',
         };
-        dispatch(queueHsmEvent(event));
+        dispatch(addHsmEvent(event));
       }
     });
 

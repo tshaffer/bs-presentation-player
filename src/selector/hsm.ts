@@ -4,7 +4,7 @@ import {
   HState,
   HStateMap,
   MediaHState,
-  ArEventType,
+  HsmEventType,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
@@ -124,6 +124,25 @@ export function getActiveMediaStateId(state: BsPpState, zoneId: string): string 
   return '';
 }
 
-export function getEvents(state: BsPpState): ArEventType[] {
-  return state.bsPlayer.hsmState.eventStack;
+export function getEvents(state: BsPpState): HsmEventType[] {
+  return state.bsPlayer.hsmState.hsmEventQueue;
 }
+
+export const getIsHsmInitialized = (state: BsPpState): boolean => {
+
+  const hsmMap: HsmMap = getHsmMap(state);
+  for (const hsmId in hsmMap) {
+    if (hsmMap.hasOwnProperty(hsmId)) {
+      const hsm: Hsm = hsmMap[hsmId];
+      if (!hsm.initialized) {
+        return false;
+      }
+    }
+  }
+
+  // TEDTODO - need to check if the hsm's associated with zones exist yet
+  console.log('number of hsms:');
+  console.log(Object.keys(hsmMap).length);
+
+  return true;
+};

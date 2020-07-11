@@ -1,5 +1,5 @@
 import {
-  ArEventType,
+  HsmEventType,
   HSMStateData,
   HState,
   HStateType,
@@ -55,7 +55,7 @@ export const hsmInitialPseudoStateHandler = (hsmId: string) => {
 
 export const HStateEventHandler = (
   hState: HState,
-  event: ArEventType,
+  event: HsmEventType,
   stateData: HSMStateData
 ): any => {
   return ((dispatch: BsPpDispatch) => {
@@ -81,7 +81,7 @@ export const HStateEventHandler = (
   });
 };
 
-const STTopEventHandler = (hState: HState, _: ArEventType, stateData: HSMStateData) => {
+const STTopEventHandler = (hState: HState, _: HsmEventType, stateData: HSMStateData) => {
   return ((dispatch: BsPpDispatch) => {
     stateData.nextStateId = null;
     return 'IGNORED';
