@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import isomorphicPath from 'isomorphic-path';
 
 import {
-  BsPpState, ArRawSyncSpec, ArFileLUT, ArSyncSpecDownload, PpSchedule, SyncSpecFileMap,
+  BsPpState, RawSyncSpec, FileLUT, SyncSpecDownload, PpSchedule, SyncSpecFileMap,
 } from '../type';
 
 // ------------------------------------
@@ -45,9 +45,9 @@ export const getAutoschedule = (state: BsPpState): PpSchedule | null => {
   return null;
 };
 
-export function getPoolAssetFiles(state: BsPpState): ArFileLUT {
+export function getPoolAssetFiles(state: BsPpState): FileLUT {
 
-  const poolAssetFiles: ArFileLUT = {};
+  const poolAssetFiles: FileLUT = {};
 
   const syncSpecFileMap = getSyncSpecFileMap(state);
   const rootDirectory = getSrcDirectory(state);
@@ -55,7 +55,7 @@ export function getPoolAssetFiles(state: BsPpState): ArFileLUT {
   if (!isNil(syncSpecFileMap) && isString(rootDirectory) && rootDirectory.length > 0) {
     for (const fileName in syncSpecFileMap) {
       if (syncSpecFileMap.hasOwnProperty(fileName)) {
-        const syncSpecDownload: ArSyncSpecDownload = syncSpecFileMap[fileName];
+        const syncSpecDownload: SyncSpecDownload = syncSpecFileMap[fileName];
         poolAssetFiles[fileName] = isomorphicPath.join(rootDirectory, syncSpecDownload.link);
       }
     }
@@ -78,7 +78,7 @@ export const getSyncSpecFile = (state: BsPpState, fileName: string): Promise<obj
   if (!syncSpecFileMap.hasOwnProperty(fileName)) {
     return Promise.reject('file not found');
   }
-  const syncSpecFile: ArSyncSpecDownload = syncSpecFileMap[fileName];
+  const syncSpecFile: SyncSpecDownload = syncSpecFileMap[fileName];
 
   const rootDirectory = getSrcDirectory(state);
 
@@ -91,12 +91,12 @@ export const getSyncSpecFile = (state: BsPpState, fileName: string): Promise<obj
     });
 };
 
-export function getFile(syncSpec: ArRawSyncSpec, fileName: string): ArSyncSpecDownload | null {
+export function getFile(syncSpec: RawSyncSpec, fileName: string): SyncSpecDownload | null {
 
-  let file: ArSyncSpecDownload | null = null;
+  let file: SyncSpecDownload | null = null;
 
   // TEDTODO - use map instead of array
-  syncSpec.files.download.forEach((syncSpecFile: ArSyncSpecDownload) => {
+  syncSpec.files.download.forEach((syncSpecFile: SyncSpecDownload) => {
     if (syncSpecFile.name === fileName) {
       file = syncSpecFile;
       return;
@@ -112,7 +112,7 @@ export function
   if (!syncSpecFileMap.hasOwnProperty(fileName)) {
     return Promise.reject('file not found');
   }
-  const syncSpecFile: ArSyncSpecDownload = syncSpecFileMap[fileName];
+  const syncSpecFile: SyncSpecDownload = syncSpecFileMap[fileName];
 
   // const fileSize = syncSpecFile.size;
   const filePath: string = isomorphicPath.join(rootPath, syncSpecFile.link);

@@ -4,7 +4,7 @@ import * as fs from 'fs-extra';
 
 import {
   BsPpState,
-  ArRawSyncSpec,
+  RawSyncSpec,
   PpSchedule,
   SyncSpecFileMap,
 } from '../type';
@@ -103,7 +103,7 @@ const setAutoschedule = (): BsPpVoidPromiseThunkAction => {
   });
 };
 
-function getSyncSpec(rootDirectory: string): Promise<ArRawSyncSpec> {
+function getSyncSpec(rootDirectory: string): Promise<RawSyncSpec> {
   return getSyncSpecFilePath(rootDirectory)
     .then((syncSpecFilePath: string | null) => {
       if (!syncSpecFilePath) {
@@ -158,10 +158,10 @@ function getNetworkedSyncSpecFilePath(rootDirectory: string): string {
   return isomorphicPath.join(rootDirectory, 'current-sync.json');
 }
 
-function readSyncSpec(syncSpecFilePath: string): Promise<ArRawSyncSpec> {
+function readSyncSpec(syncSpecFilePath: string): Promise<RawSyncSpec> {
   return fs.readFile(syncSpecFilePath, 'utf8')
     .then((syncSpecStr: string) => {
-      const syncSpec: ArRawSyncSpec = JSON.parse(syncSpecStr);
+      const syncSpec: RawSyncSpec = JSON.parse(syncSpecStr);
       return Promise.resolve(syncSpec);
     });
 }

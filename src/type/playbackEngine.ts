@@ -1,35 +1,39 @@
 import { HState } from './hState';
 import { DmState } from '@brightsign/bsdatamodel';
 
-export interface ArSyncSpecHash {
-  method: string;
-  hex: string;
+export interface SyncSpecFileMap {
+  [name: string]: SyncSpecDownload;
 }
 
-export interface ArSyncSpecDownload {
+export interface SyncSpecDownload {
   name: string;
-  hash: ArSyncSpecHash;
+  hash: SyncSpecHash;
   size: number;
   link: string;
 }
 
-export interface ArSyncSpecMeta {
+interface SyncSpecHash {
+  method: string;
+  hex: string;
+}
+
+interface SyncSpecMeta {
   client: any;
   server: any;
 }
 
-export interface ArRawSyncSpecFiles {
-  download: ArSyncSpecDownload[];
+export interface RawSyncSpecFiles {
+  download: SyncSpecDownload[];
   ignore: any;
   delete: any;
 }
 
-export interface ArRawSyncSpec {
-  meta: ArSyncSpecMeta;
-  files: ArRawSyncSpecFiles;
+export interface RawSyncSpec {
+  meta: SyncSpecMeta;
+  files: RawSyncSpecFiles;
 }
 
-export interface ArFileLUT { [fileName: string]: string; }
+export interface FileLUT { [fileName: string]: string; }
 
 export interface SubscribedEvents { [eventKey: string]: HState; }
 
@@ -37,8 +41,4 @@ export interface ArState {
   bsdm?: DmState;
   hsm?: any;
   stateName?: string;
-}
-
-export interface SyncSpecFileMap {
-  [name: string]: ArSyncSpecDownload;
 }
