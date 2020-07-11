@@ -27,3 +27,5 @@ export interface BsPpBaseObject {
 export interface BsPpMap<T extends BsPpBaseObject> {
   [id: string]: T;    // really '[id:BsDmId]: T;' -- but Typescript doesn't like that, even though BsDmId = string
 }
+
+export interface FileLUT { [fileName: string]: string; }
