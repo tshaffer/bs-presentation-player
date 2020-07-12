@@ -25,7 +25,7 @@ import {
   getSrcDirectory,
   getSyncSpecFile
 } from '../selector';
-import { launchHsm } from './playbackEngine';
+import { launchHsm } from './hsmController';
 
 export const initPresentation = (): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch) => {
