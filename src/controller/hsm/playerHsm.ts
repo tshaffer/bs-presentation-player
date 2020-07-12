@@ -55,7 +55,7 @@ import { addHsmEvent } from '../hsmController';
 export const createPlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {
     console.log('invoke createPlayerHsm');
-    const playerHsmId: string = dispatch(createHsm('player', HsmType.Player));
+    const playerHsmId: string = dispatch(createHsm('player', HsmType.Player, {}));
 
     const stTopId = dispatch(createHState(
       HStateType.Top,

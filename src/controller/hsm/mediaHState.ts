@@ -4,7 +4,7 @@ import {
   HSMStateData,
   MediaHState,
   Hsm,
-  MediaZoneHsmData,
+  MediaZoneHsmProperties,
 } from '../../type';
 import {
   BsPpDispatch,
@@ -93,7 +93,7 @@ const executeEventMatchAction = (
     const hsmId: string = hState.hsmId;
     const zoneHsm: Hsm = getHsmById(state, hsmId);
 
-    const mediaZoneHsmData: MediaZoneHsmData = zoneHsm.hsmData as MediaZoneHsmData;
+    const mediaZoneHsmData: MediaZoneHsmProperties = zoneHsm.properties as MediaZoneHsmProperties;
 
     let targetHState: MediaHState = mediaZoneHsmData.mediaStateIdToHState[targetMediaStateId];
     if (!isNil(targetHState)) {

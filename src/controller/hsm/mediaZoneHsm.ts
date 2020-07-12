@@ -10,7 +10,7 @@ import {
   dmGetInitialMediaStateIdForZone,
 } from '@brightsign/bsdatamodel';
 import {
-  MediaZoneHsmData,
+  MediaZoneHsmProperties,
   HState,
   HsmType,
 } from '../../type';
@@ -26,7 +26,7 @@ import { setActiveHState, setHsmData } from '../../model';
 
 export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: DmZone): BsPpVoidThunkAction => {
   return ((dispatch: any, getState: any) => {
-    const hsmData: MediaZoneHsmData = {
+    const hsmData: MediaZoneHsmProperties = {
       zoneId: bsdmZone.id,
       x: bsdmZone.position.x,
       y: bsdmZone.position.y,
@@ -81,15 +81,20 @@ export const initializeVideoOrImagesZoneHsm = (hsmId: string): BsPpVoidThunkActi
     // get the initial media state for the zone
     const bsdm: DmState = dmFilterDmState(getState());
     const hsm: Hsm = getHsmById(getState(), hsmId);
-    let activeState: HState | null = null;
-    const initialMediaStateId: BsDmId | null =
-      dmGetInitialMediaStateIdForZone(bsdm, { id: hsm.hsmData!.zoneId });
-    if (!isNil(initialMediaStateId)) {
-      const initialMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: initialMediaStateId }) as DmMediaState;
-      activeState = getHStateByMediaStateId(getState(), initialMediaState.id);
-    }
+    if (hsm.type === HsmType.VideoOrImages) {
 
-    dispatch(setActiveHState(hsmId, activeState));
+      const properties: MediaZoneHsmProperties = hsm.properties as MediaZoneHsmProperties;
+
+      let activeState: HState | null = null;
+      const initialMediaStateId: BsDmId | null =
+        dmGetInitialMediaStateIdForZone(bsdm, { id: properties.zoneId });
+      if (!isNil(initialMediaStateId)) {
+        const initialMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: initialMediaStateId }) as DmMediaState;
+        activeState = getHStateByMediaStateId(getState(), initialMediaState.id);
+      }
+
+      dispatch(setActiveHState(hsmId, activeState));
+    }
   };
 };
 

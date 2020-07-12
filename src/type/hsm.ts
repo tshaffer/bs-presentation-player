@@ -21,12 +21,15 @@ export interface Hsm {
   topStateId: string;
   activeStateId: string | null;
   initialized: boolean;
-  hsmData?: HsmData;
+  properties: HsmSpecificProperties;
 }
 
-export type HsmData = ZoneHsmData | MediaZoneHsmData;
+export type HsmSpecificProperties = ZoneHsmProperties | MediaZoneHsmProperties | {};
 
-export interface ZoneHsmData {
+// TEDTODO
+// PlayerHsmProperties - any??
+
+export interface ZoneHsmProperties {
   zoneId: string;
   x: number;
   y: number;
@@ -36,7 +39,7 @@ export interface ZoneHsmData {
   initialMediaStateId: string;
 }
 
-export interface MediaZoneHsmData extends ZoneHsmData {
+export interface MediaZoneHsmProperties extends ZoneHsmProperties {
   mediaStateIdToHState: LUT;
 }
 

@@ -111,14 +111,17 @@ export function getZoneHsmList(state: BsPpState): Hsm[] {
 export function getActiveMediaStateId(state: BsPpState, zoneId: string): string {
   const zoneHsmList: Hsm[] = getZoneHsmList(state);
   for (const zoneHsm of zoneHsmList) {
-    if (!isNil(zoneHsm.hsmData)) {
-      if (zoneHsm.hsmData.zoneId === zoneId) {
-        const hState: HState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
-        if (isString((hState as MediaHState).mediaStateId)
-        ) {
-          return (hState as MediaHState).mediaStateId;
-        }
-      }
+    if (!isNil(zoneHsm.properties)) {
+      // if (isString(zoneHsm.properties.zoneId)) {
+
+      //   if (zoneHsm.properties.zoneId === zoneId) {
+      //     const hState: HState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
+      //     if (isString((hState as MediaHState).mediaStateId)
+      //     ) {
+      //       return (hState as MediaHState).mediaStateId;
+      //     }
+      //   }
+      // }
     }
   }
   return '';

@@ -7,7 +7,7 @@ import {
   HsmMap,
   HStateMap,
   HState,
-  HsmData,
+  HsmSpecificProperties,
   HStateType,
   HStateSpecification,
   HsmEventType,
@@ -81,12 +81,12 @@ export function setHsmInitialized(
 export type SetHsmDataAction = BsPpAction<Partial<Hsm>>;
 export function setHsmData(
   id: string,
-  hsmData: HsmData): SetHsmDataAction {
+  hsmData: HsmSpecificProperties): SetHsmDataAction {
   return {
     type: SET_HSM_DATA,
     payload: {
       id,
-      hsmData,
+      properties: hsmData,
     }
   };
 }
@@ -211,10 +211,10 @@ const hsmById = (
     }
     case SET_HSM_DATA: {
       const id: string = (action as SetHsmDataAction).payload.id as string;
-      const hsmData: HsmData = (action as SetHsmDataAction).payload.hsmData!;
+      const hsmData: HsmSpecificProperties = (action as SetHsmDataAction).payload.properties!;
       const newState = cloneDeep(state) as HsmMap;
       const hsm: Hsm = newState[id];
-      hsm.hsmData = hsmData;
+      hsm.properties = hsmData;
       return newState;
     }
     case SET_ACTIVE_HSTATE: {

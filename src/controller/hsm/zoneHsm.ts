@@ -3,7 +3,7 @@ import { createHState } from './hState';
 import {
   HState,
   HStateType,
-  HsmData,
+  HsmSpecificProperties,
   HsmType,
 } from '../../type';
 import {
@@ -17,7 +17,7 @@ import { setHsmTop } from '../../model';
 export const createZoneHsm = (
   hsmName: string,
   hsmType: HsmType,
-  hsmData: HsmData
+  hsmData: HsmSpecificProperties
 ): BsPpStringThunkAction => {
   return ((dispatch: any, getState: any) => {
     const hsmId: string = dispatch(createHsm(hsmName, hsmType, hsmData));
