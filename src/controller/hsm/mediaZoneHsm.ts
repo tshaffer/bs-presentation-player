@@ -44,7 +44,7 @@ export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: 
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
       dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
-      const hState: HState | null = getHStateByMediaStateId(getState(), bsdmMediaState.id);
+      const hState: HState | null = getHStateByMediaStateId(getState(), hsmId, bsdmMediaState.id);
       if (!isNil(hState)) {
         hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
         dispatch(setHsmData(hsmId, hsmData));
@@ -90,7 +90,7 @@ export const initializeVideoOrImagesZoneHsm = (hsmId: string): BsPpVoidThunkActi
         dmGetInitialMediaStateIdForZone(bsdm, { id: properties.zoneId });
       if (!isNil(initialMediaStateId)) {
         const initialMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: initialMediaStateId }) as DmMediaState;
-        activeState = getHStateByMediaStateId(getState(), initialMediaState.id);
+        activeState = getHStateByMediaStateId(getState(), hsm.id, initialMediaState.id);
       }
 
       dispatch(setActiveHState(hsmId, activeState));

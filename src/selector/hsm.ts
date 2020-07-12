@@ -3,9 +3,10 @@ import {
   Hsm,
   HState,
   HStateMap,
-  MediaHState,
   HsmEventType,
+  MediaZoneHsmProperties,
   ZoneHsmProperties,
+  MediaHState,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
@@ -71,24 +72,12 @@ export function getHStateByName(state: BsPpState, name: string | null): HState |
   return hStateId ? getHStateById(state, hStateId) : null;
 }
 
-export function getHStateByMediaStateId(state: BsPpState, mediaStateId: string | null): HState | null {
+export function getHStateByMediaStateId(state: BsPpState, hsmId: string, mediaStateId: string | null): HState | null {
   if (isNil(mediaStateId)) {
     return null;
   }
-  const hStateMap: HStateMap = state.bsPlayer.hsmState.hStateById;
-
-  for (const hStateId in hStateMap) {
-    if (hStateMap.hasOwnProperty(hStateId)) {
-      const hState = hStateMap[hStateId];
-      if (isString((hState as MediaHState).mediaStateId)
-        && (hState as MediaHState).mediaStateId === mediaStateId) {
-        return hState;
-      }
-    }
-  }
-
-  debugger;
-  return null;
+  const hsm: Hsm = getHsmById(state, hsmId);
+  return (hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState[mediaStateId];
 }
 
 export function getHsmInitialized(state: BsPpState, hsmId: string): boolean {

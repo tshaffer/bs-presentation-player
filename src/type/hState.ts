@@ -15,6 +15,7 @@ export interface HState {
   name: string;
 }
 
+// TEDTODO - duplicate of HStateinterface
 export interface HStateSpecification {
   id: string;
   type: HStateType;
