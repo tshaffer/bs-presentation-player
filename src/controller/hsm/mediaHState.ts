@@ -35,9 +35,8 @@ import {
 } from '../../selector';
 import { isNil, isNumber } from 'lodash';
 import {
-  _bsPpStore,
+  _bsPpStore, addHsmEvent,
 } from '../playbackEngine';
-import { addHsmEvent } from './hsm';
 
 export const mediaHStateEventHandler = (
   hState: HState,

@@ -1,4 +1,5 @@
 import {
+  BsPpState,
   HsmEventType,
   HSMStateData,
   HState,
@@ -16,11 +17,11 @@ import { initializeVideoOrImagesZoneHsm, videoOrImagesZoneHsmGetInitialState } f
 import { STImageStateEventHandler } from './imageState';
 import { getHsmById } from '../../selector';
 import {
-  BsPpDispatch,
+  BsPpDispatch, BsPpVoidThunkAction,
 } from '../../model';
 
-export const hsmConstructorFunction = (hsmId: string): any => {
-  return (dispatch: BsPpDispatch, getState: any) => {
+export const hsmConstructorFunction = (hsmId: string): BsPpVoidThunkAction => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     const hsm = getHsmById(getState(), hsmId);
     if (!isNil(hsm)) {
       switch (hsm.type) {
@@ -33,11 +34,11 @@ export const hsmConstructorFunction = (hsmId: string): any => {
           debugger;
       }
     }
-  };
+  });
 };
 
 export const hsmInitialPseudoStateHandler = (hsmId: string) => {
-  return (dispatch: BsPpDispatch, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     const hsm = getHsmById(getState(), hsmId);
     switch (hsm.type) {
       case HsmType.Player:
@@ -50,7 +51,8 @@ export const hsmInitialPseudoStateHandler = (hsmId: string) => {
         // TEDTODO
         debugger;
     }
-  };
+    return;
+  });
 };
 
 export const HStateEventHandler = (

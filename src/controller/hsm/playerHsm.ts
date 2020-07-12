@@ -2,7 +2,6 @@
 import {
   createHsm,
   initializeHsm,
-  addHsmEvent
 } from './hsm';
 import { createHState } from './hState';
 import {
@@ -51,6 +50,7 @@ import {
 import { hsmConstructorFunction } from '../hsm/eventHandler';
 import { createMediaZoneHsm } from './mediaZoneHsm';
 import { getIsHsmInitialized } from '../../selector';
+import { addHsmEvent } from '../playbackEngine';
 
 export const createPlayerHsm = (): any => {
   return ((dispatch: any, getState: any) => {

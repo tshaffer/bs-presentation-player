@@ -15,7 +15,7 @@ import {
   HsmType,
 } from '../../type';
 import {
-  BsPpVoidThunkAction,
+  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction,
 } from '../../model';
 import { ContentItemType } from '@brightsign/bscore';
 import { createImageState } from './imageState';
@@ -93,7 +93,7 @@ export const initializeVideoOrImagesZoneHsm = (hsmId: string): BsPpVoidThunkActi
   };
 };
 
-export const videoOrImagesZoneHsmGetInitialState = (hsmId: string): any => {
+export const videoOrImagesZoneHsmGetInitialState = (hsmId: string): BsPpAnyPromiseThunkAction => {
   return (dispatch: any, getState: any) => {
     console.log('videoOrImagesZoneGetInitialState');
     console.log(getState());

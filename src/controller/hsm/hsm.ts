@@ -17,31 +17,17 @@ import {
   BsPpVoidThunkAction,
 } from '../../model';
 
-import { addHsm, queueHsmEvent } from '../../model/hsm';
+import { addHsm } from '../../model/hsm';
 import {
   setActiveHState,
   setHsmInitialized
 } from '../../model';
-import { getHsmById, getHStateById, getHsmInitialized, getEvents, getIsHsmInitialized } from '../../selector/hsm';
+import { getHsmById, getHStateById, getHsmInitialized } from '../../selector/hsm';
 import {
   hsmInitialPseudoStateHandler,
   HStateEventHandler
 } from './eventHandler';
 import { newBsPpId } from '../../utility';
-
-import {
-  HsmMap,
-} from '../../type';
-import {
-  dequeueHsmEvent,
-} from '../../model';
-
-import {
-  getHsmMap,
-  getActiveStateIdByHsmId,
-  getHsmByName,
-} from '../../selector';
-// import { getIsHsmInitialized } from '../playbackEngine';
 
 export const createHsm = (
   name: string,
@@ -76,16 +62,18 @@ export function initializeHsm(
     // dispatch(setActiveHState(hsmId, null));
 
     // execute initial transition
-    const action = hsmInitialPseudoStateHandler(hsmId);
-
-    return dispatch(action).
-      then((activeState: any) => {
-        dispatch(setActiveHState(hsmId, activeState));
-        dispatch(completeHsmInitialization(hsmId));
-        const hsmInitializationComplete = getHsmInitialized(getState(), hsmId);
-        console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
-        return Promise.resolve();
-      });
+    const action = hsmInitialPseudoStateHandler(hsmId) as any;
+    if (!isNil(action)) {
+      return dispatch(action).
+        then((activeState: any) => {
+          dispatch(setActiveHState(hsmId, activeState));
+          dispatch(completeHsmInitialization(hsmId));
+          const hsmInitializationComplete = getHsmInitialized(getState(), hsmId);
+          console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
+          return Promise.resolve();
+        });
+    }
+    return Promise.resolve();
   });
 }
 
@@ -405,52 +393,5 @@ export function hsmDispatch(
     activeState = t;
 
     dispatch(setActiveHState(hsmId, activeState));
-  });
-}
-
-export const addHsmEvent = (event: HsmEventType): BsPpVoidThunkAction => {
-  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    if (event.EventType !== 'NOP') {
-      dispatch(queueHsmEvent(event));
-    }
-    if (getIsHsmInitialized(getState())) {
-      let events: HsmEventType[] = getEvents(getState());
-
-      while (events.length > 0) {
-        dispatch(dispatchHsmEvent(events[0]));
-        dispatch(dequeueHsmEvent());
-        events = getEvents(getState());
-      }
-    }
-  });
-};
-
-function dispatchHsmEvent(
-  event: HsmEventType
-): BsPpVoidThunkAction {
-
-  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-
-    console.log('dispatchHsmEvent:');
-    console.log(event.EventType);
-
-    const state: BsPpState = getState();
-
-    // TEDTODO - as this refers to specific hsm's, I think this should go into a different controller
-    const playerHsm: Hsm | null = getHsmByName(state, 'player');
-    if (!isNil(playerHsm)) {
-      dispatch(hsmDispatch(event, playerHsm.id, playerHsm.activeStateId));
-      const hsmMap: HsmMap = getHsmMap(state);
-      for (const hsmId in hsmMap) {
-        if (hsmId !== playerHsm.id) {
-          const activeState: HState | null = getActiveStateIdByHsmId(state, hsmId);
-          if (!isNil(activeState)) {
-            dispatch(hsmDispatch(event, hsmId, activeState.id));
-          } else {
-            debugger;
-          }
-        }
-      }
-    }
   });
 }

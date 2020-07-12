@@ -8,10 +8,13 @@ import {
   initPresentation,
 } from '../controller/appController';
 import {
-  PpSchedule, HsmMap,
+  PpSchedule, HsmMap, BsPpState,
 } from '../type';
 import { getAutoschedule, getHsmMap } from '../selector';
 import { Sign } from './sign';
+import {
+  BsPpVoidThunkAction,
+} from '../model';
 
 // -----------------------------------------------------------------------
 // Types
@@ -21,7 +24,7 @@ export interface BrightSignPlayerProps {
   autoschedule: PpSchedule;
   bsdm: DmState;
   hsmMap: HsmMap;
-  onInitPresentation: () => any;
+  onInitPresentation: () => BsPpVoidThunkAction;
 }
 
 // -----------------------------------------------------------------------
@@ -78,13 +81,13 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 // Container
 // -----------------------------------------------------------------------
 
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+const mapDispatchToProps = (dispatch: Dispatch<BsPpState>) => {
   return bindActionCreators({
     onInitPresentation: initPresentation,
   }, dispatch);
 };
 
-function mapStateToProps(state: any) {
+function mapStateToProps(state: BsPpState) {
   return {
     bsdm: state.bsdm,
     autoschedule: getAutoschedule(state),

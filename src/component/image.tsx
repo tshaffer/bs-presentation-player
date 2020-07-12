@@ -4,6 +4,7 @@ import isomorphicPath from 'isomorphic-path';
 
 import { connect } from 'react-redux';
 import { getPoolFilePath } from '../selector';
+import { BsPpState } from '../type';
 
 // -----------------------------------------------------------------------
 // Types
@@ -47,7 +48,7 @@ export class ImageComponent extends React.Component<ImageProps> {
 // Container
 // -----------------------------------------------------------------------
 
-const mapStateToProps = (state: any, ownProps: any): any => {
+const mapStateToProps = (state: BsPpState, ownProps: any): any => {
   return {
     filePath: getPoolFilePath(state, ownProps.fileName),
     width: ownProps.width,
