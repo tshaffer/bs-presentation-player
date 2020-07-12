@@ -69,6 +69,8 @@ export const SET_HSM_DATA: string;
 export const ADD_HSTATE = "ADD_HSTATE";
 export const SET_MEDIA_H_STATE_TIMEOUT_ID = "SET_MEDIA_H_STATE_TIMEOUT_ID";
 export const SET_ACTIVE_HSTATE = "SET_ACTIVE_HSTATE";
+export const QUEUE_HSM_EVENT = "QUEUE_HSM_EVENT";
+export const DEQUEUE_HSM_EVENT = "DEQUEUE_HSM_EVENT";
 export type AddHsmAction = BsPpAction<Partial<Hsm>>;
 export function addHsm(hsm: Hsm): AddHsmAction;
 export type SetHsmTopAction = BsPpAction<{}>;
@@ -76,7 +78,7 @@ export function setHsmTop(hsmId: string, topStateId: string): SetHsmTopAction;
 export type SetHsmInitializedAction = BsPpAction<Partial<Hsm>>;
 export function setHsmInitialized(id: string, initialized: boolean): SetHsmInitializedAction;
 export type SetHsmDataAction = BsPpAction<Partial<Hsm>>;
-export function setHsmData(id: string, hsmData: HsmData): SetHsmDataAction;
+export function setHsmData(id: string, hsmData: HsmSpecificProperties): SetHsmDataAction;
 export type SetActiveHStateAction = BsPpAction<HState | null | any>;
 export function setActiveHState(hsmId: string, activeState: HState | null): SetActiveHStateAction;
 export type AddHStateAction = BsPpAction<{
@@ -94,6 +96,9 @@ export interface AddHStateOptions {
 }
 export function addHState(hStateSpecification: HStateSpecification, options?: AddHStateOptions): AddHStateAction;
 export function setMediaHStateTimeoutId(hStateId: string, timeoutId: number): any;
+export type HsmEventAction = BsPpAction<HsmEventType>;
+export function queueHsmEvent(event: HsmEventType): HsmEventAction;
+export function dequeueHsmEvent(): BsPpBaseAction;
 export const hsmReducer: import("redux").Reducer<HsmState>;
 /** @private */
 export const isValidHsmState: (state: any) => boolean;
@@ -119,13 +124,16 @@ export interface BsPpBaseObject {
 export interface BsPpMap<T extends BsPpBaseObject> {
     [id: string]: T;
 }
+export interface FileLUT {
+    [fileName: string]: string;
+}
 
 export type HsmMap = BsPpMap<Hsm>;
 export type HStateMap = BsPpMap<HState>;
 export interface HsmState {
     hsmById: HsmMap;
     hStateById: HStateMap;
-    activeHStateByHsm: HStateMap;
+    hsmEventQueue: HsmEventType[];
 }
 export interface Hsm {
     id: string;
@@ -134,10 +142,10 @@ export interface Hsm {
     topStateId: string;
     activeStateId: string | null;
     initialized: boolean;
-    hsmData?: HsmData;
+    properties: HsmSpecificProperties;
 }
-export type HsmData = ZoneHsmData | MediaZoneHsmData;
-export interface ZoneHsmData {
+export type HsmSpecificProperties = ZoneHsmProperties | MediaZoneHsmProperties | {};
+export interface ZoneHsmProperties {
     zoneId: string;
     x: number;
     y: number;
@@ -145,8 +153,13 @@ export interface ZoneHsmData {
     height: number;
     initialMediaStateId: string;
 }
-export interface MediaZoneHsmData extends ZoneHsmData {
+export interface MediaZoneHsmProperties extends ZoneHsmProperties {
     mediaStateIdToHState: LUT;
+}
+export interface HsmEventType {
+    EventType: string;
+    data?: any;
+    EventData?: any;
 }
 
 export class HsmType {
@@ -183,48 +196,48 @@ export interface HSMStateData {
     nextStateId: string | null;
 }
 
-export interface ArEventType {
-    EventType: string;
-    data?: any;
-    EventData?: any;
-}
-export interface ArSyncSpecHash {
-    method: string;
-    hex: string;
-}
-export interface ArSyncSpecDownload {
-    name: string;
-    hash: ArSyncSpecHash;
-    size: number;
-    link: string;
-}
-export interface ArSyncSpecFiles {
-    download: ArSyncSpecDownload[];
-    ignore: any;
-    delete: any;
-}
-export interface ArSyncSpec {
-    meta: any;
-    files: any;
-}
-export interface ArFileLUT {
-    [fileName: string]: string;
-}
 export interface SubscribedEvents {
     [eventKey: string]: HState;
 }
 export interface ArState {
     bsdm?: DmState;
-    stateMachine?: any;
+    hsm?: any;
     stateName?: string;
 }
 
 export interface PresentationDataState {
     platform: string;
     srcDirectory: string;
-    syncSpec: ArSyncSpec | null;
+    syncSpecFileMap: SyncSpecFileMap | null;
     autoSchedule: PpSchedule | null;
 }
+export interface SyncSpecFileMap {
+    [name: string]: SyncSpecDownload;
+}
+export interface SyncSpecDownload {
+    name: string;
+    hash: SyncSpecHash;
+    size: number;
+    link: string;
+}
+interface SyncSpecHash {
+    method: string;
+    hex: string;
+}
+interface SyncSpecMeta {
+    client: any;
+    server: any;
+}
+export interface RawSyncSpecFiles {
+    download: SyncSpecDownload[];
+    ignore: any;
+    delete: any;
+}
+export interface RawSyncSpec {
+    meta: SyncSpecMeta;
+    files: RawSyncSpecFiles;
+}
+export {};
 
 export interface PpSchedule {
     scheduledPresentations: ScheduledPresentation[];
