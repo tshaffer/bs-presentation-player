@@ -5,6 +5,7 @@ import {
   HStateMap,
   MediaHState,
   HsmEventType,
+  ZoneHsmProperties,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
@@ -112,20 +113,21 @@ export function getActiveMediaStateId(state: BsPpState, zoneId: string): string 
   const zoneHsmList: Hsm[] = getZoneHsmList(state);
   for (const zoneHsm of zoneHsmList) {
     if (!isNil(zoneHsm.properties)) {
-      // if (isString(zoneHsm.properties.zoneId)) {
-
-      //   if (zoneHsm.properties.zoneId === zoneId) {
-      //     const hState: HState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
-      //     if (isString((hState as MediaHState).mediaStateId)
-      //     ) {
-      //       return (hState as MediaHState).mediaStateId;
-      //     }
-      //   }
-      // }
+      if (isString((zoneHsm.properties as ZoneHsmProperties).zoneId)) {
+        if ((zoneHsm.properties as ZoneHsmProperties).zoneId === zoneId) {
+          const activeHStateId: string = zoneHsm.activeStateId as string;
+          const activeHState = getHStateById(state, activeHStateId);
+          if (!isNil(activeHState)) {
+            return (activeHState as MediaHState).mediaStateId;
+          }
+          return zoneHsm.activeStateId as string;
+        }
+      }
     }
   }
   return '';
 }
+
 
 export function getEvents(state: BsPpState): HsmEventType[] {
   return state.bsPlayer.hsmState.hsmEventQueue;
