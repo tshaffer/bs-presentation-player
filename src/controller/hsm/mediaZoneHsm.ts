@@ -15,7 +15,7 @@ import {
   HsmType,
 } from '../../type';
 import {
-  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction,
+  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction, BsPpStringThunkAction,
 } from '../../model';
 import { ContentItemType } from '@brightsign/bscore';
 import { createImageState } from './imageState';
@@ -43,8 +43,10 @@ export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: 
     const mediaStateIds = dmGetMediaStateIdsForZone(bsdm, { id: bsdmZone.id });
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
-      dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
-      const hState: HState | null = getHStateByMediaStateId(getState(), hsmId, bsdmMediaState.id);
+      // TEDTODO - createMHState should do what setHsmData below is doing...
+      const mediaHStateId: string = dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
+      const hState: HState | null = getHStateById(getState(), mediaHStateId);
+      // const hState: HState | null = getHStateByMediaStateId(getState(), hsmId, bsdmMediaState.id);
       if (!isNil(hState)) {
         hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
         dispatch(setHsmData(hsmId, hsmData));
@@ -53,7 +55,11 @@ export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: 
   });
 };
 
-const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superStateId: string): BsPpVoidThunkAction => {
+const createMediaHState = (
+  hsmId: string,
+  bsdmMediaState: DmMediaState,
+  superStateId: string
+): BsPpStringThunkAction => {
 
   return ((dispatch: any, getState: any) => {
 
@@ -62,16 +68,17 @@ const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superSta
       const contentItemType = bsdmMediaState.contentItem.type;
       switch (contentItemType) {
         case ContentItemType.Image:
-          dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
-          break;
+          const imageStateId: string = dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          return imageStateId;
         case ContentItemType.Video:
           debugger;
           dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
-          break;
+          return '';
         default:
-          break;
+          return '';
       }
     }
+    return '';
   });
 };
 

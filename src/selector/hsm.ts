@@ -76,6 +76,7 @@ export function getHStateByMediaStateId(state: BsPpState, hsmId: string, mediaSt
   if (isNil(mediaStateId)) {
     return null;
   }
+
   const hsm: Hsm = getHsmById(state, hsmId);
   return (hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState[mediaStateId];
 }
