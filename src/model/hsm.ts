@@ -7,7 +7,6 @@ import {
   HsmMap,
   HStateMap,
   HState,
-  // HsmProperties,
   HStateType,
   HStateSpecification,
   HsmEventType,
@@ -31,7 +30,6 @@ export const ADD_HSM: string = 'ADD_HSM';
 export const UPDATE_HSM_PROPERTIES: string = 'UPDATE_HSM_PROPERTIES';
 export const SET_HSM_TOP: string = 'SET_HSM_TOP';
 export const SET_HSM_INITIALIZED: string = 'SET_HSM_INITIALIZED';
-// export const SET_HSM_DATA: string = 'SET_HSM_DATA';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_MEDIA_H_STATE_TIMEOUT_ID = 'SET_MEDIA_H_STATE_TIMEOUT_ID';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
@@ -61,27 +59,14 @@ export interface HsmParams {
 
 export type UpdateHsmPropertiesAction = BsPpAction<HsmParams>;
 
-export function updateHsmProperties(id: string, params: HsmParams): UpdateHsmPropertiesAction {
+export function updateHsmProperties(params: HsmParams): UpdateHsmPropertiesAction {
   let payload = params;
-  payload = { ...params, id };
+  payload = { ...params };
   return {
     type: UPDATE_HSM_PROPERTIES,
     payload,
   };
 }
-
-// export type SetHsmDataAction = BsPpAction<Partial<Hsm>>;
-// export function setHsmData(
-//   id: string,
-//   hsmData: HsmProperties): SetHsmDataAction {
-//   return {
-//     type: SET_HSM_DATA,
-//     payload: {
-//       id,
-//       properties: hsmData,
-//     }
-//   };
-// }
 
 interface SetHsmTopActionParams {
   hsmId: string;
@@ -219,12 +204,12 @@ const hsmById = (
       return { ...state, [id]: (action.payload as Hsm) };
     }
     case UPDATE_HSM_PROPERTIES: {
-      const hsmId: string = (action as UpdateHsmPropertiesAction).payload.id;
+      const payload = (action as UpdateHsmPropertiesAction).payload;
+      const hsmId: string = payload.id;
       const newState = cloneDeep(state) as HsmMap;
       const hsm: Hsm = newState[hsmId];
       (hsm.properties as HsmParams).mediaStateIdToHState =
-        (action as UpdateHsmPropertiesAction).payload.mediaStateIdToHState;
-      debugger;
+        payload.mediaStateIdToHState;
       return newState;
     }
     case SET_HSM_TOP: {
@@ -242,14 +227,6 @@ const hsmById = (
       hsm.initialized = initialized;
       return newState;
     }
-    // case SET_HSM_DATA: {
-    //   const id: string = (action as SetHsmDataAction).payload.id as string;
-    //   const hsmData: HsmProperties = (action as SetHsmDataAction).payload.properties!;
-    //   const newState = cloneDeep(state) as HsmMap;
-    //   const hsm: Hsm = newState[id];
-    //   hsm.properties = hsmData;
-    //   return newState;
-    // }
     case SET_ACTIVE_HSTATE: {
       const newState = Object.assign({}, state);
       const hsmId: string = (action.payload as any).id;

@@ -75,7 +75,7 @@ const createMediaHState = (
           const hState: HState | null = getHStateById(getState(), mediaHStateId);
           const mediaStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
           mediaStateIdToHState[bsdmMediaState.id] = hState;
-          dispatch(updateHsmProperties(hsmId, { id: hsmId, mediaStateIdToHState }));
+          dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState }));
           return mediaHStateId;
         case ContentItemType.Video:
           debugger;
