@@ -63,9 +63,9 @@ export function isValidBsBrightSignPlayerModelStateShallow(state: any): boolean;
 
 /** @module Model:template */
 export const ADD_HSM: string;
+export const UPDATE_HSM_PROPERTIES: string;
 export const SET_HSM_TOP: string;
 export const SET_HSM_INITIALIZED: string;
-export const SET_HSM_DATA: string;
 export const ADD_HSTATE = "ADD_HSTATE";
 export const SET_MEDIA_H_STATE_TIMEOUT_ID = "SET_MEDIA_H_STATE_TIMEOUT_ID";
 export const SET_ACTIVE_HSTATE = "SET_ACTIVE_HSTATE";
@@ -73,12 +73,22 @@ export const QUEUE_HSM_EVENT = "QUEUE_HSM_EVENT";
 export const DEQUEUE_HSM_EVENT = "DEQUEUE_HSM_EVENT";
 export type AddHsmAction = BsPpAction<Partial<Hsm>>;
 export function addHsm(hsm: Hsm): AddHsmAction;
+export interface HsmParams {
+    id: string;
+    zoneId?: string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    initialMediaStateId?: string;
+    mediaStateIdToHState?: LUT;
+}
+export type UpdateHsmPropertiesAction = BsPpAction<HsmParams>;
+export function updateHsmProperties(params: HsmParams): UpdateHsmPropertiesAction;
 export type SetHsmTopAction = BsPpAction<{}>;
 export function setHsmTop(hsmId: string, topStateId: string): SetHsmTopAction;
 export type SetHsmInitializedAction = BsPpAction<Partial<Hsm>>;
 export function setHsmInitialized(id: string, initialized: boolean): SetHsmInitializedAction;
-export type SetHsmDataAction = BsPpAction<Partial<Hsm>>;
-export function setHsmData(id: string, hsmData: HsmSpecificProperties): SetHsmDataAction;
 export type SetActiveHStateAction = BsPpAction<HState | null | any>;
 export function setActiveHState(hsmId: string, activeState: HState | null): SetActiveHStateAction;
 export type AddHStateAction = BsPpAction<{
@@ -142,9 +152,9 @@ export interface Hsm {
     topStateId: string;
     activeStateId: string | null;
     initialized: boolean;
-    properties: HsmSpecificProperties;
+    properties: HsmProperties;
 }
-export type HsmSpecificProperties = ZoneHsmProperties | MediaZoneHsmProperties | {};
+export type HsmProperties = ZoneHsmProperties | MediaZoneHsmProperties | {};
 export interface ZoneHsmProperties {
     zoneId: string;
     x: number;
