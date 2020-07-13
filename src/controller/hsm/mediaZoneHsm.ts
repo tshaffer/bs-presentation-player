@@ -13,16 +13,20 @@ import {
   MediaZoneHsmProperties,
   HState,
   HsmType,
+  LUT,
 } from '../../type';
 import {
-  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction, BsPpStringThunkAction,
+  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction, BsPpStringThunkAction, updateHsmProperties,
 } from '../../model';
 import { ContentItemType } from '@brightsign/bscore';
 import { createImageState } from './imageState';
-import { isNil } from 'lodash';
+import { isNil, cloneDeep } from 'lodash';
 import { Hsm } from '../../type';
 import { getHsmById, getHStateById, getHStateByMediaStateId } from '../../selector/hsm';
-import { setActiveHState, setHsmData } from '../../model';
+import {
+  setActiveHState,
+  // setHsmData
+} from '../../model';
 
 export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: DmZone): BsPpVoidThunkAction => {
   return ((dispatch: any, getState: any) => {
@@ -43,14 +47,13 @@ export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: 
     const mediaStateIds = dmGetMediaStateIdsForZone(bsdm, { id: bsdmZone.id });
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
-      // TEDTODO - createMHState should do what setHsmData below is doing...
-      const mediaHStateId: string = dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
-      const hState: HState | null = getHStateById(getState(), mediaHStateId);
-      // const hState: HState | null = getHStateByMediaStateId(getState(), hsmId, bsdmMediaState.id);
-      if (!isNil(hState)) {
-        hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
-        dispatch(setHsmData(hsmId, hsmData));
-      }
+      dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
+      // const mediaHStateId: string = dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
+      // const hState: HState | null = getHStateById(getState(), mediaHStateId);
+      // if (!isNil(hState)) {
+      //   hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
+      //   dispatch(setHsmData(hsmId, hsmData));
+      // }
     }
   });
 };
@@ -68,11 +71,14 @@ const createMediaHState = (
       const contentItemType = bsdmMediaState.contentItem.type;
       switch (contentItemType) {
         case ContentItemType.Image:
-          const imageStateId: string = dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
-          return imageStateId;
+          const mediaHStateId: string = dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          const hState: HState | null = getHStateById(getState(), mediaHStateId);
+          const mediaStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
+          mediaStateIdToHState[bsdmMediaState.id] = hState;
+          dispatch(updateHsmProperties(hsmId, { id: hsmId, mediaStateIdToHState }));
+          return mediaHStateId;
         case ContentItemType.Video:
           debugger;
-          dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
           return '';
         default:
           return '';

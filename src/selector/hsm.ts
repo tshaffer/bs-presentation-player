@@ -118,7 +118,6 @@ export function getActiveMediaStateId(state: BsPpState, zoneId: string): string 
   return '';
 }
 
-
 export function getEvents(state: BsPpState): HsmEventType[] {
   return state.bsPlayer.hsmState.hsmEventQueue;
 }

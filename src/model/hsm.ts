@@ -7,10 +7,11 @@ import {
   HsmMap,
   HStateMap,
   HState,
-  HsmSpecificProperties,
+  // HsmProperties,
   HStateType,
   HStateSpecification,
   HsmEventType,
+  LUT,
 } from '../type';
 import {
   BsPpAction, BsPpBaseAction,
@@ -27,9 +28,10 @@ import { MediaHState } from '../type';
 // ------------------------------------
 
 export const ADD_HSM: string = 'ADD_HSM';
+export const UPDATE_HSM_PROPERTIES: string = 'UPDATE_HSM_PROPERTIES';
 export const SET_HSM_TOP: string = 'SET_HSM_TOP';
 export const SET_HSM_INITIALIZED: string = 'SET_HSM_INITIALIZED';
-export const SET_HSM_DATA: string = 'SET_HSM_DATA';
+// export const SET_HSM_DATA: string = 'SET_HSM_DATA';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_MEDIA_H_STATE_TIMEOUT_ID = 'SET_MEDIA_H_STATE_TIMEOUT_ID';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
@@ -45,6 +47,41 @@ export function addHsm(
     payload: hsm,
   };
 }
+
+export interface HsmParams {
+  id: string;
+  zoneId?: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  initialMediaStateId?: string;
+  mediaStateIdToHState?: LUT;
+}
+
+export type UpdateHsmPropertiesAction = BsPpAction<HsmParams>;
+
+export function updateHsmProperties(id: string, params: HsmParams): UpdateHsmPropertiesAction {
+  let payload = params;
+  payload = { ...params, id };
+  return {
+    type: UPDATE_HSM_PROPERTIES,
+    payload,
+  };
+}
+
+// export type SetHsmDataAction = BsPpAction<Partial<Hsm>>;
+// export function setHsmData(
+//   id: string,
+//   hsmData: HsmProperties): SetHsmDataAction {
+//   return {
+//     type: SET_HSM_DATA,
+//     payload: {
+//       id,
+//       properties: hsmData,
+//     }
+//   };
+// }
 
 interface SetHsmTopActionParams {
   hsmId: string;
@@ -74,19 +111,6 @@ export function setHsmInitialized(
     payload: {
       id,
       initialized,
-    }
-  };
-}
-
-export type SetHsmDataAction = BsPpAction<Partial<Hsm>>;
-export function setHsmData(
-  id: string,
-  hsmData: HsmSpecificProperties): SetHsmDataAction {
-  return {
-    type: SET_HSM_DATA,
-    payload: {
-      id,
-      properties: hsmData,
     }
   };
 }
@@ -187,12 +211,21 @@ export function dequeueHsmEvent(
 const initialHsmByIdState: HsmMap = {};
 const hsmById = (
   state: HsmMap = initialHsmByIdState,
-  action: AddHsmAction | SetHsmTopAction | SetHsmInitializedAction
+  action: AddHsmAction | SetHsmTopAction | SetHsmInitializedAction | AddHStateAction | UpdateHsmPropertiesAction
 ): HsmMap => {
   switch (action.type) {
     case ADD_HSM: {
       const id: string = (action.payload as Hsm).id;
       return { ...state, [id]: (action.payload as Hsm) };
+    }
+    case UPDATE_HSM_PROPERTIES: {
+      const hsmId: string = (action as UpdateHsmPropertiesAction).payload.id;
+      const newState = cloneDeep(state) as HsmMap;
+      const hsm: Hsm = newState[hsmId];
+      (hsm.properties as HsmParams).mediaStateIdToHState =
+        (action as UpdateHsmPropertiesAction).payload.mediaStateIdToHState;
+      debugger;
+      return newState;
     }
     case SET_HSM_TOP: {
       const { hsmId, topStateId } = action.payload as SetHsmTopActionParams;
@@ -209,14 +242,14 @@ const hsmById = (
       hsm.initialized = initialized;
       return newState;
     }
-    case SET_HSM_DATA: {
-      const id: string = (action as SetHsmDataAction).payload.id as string;
-      const hsmData: HsmSpecificProperties = (action as SetHsmDataAction).payload.properties!;
-      const newState = cloneDeep(state) as HsmMap;
-      const hsm: Hsm = newState[id];
-      hsm.properties = hsmData;
-      return newState;
-    }
+    // case SET_HSM_DATA: {
+    //   const id: string = (action as SetHsmDataAction).payload.id as string;
+    //   const hsmData: HsmProperties = (action as SetHsmDataAction).payload.properties!;
+    //   const newState = cloneDeep(state) as HsmMap;
+    //   const hsm: Hsm = newState[id];
+    //   hsm.properties = hsmData;
+    //   return newState;
+    // }
     case SET_ACTIVE_HSTATE: {
       const newState = Object.assign({}, state);
       const hsmId: string = (action.payload as any).id;

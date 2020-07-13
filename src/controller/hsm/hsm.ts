@@ -1,6 +1,6 @@
 import {
   Hsm,
-  HsmSpecificProperties,
+  HsmProperties,
   HSMStateData,
   HState,
   HsmType,
@@ -32,7 +32,7 @@ import { newBsPpId } from '../../utility';
 export const createHsm = (
   name: string,
   type: HsmType,
-  data: HsmSpecificProperties,
+  properties: HsmProperties,
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     console.log('***** HSM.ts#createHsm');
@@ -44,7 +44,7 @@ export const createHsm = (
       initialized: false,
       topStateId: '',
       activeStateId: null,
-      properties: data,
+      properties,
     }));
     return hsmId;
   });
