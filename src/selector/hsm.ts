@@ -3,8 +3,10 @@ import {
   Hsm,
   HState,
   HStateMap,
-  MediaHState,
   HsmEventType,
+  MediaZoneHsmProperties,
+  ZoneHsmProperties,
+  MediaHState,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
@@ -70,24 +72,13 @@ export function getHStateByName(state: BsPpState, name: string | null): HState |
   return hStateId ? getHStateById(state, hStateId) : null;
 }
 
-export function getHStateByMediaStateId(state: BsPpState, mediaStateId: string | null): HState | null {
+export function getHStateByMediaStateId(state: BsPpState, hsmId: string, mediaStateId: string | null): HState | null {
   if (isNil(mediaStateId)) {
     return null;
   }
-  const hStateMap: HStateMap = state.bsPlayer.hsmState.hStateById;
 
-  for (const hStateId in hStateMap) {
-    if (hStateMap.hasOwnProperty(hStateId)) {
-      const hState = hStateMap[hStateId];
-      if (isString((hState as MediaHState).mediaStateId)
-        && (hState as MediaHState).mediaStateId === mediaStateId) {
-        return hState;
-      }
-    }
-  }
-
-  debugger;
-  return null;
+  const hsm: Hsm = getHsmById(state, hsmId);
+  return (hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState[mediaStateId];
 }
 
 export function getHsmInitialized(state: BsPpState, hsmId: string): boolean {
@@ -112,16 +103,16 @@ export function getActiveMediaStateId(state: BsPpState, zoneId: string): string 
   const zoneHsmList: Hsm[] = getZoneHsmList(state);
   for (const zoneHsm of zoneHsmList) {
     if (!isNil(zoneHsm.properties)) {
-      // if (isString(zoneHsm.properties.zoneId)) {
-
-      //   if (zoneHsm.properties.zoneId === zoneId) {
-      //     const hState: HState | null = getActiveStateIdByHsmId(state, zoneHsm.id);
-      //     if (isString((hState as MediaHState).mediaStateId)
-      //     ) {
-      //       return (hState as MediaHState).mediaStateId;
-      //     }
-      //   }
-      // }
+      if (isString((zoneHsm.properties as ZoneHsmProperties).zoneId)) {
+        if ((zoneHsm.properties as ZoneHsmProperties).zoneId === zoneId) {
+          const activeHStateId: string = zoneHsm.activeStateId as string;
+          const activeHState = getHStateById(state, activeHStateId);
+          if (!isNil(activeHState)) {
+            return (activeHState as MediaHState).mediaStateId;
+          }
+          return zoneHsm.activeStateId as string;
+        }
+      }
     }
   }
   return '';

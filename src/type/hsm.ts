@@ -21,10 +21,10 @@ export interface Hsm {
   topStateId: string;
   activeStateId: string | null;
   initialized: boolean;
-  properties: HsmSpecificProperties;
+  properties: HsmProperties;
 }
 
-export type HsmSpecificProperties = ZoneHsmProperties | MediaZoneHsmProperties | {};
+export type HsmProperties = ZoneHsmProperties | MediaZoneHsmProperties | {};
 
 // TEDTODO
 // PlayerHsmProperties - any??

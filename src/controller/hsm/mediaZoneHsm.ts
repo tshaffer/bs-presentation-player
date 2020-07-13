@@ -13,16 +13,20 @@ import {
   MediaZoneHsmProperties,
   HState,
   HsmType,
+  LUT,
 } from '../../type';
 import {
-  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction,
+  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction, BsPpStringThunkAction, updateHsmProperties,
 } from '../../model';
 import { ContentItemType } from '@brightsign/bscore';
 import { createImageState } from './imageState';
-import { isNil } from 'lodash';
+import { isNil, cloneDeep } from 'lodash';
 import { Hsm } from '../../type';
 import { getHsmById, getHStateById, getHStateByMediaStateId } from '../../selector/hsm';
-import { setActiveHState, setHsmData } from '../../model';
+import {
+  setActiveHState,
+  // setHsmData
+} from '../../model';
 
 export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: DmZone): BsPpVoidThunkAction => {
   return ((dispatch: any, getState: any) => {
@@ -44,16 +48,21 @@ export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: 
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
       dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
-      const hState: HState | null = getHStateByMediaStateId(getState(), bsdmMediaState.id);
-      if (!isNil(hState)) {
-        hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
-        dispatch(setHsmData(hsmId, hsmData));
-      }
+      // const mediaHStateId: string = dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
+      // const hState: HState | null = getHStateById(getState(), mediaHStateId);
+      // if (!isNil(hState)) {
+      //   hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
+      //   dispatch(setHsmData(hsmId, hsmData));
+      // }
     }
   });
 };
 
-const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superStateId: string): BsPpVoidThunkAction => {
+const createMediaHState = (
+  hsmId: string,
+  bsdmMediaState: DmMediaState,
+  superStateId: string
+): BsPpStringThunkAction => {
 
   return ((dispatch: any, getState: any) => {
 
@@ -62,16 +71,20 @@ const createMediaHState = (hsmId: string, bsdmMediaState: DmMediaState, superSta
       const contentItemType = bsdmMediaState.contentItem.type;
       switch (contentItemType) {
         case ContentItemType.Image:
-          dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
-          break;
+          const mediaHStateId: string = dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          const hState: HState | null = getHStateById(getState(), mediaHStateId);
+          const mediaStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
+          mediaStateIdToHState[bsdmMediaState.id] = hState;
+          dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState }));
+          return mediaHStateId;
         case ContentItemType.Video:
           debugger;
-          dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
-          break;
+          return '';
         default:
-          break;
+          return '';
       }
     }
+    return '';
   });
 };
 
@@ -90,7 +103,7 @@ export const initializeVideoOrImagesZoneHsm = (hsmId: string): BsPpVoidThunkActi
         dmGetInitialMediaStateIdForZone(bsdm, { id: properties.zoneId });
       if (!isNil(initialMediaStateId)) {
         const initialMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: initialMediaStateId }) as DmMediaState;
-        activeState = getHStateByMediaStateId(getState(), initialMediaState.id);
+        activeState = getHStateByMediaStateId(getState(), hsm.id, initialMediaState.id);
       }
 
       dispatch(setActiveHState(hsmId, activeState));
