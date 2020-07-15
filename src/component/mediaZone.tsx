@@ -35,7 +35,7 @@ export interface MediaZonePropsFromParent {
 }
 
 export interface MediaZoneProps extends MediaZonePropsFromParent {
-  activeMediaStateId: string;
+  mediaStateId: string;
 }
 
 // -----------------------------------------------------------------------
@@ -85,13 +85,12 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
   render() {
 
-    // TEDTODO - rename one of these. that is, either change activeMediaStateId to ?
-    // or actually supply the mediaStateId.
-    const hStateId: string = this.props.activeMediaStateId;
-    if (!isString(hStateId) || hStateId.length === 0) {
+    if (!isString(this.props.mediaStateId) || this.props.mediaStateId.length === 0) {
       return null;
     }
-    const mediaState: DmMediaState = dmGetMediaStateById(this.props.bsdm, { id: hStateId }) as DmMediaState;
+
+    const mediaState: DmMediaState =
+      dmGetMediaStateById(this.props.bsdm, { id: this.props.mediaStateId }) as DmMediaState;
     const contentItem: DmDerivedContentItem = mediaState.contentItem;
 
     switch (contentItem.type) {
@@ -120,7 +119,7 @@ const mapStateToProps = (
     zone: ownProps.zone,
     width: ownProps.width,
     height: ownProps.height,
-    activeMediaStateId: getActiveMediaStateId(state, ownProps.zone.id),
+    mediaStateId: getActiveMediaStateId(state, ownProps.zone.id),
   };
 };
 
