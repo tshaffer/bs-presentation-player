@@ -10,11 +10,14 @@ import { BsPpState } from '../type';
 // Types
 // -----------------------------------------------------------------------
 
-/** @internal */
-export interface ImageProps {
-  filePath: string;
+export interface ImagePropsFromParent {
+  fileName: string;
   width: number;
   height: number;
+}
+
+export interface ImageProps extends ImagePropsFromParent {
+  filePath: string;
 }
 
 // -----------------------------------------------------------------------
@@ -48,11 +51,12 @@ export class ImageComponent extends React.Component<ImageProps> {
 // Container
 // -----------------------------------------------------------------------
 
-const mapStateToProps = (state: BsPpState, ownProps: any): any => {
+const mapStateToProps = (state: BsPpState, ownProps: ImagePropsFromParent): ImageProps => {
   return {
     filePath: getPoolFilePath(state, ownProps.fileName),
     width: ownProps.width,
     height: ownProps.height,
+    fileName: ownProps.fileName,
   };
 };
 

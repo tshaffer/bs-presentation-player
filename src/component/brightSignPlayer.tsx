@@ -63,9 +63,7 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 
     if (initializationComplete) {
       return (
-        <Sign
-          bsdm={this.props.bsdm}
-        />
+        <Sign/>
       );
     } else {
       return (
@@ -81,12 +79,6 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 // Container
 // -----------------------------------------------------------------------
 
-const mapDispatchToProps = (dispatch: Dispatch<BsPpState>) => {
-  return bindActionCreators({
-    onInitPresentation: initPresentation,
-  }, dispatch);
-};
-
 function mapStateToProps(state: BsPpState) {
   return {
     bsdm: state.bsdm,
@@ -94,5 +86,11 @@ function mapStateToProps(state: BsPpState) {
     hsmMap: getHsmMap(state),
   };
 }
+
+const mapDispatchToProps = (dispatch: Dispatch<BsPpState>) => {
+  return bindActionCreators({
+    onInitPresentation: initPresentation,
+  }, dispatch);
+};
 
 export const BrightSignPlayer = connect(mapStateToProps, mapDispatchToProps)(BrightSignPlayerComponent);

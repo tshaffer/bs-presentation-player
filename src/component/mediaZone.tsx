@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Dispatch, bindActionCreators } from 'redux';
 
 import { isString } from 'lodash';
 
@@ -125,9 +124,4 @@ const mapStateToProps = (
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-  return bindActionCreators({
-  }, dispatch);
-};
-
-export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);
+export const MediaZone = connect(mapStateToProps)(MediaZoneComponent);

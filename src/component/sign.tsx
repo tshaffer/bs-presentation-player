@@ -112,7 +112,7 @@ class SignComponent extends React.Component<SignProps> {
 // Container
 // -----------------------------------------------------------------------
 
-const mapStateToProps = (state: BsPpState): any => {
+const mapStateToProps = (state: BsPpState): Partial<SignProps> => {
   return {
     bsdm: state.bsdm,
   };
