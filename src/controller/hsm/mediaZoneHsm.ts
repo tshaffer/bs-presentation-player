@@ -14,9 +14,10 @@ import {
   HState,
   HsmType,
   LUT,
+  BsPpState,
 } from '../../type';
 import {
-  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction, BsPpStringThunkAction, updateHsmProperties,
+  BsPpVoidThunkAction, BsPpAnyPromiseThunkAction, BsPpStringThunkAction, updateHsmProperties, BsPpDispatch,
 } from '../../model';
 import { ContentItemType } from '@brightsign/bscore';
 import { createImageState } from './imageState';
@@ -29,7 +30,7 @@ import {
 } from '../../model';
 
 export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: DmZone): BsPpVoidThunkAction => {
-  return ((dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     const hsmData: MediaZoneHsmProperties = {
       zoneId: bsdmZone.id,
       x: bsdmZone.position.x,
@@ -58,8 +59,7 @@ const createMediaHState = (
   superStateId: string
 ): BsPpStringThunkAction => {
 
-  return ((dispatch: any, getState: any) => {
-
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     const hsm: Hsm = getHsmById(getState(), hsmId);
     if (!isNil(hsm)) {
       const contentItemType = bsdmMediaState.contentItem.type;
@@ -83,7 +83,7 @@ const createMediaHState = (
 };
 
 export const initializeVideoOrImagesZoneHsm = (hsmId: string): BsPpVoidThunkAction => {
-  return (dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
 
     // get the initial media state for the zone
     const bsdm: DmState = dmFilterDmState(getState());
@@ -102,16 +102,16 @@ export const initializeVideoOrImagesZoneHsm = (hsmId: string): BsPpVoidThunkActi
 
       dispatch(setActiveHState(hsmId, activeState));
     }
-  };
+  });
 };
 
 export const videoOrImagesZoneHsmGetInitialState = (hsmId: string): BsPpAnyPromiseThunkAction => {
-  return (dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     console.log('videoOrImagesZoneGetInitialState');
     console.log(getState());
     const hsm: Hsm = getHsmById(getState(), hsmId);
     console.log(getState());
     const initialState = getHStateById(getState(), hsm.activeStateId);
     return Promise.resolve(initialState);
-  };
+  });
 };

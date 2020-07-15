@@ -5,9 +5,10 @@ import {
   HStateType,
   HsmProperties,
   HsmType,
+  BsPpState,
 } from '../../type';
 import {
-  BsPpStringThunkAction,
+  BsPpStringThunkAction, BsPpDispatch,
 } from '../../model';
 
 import { getHStateByName } from '../../selector/hsm';
@@ -19,7 +20,7 @@ export const createZoneHsm = (
   hsmType: HsmType,
   hsmData: HsmProperties
 ): BsPpStringThunkAction => {
-  return ((dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     const hsmId: string = dispatch(createHsm(hsmName, hsmType, hsmData));
 
     dispatch(createHState(HStateType.Top, hsmId, '', 'top'));

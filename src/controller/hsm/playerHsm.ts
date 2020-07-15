@@ -53,7 +53,7 @@ import { getIsHsmInitialized } from '../../selector';
 import { addHsmEvent } from '../hsmController';
 
 export const createPlayerHsm = (): any => {
-  return ((dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     console.log('invoke createPlayerHsm');
     const playerHsmId: string = dispatch(createHsm('player', HsmType.Player, {}));
 
@@ -75,7 +75,7 @@ export const createPlayerHsm = (): any => {
 };
 
 export const initializePlayerHsm = (): any => {
-  return ((dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     console.log('invoke initializePlayerHsm');
     const playerHsm = getHsmByName(getState(), 'player');
     if (!isNil(playerHsm)) {
@@ -85,7 +85,7 @@ export const initializePlayerHsm = (): any => {
 };
 
 export const playerHsmGetInitialState = (): BsPpAnyPromiseThunkAction => {
-  return (dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     console.log('invoke playerHsmGetInitialState');
     return dispatch(launchSchedulePlayback(''))
       .then(() => {
@@ -93,7 +93,7 @@ export const playerHsmGetInitialState = (): BsPpAnyPromiseThunkAction => {
         const hState = getHStateByName(getState(), 'playing');
         return Promise.resolve(hState);
       });
-  };
+  });
 };
 
 export const STPlayerEventHandler = (
@@ -101,13 +101,13 @@ export const STPlayerEventHandler = (
   event: HsmEventType,
   stateData: HSMStateData
 ): any => {
-  return (dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     stateData.nextStateId = hState.superStateId;
 
     console.log('***** - STPlayerEventHandler, event type ' + event.EventType);
 
     return 'SUPER';
-  };
+  });
 };
 
 export const STPlayingEventHandler = (
@@ -116,7 +116,7 @@ export const STPlayingEventHandler = (
   stateData: HSMStateData
 ): any => {
 
-  return (dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     stateData.nextStateId = null;
 
     console.log('***** - STPlayingEventHandler, event type ' + event.EventType);
@@ -132,7 +132,7 @@ export const STPlayingEventHandler = (
 
     stateData.nextStateId = hState.superStateId;
     return 'SUPER';
-  };
+  });
 };
 
 export const STWaitingEventHandler = (
@@ -141,7 +141,7 @@ export const STWaitingEventHandler = (
   stateData: HSMStateData
 ): any => {
 
-  return (dispatch: any, getState: any) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     stateData.nextStateId = null;
 
     if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
@@ -151,7 +151,7 @@ export const STWaitingEventHandler = (
       console.log(hState.id + ': TRANSITION_TO_PLAYING event received');
       // const hsmId: string = hState.hsmId;
       // const hsm: PpHsm = getHsmById(getState(), hsmId);
-      const stPlayingState: HState | null = getHStateByName(getState, 'Playing');
+      const stPlayingState: HState | null = getHStateByName(getState(), 'Playing');
       if (!isNil(stPlayingState)) {
         stateData.nextStateId = stPlayingState.id;
         return 'TRANSITION';
@@ -161,7 +161,7 @@ export const STWaitingEventHandler = (
 
     stateData.nextStateId = hState.superStateId;
     return 'SUPER';
-  };
+  });
 };
 
 export const launchSchedulePlayback = (presentationName: string): BsPpVoidPromiseThunkAction => {
