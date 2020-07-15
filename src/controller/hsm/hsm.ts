@@ -58,7 +58,7 @@ export function initializeHsm(
 
     console.log('***** HSM.ts#initializeHsm');
 
-    // any reason why the following call is necessary? It causes breakage....
+    // is there a reason why the following call is necessary? It causes breakage....
     // dispatch(setActiveHState(hsmId, null));
 
     // execute initial transition
@@ -275,7 +275,7 @@ export function hsmDispatch(
               path[1] = t;                                            // save the superstate of the target
               t = getHStateById(getState(), stateData.nextStateId) as HState;       // save source->super
               // get target->super->super
-              const aState: any = (path as HState[])[1];
+              const aState: HState = (path as HState[])[1];
               action = HStateEventHandler(aState, emptyEvent, stateData);
               status = dispatch(action);
               while (status === 'SUPER') {
@@ -286,7 +286,7 @@ export function hsmDispatch(
                   ip = ip - 1;                                    // do not enter the source
                   status = 'HANDLED';                             // terminate the loop
                 } else {                                              // it is not the source; keep going up
-                  const bState: any = (getHStateById(getState(), stateData.nextStateId) as HState);
+                  const bState: HState = (getHStateById(getState(), stateData.nextStateId) as HState);
                   action = HStateEventHandler(bState, emptyEvent, stateData);
                   status = dispatch(action);
                 }
