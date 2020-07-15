@@ -9,6 +9,7 @@ import {
   dmGetZonesForSign,
 } from '@brightsign/bsdatamodel';
 import { MediaZone } from './mediaZone';
+import { BsPpState } from '../type';
 
 // -----------------------------------------------------------------------
 // Types
@@ -111,7 +112,7 @@ class SignComponent extends React.Component<SignProps> {
 // Container
 // -----------------------------------------------------------------------
 
-const mapStateToProps = (state: any): any => {
+const mapStateToProps = (state: BsPpState): any => {
   return {
     bsdm: state.bsdm,
   };

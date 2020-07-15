@@ -1,19 +1,17 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { Dispatch, bindActionCreators } from 'redux';
 
-import { Image } from './index';
+import { isString } from 'lodash';
 
-import {
-  ContentItemType,
-} from '@brightsign/bscore';
+import { ContentItemType } from '@brightsign/bscore';
 
 import { BsDmId } from '@brightsign/bsdatamodel';
 import { DmMediaState } from '@brightsign/bsdatamodel';
 import { DmState } from '@brightsign/bsdatamodel';
 import { DmZone } from '@brightsign/bsdatamodel';
 import { DmEvent } from '@brightsign/bsdatamodel';
-
 import { DmMediaContentItem } from '@brightsign/bsdatamodel';
-
 import {
   DmDerivedContentItem,
   dmGetMediaStateById,
@@ -21,23 +19,24 @@ import {
   dmGetEventById,
   DmcEvent,
 } from '@brightsign/bsdatamodel';
-import { connect } from 'react-redux';
-import { isString } from 'lodash';
+
+import { BsPpState } from '../type';
 import { getActiveMediaStateId } from '../selector';
+import { Image } from './index';
 
 // -----------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------
 
-/** @internal */
-export interface MediaZoneProps {
-  key: string;
+export interface MediaZonePropsFromParent {
   bsdm: DmState;
   zone: DmZone;
   width: number;
   height: number;
+}
+
+export interface MediaZoneProps extends MediaZonePropsFromParent {
   activeMediaStateId: string;
-  postMessage: any;
 }
 
 // -----------------------------------------------------------------------
@@ -113,10 +112,12 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 // Container
 // -----------------------------------------------------------------------
 
-const mapStateToProps = (state: any, ownProps: any): any => {
+const mapStateToProps = (
+  state: BsPpState,
+  ownProps: MediaZonePropsFromParent
+): Partial<MediaZoneProps> => {
   return {
-    key: state.key,
-    bsdm: state.bsdm,
+    bsdm: ownProps.bsdm,
     zone: ownProps.zone,
     width: ownProps.width,
     height: ownProps.height,
@@ -124,4 +125,9 @@ const mapStateToProps = (state: any, ownProps: any): any => {
   };
 };
 
-export const MediaZone = connect(mapStateToProps, null)(MediaZoneComponent);
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+  return bindActionCreators({
+  }, dispatch);
+};
+
+export const MediaZone = connect(mapStateToProps, mapDispatchToProps)(MediaZoneComponent);
