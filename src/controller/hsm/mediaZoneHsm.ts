@@ -48,12 +48,6 @@ export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: 
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
       dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
-      // const mediaHStateId: string = dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
-      // const hState: HState | null = getHStateById(getState(), mediaHStateId);
-      // if (!isNil(hState)) {
-      //   hsmData.mediaStateIdToHState[bsdmMediaState.id] = hState;
-      //   dispatch(setHsmData(hsmId, hsmData));
-      // }
     }
   });
 };
