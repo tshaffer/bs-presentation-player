@@ -1,6 +1,13 @@
 /** @module Model:template */
 
 import { combineReducers } from 'redux';
+
+import {
+  cloneDeep,
+  isObject,
+  isNil,
+} from 'lodash';
+
 import {
   HsmState,
   Hsm,
@@ -15,12 +22,6 @@ import {
 import {
   BsPpAction, BsPpBaseAction,
 } from './baseAction';
-import {
-  cloneDeep,
-  isObject,
-  isNil,
-} from 'lodash';
-import { MediaHState } from '../type';
 
 // ------------------------------------
 // Constants
@@ -255,10 +256,8 @@ const hStateById = (
     }
     case SET_MEDIA_H_STATE_TIMEOUT_ID: {
       const hStateId: string = (action.payload as any).hStateId;
-      const newState = cloneDeep(state) as HStateMap;
-      const hState: MediaHState = newState[hStateId] as unknown as MediaHState;
-      hState.timeoutId = action.payload.timeoutId;
-      return newState;
+      const updatedHState = {...state[hStateId], ...action.payload};
+      return { ...state, [hStateId]: updatedHState};
     }
     default:
       return state;
