@@ -205,13 +205,10 @@ const hsmById = (
       return { ...state, [id]: (action.payload as Hsm) };
     }
     case UPDATE_HSM_PROPERTIES: {
-      const payload = (action as UpdateHsmPropertiesAction).payload;
-      const hsmId: string = payload.id;
-      const newState = cloneDeep(state) as HsmMap;
-      const hsm: Hsm = newState[hsmId];
-      (hsm.properties as HsmParams).mediaStateIdToHState =
-        payload.mediaStateIdToHState;
-      return newState;
+      const { id, mediaStateIdToHState } = (action as UpdateHsmPropertiesAction).payload;
+      const updatedProperties = { ...state[id].properties, mediaStateIdToHState};
+      const updatedHsm = {...state[id], properties: updatedProperties };
+      return { ...state, [id]:  updatedHsm };
     }
     case SET_HSM_TOP: {
       const { hsmId, topStateId } = action.payload as SetHsmTopActionParams;
