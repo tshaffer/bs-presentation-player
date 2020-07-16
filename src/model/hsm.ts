@@ -206,8 +206,7 @@ const hsmById = (
     }
     case UPDATE_HSM_PROPERTIES: {
       const { id, mediaStateIdToHState } = (action as UpdateHsmPropertiesAction).payload;
-      const updatedProperties = { ...state[id].properties, mediaStateIdToHState};
-      const updatedHsm = {...state[id], properties: updatedProperties };
+      const updatedHsm = {...state[id], properties: { ...state[id].properties, mediaStateIdToHState} };
       return { ...state, [id]:  updatedHsm };
     }
     case SET_HSM_TOP: {
