@@ -275,10 +275,7 @@ const hsmEventQueue = (
       return [...state, action.payload as HsmEventType];
     }
     case DEQUEUE_HSM_EVENT: {
-      // TEDTODO - fancier way to do this?
-      const newState = cloneDeep(state) as HsmEventType[];
-      newState.shift();
-      return newState;
+      return [...state.slice(1)];
     }
     default:
       return state;
