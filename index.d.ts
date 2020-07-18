@@ -127,6 +127,7 @@ export interface BsPpState {
 export interface BsPpModelState {
     hsmState: HsmState;
     presentationData: PresentationDataState;
+    playback: PlaybackState;
 }
 export interface BsPpBaseObject {
     id: string;
@@ -184,6 +185,7 @@ export class HStateType {
     static Waiting: string;
     static Image: string;
     static Video: string;
+    static SuperState: string;
 }
 export interface HState {
     id: string;
@@ -205,6 +207,10 @@ export interface MediaHState extends HState {
 }
 export interface HSMStateData {
     nextStateId: string | null;
+}
+
+export interface PlaybackState {
+    videoElementRef: HTMLVideoElement | null;
 }
 
 export interface SubscribedEvents {

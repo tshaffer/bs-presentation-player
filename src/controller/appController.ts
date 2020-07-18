@@ -64,14 +64,15 @@ const setPlatform = (): BsPpVoidThunkAction => {
 
 const setSrcDirectory = (): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
+
+    const process = require('process');
+
     const platform = getPresentationPlatform(getState());
     let srcDirectory = '';
     if (platform === 'Desktop') {
-      // srcDirectory = '/Users/tedshaffer/Desktop/autotron-2020';
-      // srcDirectory = '/Users/tedshaffer/Desktop/autotronImagesAndVideo';
-      srcDirectory = '/Users/tedshaffer/Desktop/autotronSuperState';
+      require('dotenv').config();
+      srcDirectory = process.env.SOURCE_DIRECTORY;
     } else {
-      const process = require('process');
       process.chdir('/storage/sd');
     }
     dispatch(updatePresentationSrcDirectory(srcDirectory));
