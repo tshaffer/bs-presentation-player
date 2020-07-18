@@ -5,6 +5,7 @@ export class HStateType {
   static Waiting = 'Waiting';
   static Image = 'Image';
   static Video = 'Video';
+  static SuperState = 'SuperState';
 }
 Object.freeze(HStateType);
 

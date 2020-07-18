@@ -20,7 +20,7 @@ export const createSuperState = (
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     const stateId: string = dispatch(createHState(
-      HStateType.Image,
+      HStateType.SuperState,
       hsmId,
       superStateId,
       '',

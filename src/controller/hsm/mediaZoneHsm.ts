@@ -8,6 +8,7 @@ import {
   dmGetMediaStateById,
   BsDmId,
   dmGetInitialMediaStateIdForZone,
+  dmGetContainedMediaStateIdsForMediaState,
 } from '@brightsign/bsdatamodel';
 import {
   MediaZoneHsmProperties,
@@ -83,17 +84,32 @@ const createMediaHState = (
           return videoHStateId;
         case ContentItemType.SuperState:
           const superStateHStateId: string = dispatch(createSuperState(hsmId, bsdmMediaState, superStateId));
-          const superStateHState: HState | null = getHStateById(getState(), superStateHStateId);
+          const superStateHState: HState | null = getHStateById(getState(), superStateHStateId) as HState;
           const superStateStateIdToHState: LUT =
             cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
           superStateStateIdToHState[bsdmMediaState.id] = superStateHState;
           dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: superStateStateIdToHState }));
+          dispatch(addSuperStateContent(dmFilterDmState(getState()), superStateHState, bsdmMediaState));
           return superStateHStateId;
         default:
           return '';
       }
     }
     return '';
+  });
+};
+
+const addSuperStateContent = (bsdm: DmState, superHState: HState, superStateMediaState: DmMediaState) => {
+
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
+
+    const superStateId: BsDmId = superStateMediaState.id;
+    const mediaStateIds: BsDmId[] = dmGetContainedMediaStateIdsForMediaState(bsdm, { id: superStateId });
+
+    for (const mediaStateId of mediaStateIds) {
+      const mediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
+      dispatch(createMediaHState(superHState.hsmId, mediaState, superHState.id));
+    }
   });
 };
 

@@ -20,6 +20,7 @@ import {
   BsPpDispatch, BsPpVoidThunkAction,
 } from '../../model';
 import { STVideoStateEventHandler } from './videoState';
+import { STSuperStateEventHandler } from './superState';
 
 export const hsmConstructorFunction = (hsmId: string): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -76,6 +77,8 @@ export const HStateEventHandler = (
           return dispatch(STImageStateEventHandler(hState, event, stateData));
         case HStateType.Video:
           return dispatch(STVideoStateEventHandler(hState, event, stateData));
+        case HStateType.SuperState:
+          return dispatch(STSuperStateEventHandler(hState, event, stateData));
         default:
           debugger;
           break;
