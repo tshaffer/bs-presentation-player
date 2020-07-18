@@ -23,7 +23,6 @@ import { BsPpState } from '../type';
 import { getActiveMediaStateId } from '../selector';
 import { Image } from './index';
 import { Video } from './index';
-import { tmpSetVideoElementRef } from '../controller';
 
 // -----------------------------------------------------------------------
 // Types
@@ -47,11 +46,6 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
   constructor(props: MediaZoneProps) {
     super(props);
-  }
-
-  videoRefRetrieved(videoElementRef: any) {
-    console.log('mediaZone.tsx#videoRefRetrieved');
-    tmpSetVideoElementRef(videoElementRef);
   }
 
   renderMediaItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem) {
