@@ -6,3 +6,4 @@ export * from './playerHsm';
 export * from './zoneHsm';
 export * from './imageState';
 export * from './videoState';
+export * from './superState';

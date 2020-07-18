@@ -22,6 +22,7 @@ import {
 import { ContentItemType } from '@brightsign/bscore';
 import { createImageState } from './imageState';
 import { createVideoState } from './videoState';
+import { createSuperState } from './superState';
 import { isNil, cloneDeep } from 'lodash';
 import { Hsm } from '../../type';
 import { getHsmById, getHStateById, getHStateByMediaStateId } from '../../selector/hsm';
@@ -43,13 +44,14 @@ export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: 
     };
 
     const hsmId: string = dispatch(createZoneHsm(hsmName, hsmType, hsmData));
+    const hsm: Hsm = getHsmById(getState(), hsmId);
 
     const bsdm: DmState = dmFilterDmState(getState());
 
     const mediaStateIds = dmGetMediaStateIdsForZone(bsdm, { id: bsdmZone.id });
     for (const mediaStateId of mediaStateIds) {
       const bsdmMediaState: DmMediaState = dmGetMediaStateById(bsdm, { id: mediaStateId }) as DmMediaState;
-      dispatch(createMediaHState(hsmId, bsdmMediaState, ''));
+      dispatch(createMediaHState(hsmId, bsdmMediaState, hsm.topStateId));
     }
   });
 };
@@ -66,19 +68,27 @@ const createMediaHState = (
       const contentItemType = bsdmMediaState.contentItem.type;
       switch (contentItemType) {
         case ContentItemType.Image:
-          const imageHStateId: string = dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          const imageHStateId: string = dispatch(createImageState(hsmId, bsdmMediaState, superStateId));
           const imageHState: HState | null = getHStateById(getState(), imageHStateId);
           const imageStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
           imageStateIdToHState[bsdmMediaState.id] = imageHState;
           dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: imageStateIdToHState }));
           return imageHStateId;
         case ContentItemType.Video:
-          const videoHStateId: string = dispatch(createVideoState(hsmId, bsdmMediaState, hsm.topStateId));
+          const videoHStateId: string = dispatch(createVideoState(hsmId, bsdmMediaState, superStateId));
           const videoHState: HState | null = getHStateById(getState(), videoHStateId);
           const videoStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
           videoStateIdToHState[bsdmMediaState.id] = videoHState;
           dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: videoStateIdToHState }));
           return videoHStateId;
+        case ContentItemType.SuperState:
+          const superStateHStateId: string = dispatch(createSuperState(hsmId, bsdmMediaState, superStateId));
+          const superStateHState: HState | null = getHStateById(getState(), superStateHStateId);
+          const superStateStateIdToHState: LUT =
+            cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
+          superStateStateIdToHState[bsdmMediaState.id] = superStateHState;
+          dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: superStateStateIdToHState }));
+          return superStateHStateId;
         default:
           return '';
       }

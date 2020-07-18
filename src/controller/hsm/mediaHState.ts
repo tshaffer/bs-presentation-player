@@ -132,7 +132,9 @@ const executeEventMatchAction = (
       return 'TRANSITION';
     }
   }
-  return '';
+  // TEDTODO - should it ever reach here?
+  stateData.nextStateId = hState.superStateId;
+  return 'SUPER';
 };
 
 const eventDataMatches = (matchedEvent: DmcEvent, dispatchedEvent: HsmEventType): boolean => {
