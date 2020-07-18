@@ -19,6 +19,7 @@ import { getHsmById } from '../../selector';
 import {
   BsPpDispatch, BsPpVoidThunkAction,
 } from '../../model';
+import { STVideoStateEventHandler } from './videoState';
 
 export const hsmConstructorFunction = (hsmId: string): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -73,6 +74,8 @@ export const HStateEventHandler = (
           return dispatch(STWaitingEventHandler(hState, event, stateData));
         case HStateType.Image:
           return dispatch(STImageStateEventHandler(hState, event, stateData));
+        case HStateType.Video:
+          return dispatch(STVideoStateEventHandler(hState, event, stateData));
         default:
           debugger;
           break;

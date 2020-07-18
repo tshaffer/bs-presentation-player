@@ -21,6 +21,7 @@ import {
 } from '../../model';
 import { ContentItemType } from '@brightsign/bscore';
 import { createImageState } from './imageState';
+import { createVideoState } from './videoState';
 import { isNil, cloneDeep } from 'lodash';
 import { Hsm } from '../../type';
 import { getHsmById, getHStateById, getHStateByMediaStateId } from '../../selector/hsm';
@@ -65,15 +66,19 @@ const createMediaHState = (
       const contentItemType = bsdmMediaState.contentItem.type;
       switch (contentItemType) {
         case ContentItemType.Image:
-          const mediaHStateId: string = dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
-          const hState: HState | null = getHStateById(getState(), mediaHStateId);
-          const mediaStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
-          mediaStateIdToHState[bsdmMediaState.id] = hState;
-          dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState }));
-          return mediaHStateId;
+          const imageHStateId: string = dispatch(createImageState(hsmId, bsdmMediaState, hsm.topStateId));
+          const imageHState: HState | null = getHStateById(getState(), imageHStateId);
+          const imageStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
+          imageStateIdToHState[bsdmMediaState.id] = imageHState;
+          dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: imageStateIdToHState }));
+          return imageHStateId;
         case ContentItemType.Video:
-          debugger;
-          return '';
+          const videoHStateId: string = dispatch(createVideoState(hsmId, bsdmMediaState, hsm.topStateId));
+          const videoHState: HState | null = getHStateById(getState(), videoHStateId);
+          const videoStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
+          videoStateIdToHState[bsdmMediaState.id] = videoHState;
+          dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: videoStateIdToHState }));
+          return videoHStateId;
         default:
           return '';
       }

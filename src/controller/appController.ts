@@ -67,7 +67,8 @@ const setSrcDirectory = (): BsPpVoidThunkAction => {
     const platform = getPresentationPlatform(getState());
     let srcDirectory = '';
     if (platform === 'Desktop') {
-      srcDirectory = '/Users/tedshaffer/Desktop/autotron-2020';
+      // srcDirectory = '/Users/tedshaffer/Desktop/autotron-2020';
+      srcDirectory = '/Users/tedshaffer/Desktop/autotronImagesAndVideo';
     } else {
       const process = require('process');
       process.chdir('/storage/sd');

@@ -90,3 +90,11 @@ function dispatchHsmEvent(
     }
   });
 }
+
+let _videoElementRef: any;
+export function tmpSetVideoElementRef(videoElementRef: any) {
+  _videoElementRef = videoElementRef;
+}
+export function tmpGetVideoElementRef(): any {
+  return _videoElementRef;
+}

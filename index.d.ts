@@ -183,6 +183,7 @@ export class HStateType {
     static Playing: string;
     static Waiting: string;
     static Image: string;
+    static Video: string;
 }
 export interface HState {
     id: string;

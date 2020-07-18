@@ -22,6 +22,8 @@ import {
 import { BsPpState } from '../type';
 import { getActiveMediaStateId } from '../selector';
 import { Image } from './index';
+import { Video } from './index';
+import { tmpSetVideoElementRef } from '../controller';
 
 // -----------------------------------------------------------------------
 // Types
@@ -47,7 +49,14 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
     super(props);
   }
 
+  videoRefRetrieved(videoElementRef: any) {
+    console.log('mediaZone.tsx#videoRefRetrieved');
+    tmpSetVideoElementRef(videoElementRef);
+  }
+
   renderMediaItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem) {
+
+    const self = this;
 
     const mediaContentItem: DmMediaContentItem = contentItem as DmMediaContentItem;
 
@@ -62,6 +71,17 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
             height={this.props.height}
           />
         );
+      }
+      case ContentItemType.Video: {
+        return (
+          <Video
+            fileName={mediaState.name}
+            width={this.props.width}
+            height={this.props.height}
+            onVideoRefRetrieved={self.videoRefRetrieved}
+          />
+        );
+
       }
       default:
         debugger;
@@ -94,7 +114,8 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
     const contentItem: DmDerivedContentItem = mediaState.contentItem;
 
     switch (contentItem.type) {
-      case ContentItemType.Image: {
+      case ContentItemType.Image:
+      case ContentItemType.Video: {
         return this.renderMediaItem(mediaState, contentItem as DmMediaContentItem);
       }
       default: {

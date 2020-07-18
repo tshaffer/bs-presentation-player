@@ -35,7 +35,7 @@ import {
 } from '../../selector';
 import { isNil, isNumber } from 'lodash';
 import {
-  _bsPpStore, addHsmEvent,
+  _bsPpStore, addHsmEvent, tmpGetVideoElementRef,
 } from '../hsmController';
 
 export const mediaHStateEventHandler = (
@@ -80,6 +80,18 @@ const executeEventMatchAction = (
       }
       case EventIntrinsicAction.ReturnToPriorState: {
         console.log('return prior state');
+        return 'HANDLED';
+      }
+      case EventIntrinsicAction.StopPlayback: {
+        console.log('remain on current state, stopPlayback');
+        tmpGetVideoElementRef().pause();
+        return 'HANDLED';
+      }
+      case EventIntrinsicAction.StopPlaybackAndClearScreen: {
+        console.log('remain on current state, stopPlaybackClearScreen');
+        // videoPlayer.StopClear()
+        // imagePlayer.StopDisplay()
+        tmpGetVideoElementRef().pause();
         return 'HANDLED';
       }
       default: {
@@ -137,6 +149,19 @@ const getMatchedEvent = (mediaState: DmMediaState, dispatchedEvent: HsmEventType
   }
   return null;
 };
+
+// const executePauseVideoCommand = (): void => {
+//   console.log('pause video');
+//   tmpGetVideoElementRef().pause();
+
+//   // const videoElementRef = tmpGetVideoElementRef();
+//   // // videoElementRef.setAttribute('src', null);
+//   // videoElementRef.removeAttribute('src');
+// }
+
+// const executeResumeVideoCommand = (): void => {
+//   tmpGetVideoElementRef().play();
+// }
 
 export const mediaHStateExitHandler = (
   hStateId: string,
