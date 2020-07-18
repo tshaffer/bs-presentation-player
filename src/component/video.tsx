@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { getPoolFilePath } from '../selector';
 import { BsPpState } from '../type';
 import { postVideoEnd } from '../controller';
+import { setVideoElementRef } from '../model/playback';
 
 // -----------------------------------------------------------------------
 // Types
@@ -17,25 +18,26 @@ export interface VideoPropsFromParent {
   fileName: string;
   width: number;
   height: number;
-  onVideoRefRetrieved: (videoElementRef: any) => void;
 }
 
 export interface VideoProps extends VideoPropsFromParent {
   filePath: string;
   onVideoEnd: () => void;
+  onSetVideoElementRef: (videoElementRef: any) => void;
 }
 
 // -----------------------------------------------------------------------
 // Component
 // -----------------------------------------------------------------------
 
-export class VideoComponent extends React.Component<VideoProps> {
+// TEDTODO - VideoProps didn't work, so put in any
+export class VideoComponent extends React.Component<any> {
 
-  videoElementRef: any;
+  videoElementRef: HTMLVideoElement | null;
 
-  onVideoRefRetrieved(videoElementRef: any) {
+  handleSetVideoElementRef(videoElementRef: HTMLVideoElement | null) {
     this.videoElementRef = videoElementRef;
-    this.props.onVideoRefRetrieved(videoElementRef);
+    this.props.onSetVideoElementRef(videoElementRef);
   }
 
   render() {
@@ -52,7 +54,7 @@ export class VideoComponent extends React.Component<VideoProps> {
         height={this.props.height.toString()}
         ref={(videoElementRef) => {
           console.log('videoElementRef retrieved');
-          self.onVideoRefRetrieved(videoElementRef);
+          self.handleSetVideoElementRef(videoElementRef);
         }}
         onEnded={() => {
           console.log('**** - videoEnd');
@@ -67,7 +69,8 @@ export class VideoComponent extends React.Component<VideoProps> {
 // Container
 // -----------------------------------------------------------------------
 
-const mapStateToProps = (state: BsPpState, ownProps: VideoPropsFromParent): Partial<VideoProps> => {
+// TEDTODO - real return value didn't work, so put in any
+const mapStateToProps = (state: BsPpState, ownProps: VideoPropsFromParent): any => {
   return {
     filePath: getPoolFilePath(state, ownProps.fileName),
     width: ownProps.width,
@@ -79,6 +82,7 @@ const mapStateToProps = (state: BsPpState, ownProps: VideoPropsFromParent): Part
 const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return bindActionCreators({
     onVideoEnd: postVideoEnd,
+    onSetVideoElementRef: setVideoElementRef,
   }, dispatch);
 };
 

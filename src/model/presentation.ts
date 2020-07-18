@@ -118,5 +118,6 @@ export const presentationDataReducer = (
 };
 
 const isValidPresentationDataState = (state: any): boolean => {
+  // TEDTODO
   return true;
 };

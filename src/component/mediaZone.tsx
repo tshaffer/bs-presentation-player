@@ -56,8 +56,6 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
   renderMediaItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem) {
 
-    const self = this;
-
     const mediaContentItem: DmMediaContentItem = contentItem as DmMediaContentItem;
 
     const mediaType: ContentItemType = mediaContentItem.type;
@@ -78,7 +76,6 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
             fileName={mediaState.name}
             width={this.props.width}
             height={this.props.height}
-            onVideoRefRetrieved={self.videoRefRetrieved}
           />
         );
 

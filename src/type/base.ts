@@ -3,6 +3,7 @@
 import { DmState } from '@brightsign/bsdatamodel';
 import { HsmState } from './hsm';
 import { PresentationDataState } from './presentation';
+import { PlaybackState } from './playback';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
@@ -18,6 +19,7 @@ export interface BsPpState {
 export interface BsPpModelState {
   hsmState: HsmState;
   presentationData: PresentationDataState;
+  playback: PlaybackState;
 }
 
 export interface BsPpBaseObject {
