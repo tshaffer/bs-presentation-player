@@ -3,33 +3,38 @@ import * as fs from 'fs-extra';
 import isomorphicPath from 'isomorphic-path';
 
 import {
-  BsPpState, RawSyncSpec, FileLUT, SyncSpecDownload, PpSchedule, SyncSpecFileMap,
+  BsPpState, RawSyncSpec, FileLUT, SyncSpecDownload, PpSchedule, SyncSpecFileMap, bsPpStateFromState,
 } from '../type';
 
 // ------------------------------------
 // Selectors
 // ------------------------------------
-export function getPresentationPlatform(state: BsPpState): string {
+export function getPresentationPlatform(state: any): string {
+
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+
   if (
-    !isNil(state.bsPlayer)
-    && !isNil(state.bsPlayer.presentationData)
-    && !isNil(state.bsPlayer.presentationData.platform)) {
-    return state.bsPlayer.presentationData.platform;
+    !isNil(bsPpState.bsPlayer)
+    && !isNil(bsPpState.bsPlayer.presentationData)
+    && !isNil(bsPpState.bsPlayer.presentationData.platform)) {
+    return bsPpState.bsPlayer.presentationData.platform;
   }
   return '';
 }
 
-export function getSrcDirectory(state: BsPpState): string {
+export function getSrcDirectory(state: any): string {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
   if (
-    !isNil(state.bsPlayer)
-    && !isNil(state.bsPlayer.presentationData)
-    && !isNil(state.bsPlayer.presentationData.srcDirectory)) {
-    return state.bsPlayer.presentationData.srcDirectory;
+    !isNil(bsPpState.bsPlayer)
+    && !isNil(bsPpState.bsPlayer.presentationData)
+    && !isNil(bsPpState.bsPlayer.presentationData.srcDirectory)) {
+    return bsPpState.bsPlayer.presentationData.srcDirectory;
   }
   return '';
 }
 
 export const getSyncSpecFileMap = (state: BsPpState): SyncSpecFileMap | null => {
+  state = bsPpStateFromState(state);
   if (!isNil(state.bsPlayer)
     && !isNil(state.bsPlayer.presentationData)) {
     return state.bsPlayer.presentationData.syncSpecFileMap;
@@ -37,15 +42,19 @@ export const getSyncSpecFileMap = (state: BsPpState): SyncSpecFileMap | null => 
   return null;
 };
 
-export const getAutoschedule = (state: BsPpState): PpSchedule | null => {
-  if (!isNil(state.bsPlayer)
-    && !isNil(state.bsPlayer.presentationData)) {
-    return state.bsPlayer.presentationData.autoSchedule;
+export const getAutoschedule = (state: any): PpSchedule | null => {
+
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+
+  if (!isNil(bsPpState.bsPlayer)
+    && !isNil(bsPpState.bsPlayer.presentationData)) {
+    return bsPpState.bsPlayer.presentationData.autoSchedule;
   }
   return null;
 };
 
 export function getPoolAssetFiles(state: BsPpState): FileLUT {
+  state = bsPpStateFromState(state);
 
   const poolAssetFiles: FileLUT = {};
 
@@ -65,20 +74,22 @@ export function getPoolAssetFiles(state: BsPpState): FileLUT {
 }
 
 export function getPoolFilePath(state: BsPpState, fileName: string): string {
+  state = bsPpStateFromState(state);
   return getPoolAssetFiles(state)[fileName];
 }
 
 export const getSyncSpecFile = (state: BsPpState, fileName: string): Promise<object> => {
+  state = bsPpStateFromState(state);
 
   const syncSpecFileMap = getSyncSpecFileMap(state);
   if (isNil(syncSpecFileMap)) {
     return Promise.reject('No sync spec');
   }
 
-  if (!syncSpecFileMap.hasOwnProperty(fileName)) {
+  if (!(syncSpecFileMap as SyncSpecFileMap).hasOwnProperty(fileName)) {
     return Promise.reject('file not found');
   }
-  const syncSpecFile: SyncSpecDownload = syncSpecFileMap[fileName];
+  const syncSpecFile: SyncSpecDownload = (syncSpecFileMap as SyncSpecFileMap)[fileName];
 
   const rootDirectory = getSrcDirectory(state);
 

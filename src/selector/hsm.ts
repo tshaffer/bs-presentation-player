@@ -7,6 +7,7 @@ import {
   MediaZoneHsmProperties,
   ZoneHsmProperties,
   MediaHState,
+  bsPpStateFromState,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
@@ -14,52 +15,58 @@ import { HsmMap } from '../type';
 // ------------------------------------
 // Selectors
 // ------------------------------------
-export function getHsmMap(state: BsPpState): HsmMap {
-  return state.bsPlayer.hsmState.hsmById;
+export function getHsmMap(state: any): HsmMap {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+  return bsPpState.bsPlayer.hsmState.hsmById;
 }
 
-export function getHsmById(state: BsPpState, hsmId: string): Hsm {
-  return state.bsPlayer.hsmState.hsmById[hsmId];
+export function getHsmById(state: any, hsmId: string): Hsm {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+  return bsPpState.bsPlayer.hsmState.hsmById[hsmId];
 }
 
 export function getHsmByName(
   state: BsPpState,
   hsmName: string
 ): Hsm | null {
-  const hsmMap: HsmMap = getHsmMap(state);
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+  const hsmMap: HsmMap = getHsmMap(bsPpState);
   const hsmId = find(Object.keys(hsmMap), (id) => hsmMap[id].name === hsmName);
-  return hsmId ? getHsmById(state, hsmId) : null;
+  return hsmId ? getHsmById(bsPpState, hsmId) : null;
 }
 
 export const getActiveStateIdByHsmId = (
   state: BsPpState,
   hsmId: string
 ): HState | null => {
-  const hsm: Hsm = getHsmById(state, hsmId);
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+  const hsm: Hsm = getHsmById(bsPpState, hsmId);
   if (!isNil(hsm)) {
-    return getHStateById(state, hsm.activeStateId);
+    return getHStateById(bsPpState, hsm.activeStateId);
   }
   return null;
 };
 
-export function getHStateById(state: BsPpState, hStateId: string | null): HState | null {
+export function getHStateById(state: any, hStateId: string | null): HState | null {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
   if (isNil(hStateId)) {
     return null;
   }
-  const hState = state.bsPlayer.hsmState.hStateById[hStateId];
+  const hState = bsPpState.bsPlayer.hsmState.hStateById[hStateId as string];
   if (isNil(hState)) {
     debugger;
   }
   return hState;
 }
 
-export function getHStateByName(state: BsPpState, name: string | null): HState | null {
+export function getHStateByName(state: any, name: string | null): HState | null {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
 
   if (isNil(name)) {
     return null;
   }
 
-  const hStateMap: HStateMap = state.bsPlayer.hsmState.hStateById;
+  const hStateMap: HStateMap = bsPpState.bsPlayer.hsmState.hStateById;
 
   const hStateId = find(Object.keys(hStateMap), (id) => {
     if (hStateMap.hasOwnProperty(id)) {
@@ -69,25 +76,31 @@ export function getHStateByName(state: BsPpState, name: string | null): HState |
     return false;
   });
 
-  return hStateId ? getHStateById(state, hStateId) : null;
+  return hStateId ? getHStateById(bsPpState, hStateId) : null;
 }
 
-export function getHStateByMediaStateId(state: BsPpState, hsmId: string, mediaStateId: string | null): HState | null {
+export function getHStateByMediaStateId(state: any, hsmId: string, mediaStateId: string | null): HState | null {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+
   if (isNil(mediaStateId)) {
     return null;
   }
 
-  const hsm: Hsm = getHsmById(state, hsmId);
-  return (hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState[mediaStateId];
+  const hsm: Hsm = getHsmById(bsPpState, hsmId);
+  return (hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState[mediaStateId as string];
 }
 
-export function getHsmInitialized(state: BsPpState, hsmId: string): boolean {
-  return state.bsPlayer.hsmState.hsmById[hsmId].initialized;
+export function getHsmInitialized(state: any, hsmId: string): boolean {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+
+  return bsPpState.bsPlayer.hsmState.hsmById[hsmId].initialized;
 }
 
-export function getZoneHsmList(state: BsPpState): Hsm[] {
+export function getZoneHsmList(state: any): Hsm[] {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+
   const hsmList: Hsm[] = [];
-  const hsmById: HsmMap = state.bsPlayer.hsmState.hsmById;
+  const hsmById: HsmMap = bsPpState.bsPlayer.hsmState.hsmById;
   for (const hsmId in hsmById) {
     if (hsmById.hasOwnProperty(hsmId)) {
       const hsm: Hsm = hsmById[hsmId];
@@ -99,14 +112,16 @@ export function getZoneHsmList(state: BsPpState): Hsm[] {
   return hsmList;
 }
 
-export function getActiveMediaStateId(state: BsPpState, zoneId: string): string {
-  const zoneHsmList: Hsm[] = getZoneHsmList(state);
+export function getActiveMediaStateId(state: any, zoneId: string): string {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+
+  const zoneHsmList: Hsm[] = getZoneHsmList(bsPpState);
   for (const zoneHsm of zoneHsmList) {
     if (!isNil(zoneHsm.properties)) {
       if (isString((zoneHsm.properties as ZoneHsmProperties).zoneId)) {
         if ((zoneHsm.properties as ZoneHsmProperties).zoneId === zoneId) {
           const activeHStateId: string = zoneHsm.activeStateId as string;
-          const activeHState = getHStateById(state, activeHStateId);
+          const activeHState = getHStateById(bsPpState, activeHStateId);
           if (!isNil(activeHState)) {
             return (activeHState as MediaHState).mediaStateId;
           }
@@ -118,13 +133,14 @@ export function getActiveMediaStateId(state: BsPpState, zoneId: string): string 
   return '';
 }
 
-export function getEvents(state: BsPpState): HsmEventType[] {
-  return state.bsPlayer.hsmState.hsmEventQueue;
+export function getEvents(state: any): HsmEventType[] {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+  return bsPpState.bsPlayer.hsmState.hsmEventQueue;
 }
 
-export const getIsHsmInitialized = (state: BsPpState): boolean => {
-
-  const hsmMap: HsmMap = getHsmMap(state);
+export const getIsHsmInitialized = (state: any): boolean => {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+  const hsmMap: HsmMap = getHsmMap(bsPpState);
   for (const hsmId in hsmMap) {
     if (hsmMap.hasOwnProperty(hsmId)) {
       const hsm: Hsm = hsmMap[hsmId];

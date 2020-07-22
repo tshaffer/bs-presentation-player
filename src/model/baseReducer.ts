@@ -1,18 +1,15 @@
 /** @module Model:base */
 
-import { Reducer } from 'redux';
-import { combineReducers } from 'redux';
+import {
+  Reducer,
+  combineReducers
+} from 'redux';
 import { isNil } from 'lodash';
 import { BsPpModelState } from '../type';
 import {
-  BRIGHTSIGN_PLAYER_MODEL_BATCH,
-  BsPpBaseAction,
-  BsPpModelBatchAction,
+  BsPpModelBaseAction,
 } from './baseAction';
-import {
-  hsmReducer,
-  isValidHsmState
-} from './hsm';
+import { hsmReducer } from './hsm';
 import { presentationDataReducer } from './presentation';
 import { playbackReducer } from './playback';
 
@@ -28,21 +25,18 @@ import { playbackReducer } from './playback';
 
 /** @internal */
 /** @private */
-export type BsBrightSignPlayerReducer = Reducer<BsPpModelState>;
+export type BsUiReducer = Reducer<BsPpModelState>;
 
 /** @internal */
 /** @private */
 export const enableBatching = (
-  reduce: (state: BsPpModelState,
-    action: BsPpBaseAction | BsPpModelBatchAction) => BsPpModelState,
-): BsBrightSignPlayerReducer => {
+  reduce: (state: BsPpModelState, action: BsPpModelBaseAction ) => BsPpModelState,
+): BsUiReducer => {
   return function batchingReducer(
     state: BsPpModelState,
-    action: BsPpBaseAction | BsPpModelBatchAction,
+    action: BsPpModelBaseAction,
   ): BsPpModelState {
     switch (action.type) {
-      case BRIGHTSIGN_PLAYER_MODEL_BATCH:
-        return (action as BsPpModelBatchAction).payload.reduce(batchingReducer, state);
       default:
         return reduce(state, action);
     }
@@ -61,14 +55,12 @@ export const bsPpReducer = enableBatching(combineReducers<BsPpModelState>({
 
 /** @internal */
 /** @private */
-export function isValidBsBrightSignPlayerModelState(state: any): boolean {
-  return !isNil(state)
-    && state.hasOwnProperty('hsm') && isValidHsmState(state.hsmState);
+export function isValidBsPpModelState(state: any): boolean {
+  return !isNil(state);
 }
 
 /** @internal */
 /** @private */
-export function isValidBsBrightSignPlayerModelStateShallow(state: any): boolean {
-  return !isNil(state)
-    && state.hasOwnProperty('hsm');
+export function isValidBsPpModelStateShallow(state: any): boolean {
+  return !isNil(state);
 }

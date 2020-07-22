@@ -14,6 +14,7 @@ import {
   HStateType,
   HsmEventType,
   HSMStateData,
+  bsPpStateFromState,
 } from '../../type';
 import {
   BsPpAnyPromiseThunkAction,
@@ -77,9 +78,9 @@ export const createPlayerHsm = (): any => {
 export const initializePlayerHsm = (): any => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     console.log('invoke initializePlayerHsm');
-    const playerHsm = getHsmByName(getState(), 'player');
+    const playerHsm = getHsmByName(bsPpStateFromState(getState()), 'player');
     if (!isNil(playerHsm)) {
-      dispatch(initializeHsm(playerHsm.id));
+      dispatch(initializeHsm(playerHsm!.id));
     }
   });
 };
@@ -90,7 +91,7 @@ export const playerHsmGetInitialState = (): BsPpAnyPromiseThunkAction => {
     return dispatch(launchSchedulePlayback(''))
       .then(() => {
         console.log('return from invoking playerHsmGetInitialState restartPlayback');
-        const hState = getHStateByName(getState(), 'playing');
+        const hState = getHStateByName(bsPpStateFromState(getState()), 'playing');
         return Promise.resolve(hState);
       });
   });
@@ -150,10 +151,10 @@ export const STWaitingEventHandler = (
     } else if (event.EventType && event.EventType === 'TRANSITION_TO_PLAYING') {
       console.log(hState.id + ': TRANSITION_TO_PLAYING event received');
       // const hsmId: string = hState.hsmId;
-      // const hsm: PpHsm = getHsmById(getState(), hsmId);
-      const stPlayingState: HState | null = getHStateByName(getState(), 'Playing');
+      // const hsm: PpHsm = getHsmById(bsPpStateFromBaApUiState(getState()), hsmId);
+      const stPlayingState: HState | null = getHStateByName(bsPpStateFromState(getState()), 'Playing');
       if (!isNil(stPlayingState)) {
-        stateData.nextStateId = stPlayingState.id;
+        stateData.nextStateId = stPlayingState!.id;
         return 'TRANSITION';
       }
       debugger;
@@ -168,17 +169,17 @@ export const launchSchedulePlayback = (presentationName: string): BsPpVoidPromis
   console.log('invoke restartPlayback');
 
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    const autoSchedule: PpSchedule | null = getAutoschedule(getState());
+    const autoSchedule: PpSchedule | null = getAutoschedule(bsPpStateFromState(getState()));
     if (!isNil(autoSchedule)) {
       //  - only a single scheduled item is currently supported
-      const scheduledPresentation = autoSchedule.scheduledPresentations[0];
+      const scheduledPresentation = autoSchedule!.scheduledPresentations[0];
       const presentationToSchedule = scheduledPresentation.presentationToSchedule;
       presentationName = presentationToSchedule.name;
       const autoplayFileName = presentationName + '.bml';
 
-      const syncSpecFileMap = getSyncSpecFileMap(getState());
+      const syncSpecFileMap = getSyncSpecFileMap(bsPpStateFromState(getState()));
       if (!isNil(syncSpecFileMap)) {
-        return getSyncSpecReferencedFile(autoplayFileName, syncSpecFileMap, getSrcDirectory(getState()))
+        return getSyncSpecReferencedFile(autoplayFileName, syncSpecFileMap!, getSrcDirectory(bsPpStateFromState(getState())))
           .then((bpfxState: any) => {
             const autoPlay: any = bpfxState.bsdm;
             const signState = autoPlay as DmSignState;
@@ -197,7 +198,7 @@ export const launchPresentationPlayback = (): BsPpVoidThunkAction => {
 
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
 
-    const bsdm: DmState = getState().bsdm;
+    const bsdm: DmState = bsPpStateFromState(getState()).bsdm;
     console.log('startPlayback');
     console.log(bsdm);
 
@@ -209,7 +210,7 @@ export const launchPresentationPlayback = (): BsPpVoidThunkAction => {
 
     const promises: Array<Promise<void>> = [];
 
-    const zoneHsmList = getZoneHsmList(getState());
+    const zoneHsmList = getZoneHsmList(bsPpStateFromState(getState()));
     for (const zoneHsm of zoneHsmList) {
       dispatch(hsmConstructorFunction(zoneHsm.id));
       const action: BsPpVoidPromiseThunkAction = initializeHsm(zoneHsm.id);
@@ -219,7 +220,7 @@ export const launchPresentationPlayback = (): BsPpVoidThunkAction => {
     Promise.all(promises).then(() => {
       console.log('startPlayback nearly complete');
       console.log('wait for HSM initialization complete');
-      const hsmInitializationComplete = getIsHsmInitialized(getState());
+      const hsmInitializationComplete = getIsHsmInitialized(bsPpStateFromState(getState()));
       if (hsmInitializationComplete) {
         const event: HsmEventType = {
           EventType: 'NOP',

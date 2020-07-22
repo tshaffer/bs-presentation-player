@@ -19,10 +19,10 @@ import {
   DmcEvent,
 } from '@brightsign/bsdatamodel';
 
-import { BsPpState } from '../type';
+import { bsPpStateFromState } from '../type';
 import { getActiveMediaStateId } from '../selector';
-import { Image } from './index';
-import { Video } from './index';
+import { Image } from './image';
+import { Video } from './video';
 
 // -----------------------------------------------------------------------
 // Types
@@ -123,9 +123,10 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 // -----------------------------------------------------------------------
 
 const mapStateToProps = (
-  state: BsPpState,
+  state: any,
   ownProps: MediaZonePropsFromParent
 ): Partial<MediaZoneProps> => {
+  state = bsPpStateFromState(state);
   return {
     bsdm: ownProps.bsdm,
     zone: ownProps.zone,

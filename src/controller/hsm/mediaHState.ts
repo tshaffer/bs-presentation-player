@@ -5,6 +5,7 @@ import {
   MediaHState,
   Hsm,
   MediaZoneHsmProperties,
+  bsPpStateFromState,
 } from '../../type';
 import {
   BsPpDispatch,
@@ -35,7 +36,7 @@ import {
 } from '../../selector';
 import { isNil, isNumber } from 'lodash';
 import {
-  _bsPpStore,
+  // _bsPpStore,
   addHsmEvent,
 } from '../hsmController';
 
@@ -45,12 +46,13 @@ export const mediaHStateEventHandler = (
   stateData: HSMStateData
 ): BsPpVoidThunkAction => {
 
-  return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
+  return (dispatch: BsPpDispatch, getState: () => any) => {
 
     console.log('mediaHStateEventHandler');
 
+    const dmState: DmState = dmFilterDmState(bsPpStateFromState(getState()));
     const mediaState: DmMediaState = dmGetMediaStateById(
-      dmFilterDmState(getState()),
+      dmState,
       { id: (hState as MediaHState).mediaStateId }) as DmMediaState;
     if (isNil(mediaState)) {
       debugger;
@@ -59,7 +61,7 @@ export const mediaHStateEventHandler = (
     const matchedEvent: DmcEvent | null = getMatchedEvent(mediaState, event);
 
     if (!isNil(matchedEvent)) {
-      return executeEventMatchAction(getState(), hState, matchedEvent, stateData);
+      return executeEventMatchAction(bsPpStateFromState(getState()), hState, matchedEvent!, stateData);
     }
 
     stateData.nextStateId = hState.superStateId;
@@ -119,8 +121,8 @@ const executeEventMatchAction = (
         }
       );
       if (!isNil(targetMediaState)) {
-        if (targetMediaState.contentItem.type === ContentItemType.SuperState) {
-          const superStateContentItem = targetMediaState.contentItem as DmSuperStateContentItem;
+        if (targetMediaState!.contentItem.type === ContentItemType.SuperState) {
+          const superStateContentItem = targetMediaState!.contentItem as DmSuperStateContentItem;
           const initialMediaStateId = superStateContentItem.initialMediaStateId;
           targetHState = mediaZoneHsmData.mediaStateIdToHState[initialMediaStateId];
         }
@@ -171,7 +173,7 @@ export const mediaHStateExitHandler = (
 ): BsPpVoidThunkAction => {
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
     console.log('mediaHStateExitHandler');
-    const hState: HState | null = getHStateById(getState(), hStateId);
+    const hState: HState | null = getHStateById(bsPpStateFromState(getState()), hStateId);
     if (!isNil(hState)) {
       const mediaHState: MediaHState = hState as MediaHState;
       if (isNumber(mediaHState.timeoutId)) {
@@ -184,6 +186,7 @@ export const mediaHStateExitHandler = (
 };
 
 interface TimeoutEventCallbackParams {
+  dispatch: BsPpDispatch;
   hState: HState;
 }
 
@@ -191,10 +194,10 @@ export const launchTimer = (
   hState: HState,
 ): BsPpVoidThunkAction => {
 
-  return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
+  return (dispatch: BsPpDispatch, getState: () => any) => {
 
     // at least part of this will move somwhere else
-    const bsdm: DmState = getState().bsdm;
+    const bsdm: DmState = bsPpStateFromState(getState()).bsdm;
 
     const eventIds: BsDmId[] = dmGetEventIdsForMediaState(
       bsdm,
@@ -207,6 +210,7 @@ export const launchTimer = (
         const interval: number = (event.data as DmTimer).interval;
         if (interval && interval > 0) {
           const timeoutEventCallbackParams: TimeoutEventCallbackParams = {
+            dispatch,
             hState,
           };
           const timeoutId: number =
@@ -229,7 +233,8 @@ const timeoutHandler = (callbackParams: TimeoutEventCallbackParams): void => {
 
   // const { store } = callbackParams;
   // const hsmId = hState.hsmId;
-  // const hsm = getHsmById(store.getState(), hsmId);
+  // const hsm = getHsmById(store.bsPpStateFromBaApUiState(getState()), hsmId);
   // TEDTODO - circular reference?
-  _bsPpStore.dispatch(addHsmEvent(event));
+  // _bsPpStore.dispatch(addHsmEvent(event));
+  callbackParams.dispatch(addHsmEvent(event));
 };

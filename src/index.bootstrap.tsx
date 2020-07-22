@@ -12,7 +12,7 @@ import { combineReducers } from 'redux';
 import { bsDmReducer } from '@brightsign/bsdatamodel';
 import { BsPpState } from './type/base';
 import { bsPpReducer } from './model';
-import { BrightSignPlayer } from './component';
+import { BsPp } from './component';
 import { initPlayer } from './controller';
 
 const getStore = () => {
@@ -36,7 +36,7 @@ function bootstrapper() {
 
   ReactDOM.render(
     <Provider store={store}>
-      <BrightSignPlayer />
+      <BsPp />
     </Provider>,
     document.getElementById('root') as HTMLElement
   );

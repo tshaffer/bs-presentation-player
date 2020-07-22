@@ -7,6 +7,7 @@ import {
   RawSyncSpec,
   PpSchedule,
   SyncSpecFileMap,
+  bsPpStateFromState,
 } from '../type';
 import {
   BsPpDispatch,
@@ -30,7 +31,7 @@ import { launchHsm } from './hsmController';
 export const initPresentation = (): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     dispatch(loadPresentationData()).then(() => {
-      dispatch(launchHsm());
+      dispatch(launchHsm() as any);
     });
   });
 };
@@ -67,11 +68,13 @@ const setSrcDirectory = (): BsPpVoidThunkAction => {
 
     const process = require('process');
 
-    const platform = getPresentationPlatform(getState());
+    const bsPpState: BsPpState = bsPpStateFromState(getState());
+    const platform = getPresentationPlatform(bsPpState);
     let srcDirectory = '';
     if (platform === 'Desktop') {
       require('dotenv').config();
-      srcDirectory = process.env.SOURCE_DIRECTORY;
+      // srcDirectory = process.env.SOURCE_DIRECTORY;
+      srcDirectory = '/Users/tedshaffer/Desktop/autotronSuperState';
     } else {
       process.chdir('/storage/sd');
     }
@@ -80,8 +83,9 @@ const setSrcDirectory = (): BsPpVoidThunkAction => {
 };
 
 const setSyncSpec = (): BsPpVoidPromiseThunkAction => {
-  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    const srcDirectory = getSrcDirectory(getState());
+  return ((dispatch: BsPpDispatch, getState: () => any) => {
+    const bsPpState: BsPpState = bsPpStateFromState(getState());
+    const srcDirectory = getSrcDirectory(bsPpState);
     return getSyncSpec(srcDirectory)
       .then((syncSpec) => {
         const syncSpecFileMap: SyncSpecFileMap = {};
@@ -97,7 +101,8 @@ const setSyncSpec = (): BsPpVoidPromiseThunkAction => {
 const setAutoschedule = (): BsPpVoidPromiseThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     return new Promise((resolve, reject) => {
-      getSyncSpecFile(getState(), 'autoschedule.json')
+      const bsPpState: BsPpState = bsPpStateFromState(getState());
+      getSyncSpecFile(bsPpState, 'autoschedule.json')
         .then((autoSchedule: PpSchedule) => {
           dispatch(updatePresentationAutoschedule(autoSchedule));
           return resolve();

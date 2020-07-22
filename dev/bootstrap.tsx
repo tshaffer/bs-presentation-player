@@ -14,7 +14,7 @@ import {
   initPlayer
 } from '../src/controller';
 import {
-  BrightSignPlayer
+  BsPp
 } from '../src/component';
 
 import './bootstrap.css';
@@ -39,7 +39,7 @@ store.dispatch(initPlayer(store));
 
 ReactDOM.render(
   <Provider store={store}>
-    <BrightSignPlayer />
+    <BsPp />
   </Provider>,
   document.getElementById('root') as HTMLElement
 );

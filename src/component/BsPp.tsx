@@ -1,14 +1,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Dispatch, bindActionCreators } from 'redux';
 
-import { bindActionCreators } from 'redux';
-import { Dispatch } from 'redux';
 import { DmState } from '@brightsign/bsdatamodel';
 import {
   initPresentation,
 } from '../controller/appController';
 import {
-  PpSchedule, HsmMap, BsPpState, bsPpStateFromState,
+  PpSchedule,
+  HsmMap,
+  BsPpState,
+  bsPpStateFromState,
 } from '../type';
 import { getAutoschedule, getHsmMap } from '../selector';
 import { Sign } from './sign';
@@ -20,25 +22,24 @@ import {
 // Types
 // -----------------------------------------------------------------------
 
-export interface BrightSignPlayerProps {
-  autoschedule: PpSchedule;
+/** @internal */
+/** @private */
+export interface BsPpProps {
+  autoschedule: PpSchedule | null;
   bsdm: DmState;
   hsmMap: HsmMap;
   onInitPresentation: () => BsPpVoidThunkAction;
 }
 
 // -----------------------------------------------------------------------
+// Styles
+// -----------------------------------------------------------------------
+
+// -----------------------------------------------------------------------
 // Component
 // -----------------------------------------------------------------------
 
-class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
-
-  state: object;
-
-  constructor(props: BrightSignPlayerProps) {
-    super(props);
-  }
-
+class BsPpComponent extends React.Component<BsPpProps> {
   componentDidMount() {
     this.props.onInitPresentation();
   }
@@ -63,7 +64,7 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 
     if (initializationComplete) {
       return (
-        <Sign/>
+        <Sign />
       );
     } else {
       return (
@@ -79,19 +80,21 @@ class BrightSignPlayerComponent extends React.Component<BrightSignPlayerProps> {
 // Container
 // -----------------------------------------------------------------------
 
-function mapStateToProps(state: any) {
-  state = bsPpStateFromState(state);
+function mapStateToProps(state: BsPpState): Partial<BsPpProps> {
+
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+
   return {
     bsdm: state.bsdm,
-    autoschedule: getAutoschedule(state),
-    hsmMap: getHsmMap(state),
+    autoschedule: getAutoschedule(bsPpState),
+    hsmMap: getHsmMap(bsPpState),
   };
 }
 
-const mapDispatchToProps = (dispatch: Dispatch<BsPpState>) => {
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return bindActionCreators({
     onInitPresentation: initPresentation,
   }, dispatch);
 };
 
-export const BrightSignPlayer = connect(mapStateToProps, mapDispatchToProps)(BrightSignPlayerComponent);
+export const BsPp = connect(mapStateToProps, mapDispatchToProps)(BsPpComponent);

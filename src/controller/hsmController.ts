@@ -1,7 +1,11 @@
 import { Store } from 'redux';
 
 import {
-  BsPpState, HsmEventType, Hsm, HState,
+  HsmEventType,
+  Hsm,
+  HState,
+  BsPpState,
+  bsPpStateFromState,
 } from '../type';
 import {
   BsPpDispatch, BsPpVoidThunkAction, queueHsmEvent,
@@ -31,6 +35,8 @@ import { isNil } from 'lodash';
 
 export let _bsPpStore: Store<BsPpState>;
 
+/** @internal */
+/** @private */
 export function initPlayer(store: Store<BsPpState>) {
   _bsPpStore = store;
   return ((dispatch: BsPpDispatch) => {
@@ -38,6 +44,8 @@ export function initPlayer(store: Store<BsPpState>) {
   });
 }
 
+/** @internal */
+/** @private */
 export function launchHsm() {
   return ((dispatch: BsPpDispatch) => {
     dispatch(createPlayerHsm());
@@ -50,13 +58,13 @@ export const addHsmEvent = (event: HsmEventType): BsPpVoidThunkAction => {
     if (event.EventType !== 'NOP') {
       dispatch(queueHsmEvent(event));
     }
-    if (getIsHsmInitialized(getState())) {
-      let events: HsmEventType[] = getEvents(getState());
+    if (getIsHsmInitialized(bsPpStateFromState(getState()))) {
+      let events: HsmEventType[] = getEvents(bsPpStateFromState(getState()));
 
       while (events.length > 0) {
         dispatch(dispatchHsmEvent(events[0]));
         dispatch(dequeueHsmEvent());
-        events = getEvents(getState());
+        events = getEvents(bsPpStateFromState(getState()));
       }
     }
   });
@@ -71,17 +79,17 @@ function dispatchHsmEvent(
     console.log('dispatchHsmEvent:');
     console.log(event.EventType);
 
-    const state: BsPpState = getState();
+    const state: BsPpState = bsPpStateFromState(getState());
 
     const playerHsm: Hsm | null = getHsmByName(state, 'player');
     if (!isNil(playerHsm)) {
-      dispatch(hsmDispatch(event, playerHsm.id, playerHsm.activeStateId));
+      dispatch(hsmDispatch(event, playerHsm!.id, playerHsm!.activeStateId) as any);
       const hsmMap: HsmMap = getHsmMap(state);
       for (const hsmId in hsmMap) {
-        if (hsmId !== playerHsm.id) {
+        if (hsmId !== playerHsm!.id) {
           const activeState: HState | null = getActiveStateIdByHsmId(state, hsmId);
           if (!isNil(activeState)) {
-            dispatch(hsmDispatch(event, hsmId, activeState.id));
+            dispatch(hsmDispatch(event, hsmId, activeState!.id) as any);
           } else {
             debugger;
           }

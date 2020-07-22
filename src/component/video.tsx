@@ -6,7 +6,7 @@ import isomorphicPath from 'isomorphic-path';
 
 import { connect } from 'react-redux';
 import { getPoolFilePath } from '../selector';
-import { BsPpState } from '../type';
+import { bsPpStateFromState } from '../type';
 import { postVideoEnd } from '../controller';
 import { setVideoElementRef } from '../model/playback';
 
@@ -70,7 +70,8 @@ export class VideoComponent extends React.Component<any> {
 // -----------------------------------------------------------------------
 
 // TEDTODO - real return value didn't work, so put in any
-const mapStateToProps = (state: BsPpState, ownProps: VideoPropsFromParent): any => {
+const mapStateToProps = (state: any, ownProps: VideoPropsFromParent): any => {
+  state = bsPpStateFromState(state);
   return {
     filePath: getPoolFilePath(state, ownProps.fileName),
     width: ownProps.width,

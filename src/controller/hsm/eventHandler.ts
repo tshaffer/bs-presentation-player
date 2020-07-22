@@ -5,6 +5,7 @@ import {
   HState,
   HStateType,
   HsmType,
+  bsPpStateFromState,
 } from '../../type';
 import { isNil } from 'lodash';
 import {
@@ -24,7 +25,7 @@ import { STSuperStateEventHandler } from './superState';
 
 export const hsmConstructorFunction = (hsmId: string): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    const hsm = getHsmById(getState(), hsmId);
+    const hsm = getHsmById(bsPpStateFromState(getState()), hsmId);
     if (!isNil(hsm)) {
       switch (hsm.type) {
         case HsmType.Player:
@@ -41,7 +42,7 @@ export const hsmConstructorFunction = (hsmId: string): BsPpVoidThunkAction => {
 
 export const hsmInitialPseudoStateHandler = (hsmId: string) => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    const hsm = getHsmById(getState(), hsmId);
+    const hsm = getHsmById(bsPpStateFromState(getState()), hsmId);
     switch (hsm.type) {
       case HsmType.Player:
         const playerHsmAction = playerHsmGetInitialState();
@@ -66,7 +67,7 @@ export const HStateEventHandler = (
     if (!isNil(hState)) {
       switch (hState.type) {
         case HStateType.Top:
-          return dispatch(STTopEventHandler(hState, event, stateData));
+          return dispatch(STTopEventHandler(hState, event, stateData) as any);
         case HStateType.Player:
           return dispatch(STPlayerEventHandler(hState, event, stateData));
         case HStateType.Playing:
