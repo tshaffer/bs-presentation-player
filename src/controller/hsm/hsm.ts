@@ -30,7 +30,6 @@ import {
 import { newBsPpId } from '../../utility';
 import { getHsmById, getHStateById, getHsmInitialized } from '../../selector';
 
-
 export const createHsm = (
   name: string,
   type: HsmType,
@@ -267,7 +266,8 @@ export function hsmDispatch(
             status = dispatch(action);
             ip = 0;                                                     // enter the target
           } else {
-            if ((getHStateById(bsPpStateFromState(getState()), stateData.nextStateId) as HState).id === (path as HState[])[0].id) {
+            if ((getHStateById(bsPpStateFromState(
+              getState()), stateData.nextStateId) as HState).id === (path as HState[])[0].id) {
               // check source->super == target
               action = HStateEventHandler((s as HState), exitEvent, stateData);    // exit the source
               status = dispatch(action);
@@ -275,20 +275,24 @@ export function hsmDispatch(
               let iq = 0;                                             // indicate LCA not found
               ip = 1;                                                 // enter target and its superstate
               path[1] = t;                                            // save the superstate of the target
-              t = getHStateById(bsPpStateFromState(getState()), stateData.nextStateId) as HState;       // save source->super
+              t = getHStateById(bsPpStateFromState(
+                getState()), stateData.nextStateId) as HState;       // save source->super
               // get target->super->super
               const aState: HState = (path as HState[])[1];
               action = HStateEventHandler(aState, emptyEvent, stateData);
               status = dispatch(action);
               while (status === 'SUPER') {
                 ip = ip + 1;
-                path[ip] = getHStateById(bsPpStateFromState(getState()), stateData.nextStateId);                     // store the entry path
-                if ((getHStateById(bsPpStateFromState(getState()), stateData.nextStateId) as HState).id === s.id) { // is it the source?
+                path[ip] = getHStateById(
+                  bsPpStateFromState(getState()), stateData.nextStateId);                     // store the entry path
+                if ((getHStateById(bsPpStateFromState(getState()),
+                    stateData.nextStateId) as HState).id === s.id) { // is it the source?
                   iq = 1;                                         // indicate that LCA found
                   ip = ip - 1;                                    // do not enter the source
                   status = 'HANDLED';                             // terminate the loop
                 } else {                                              // it is not the source; keep going up
-                  const bState: HState = (getHStateById(bsPpStateFromState(getState()), stateData.nextStateId) as HState);
+                  const bState: HState =
+                    (getHStateById(bsPpStateFromState(getState()), stateData.nextStateId) as HState);
                   action = HStateEventHandler(bState, emptyEvent, stateData);
                   status = dispatch(action);
                 }
@@ -322,7 +326,8 @@ export function hsmDispatch(
                       action = HStateEventHandler((t as HState), emptyEvent, stateData);
                       status = dispatch(action);
                     }
-                    t = getHStateById(bsPpStateFromState(getState()), stateData.nextStateId) as HState;    // set to super of t
+                    t = getHStateById(bsPpStateFromState(
+                      getState()), stateData.nextStateId) as HState;    // set to super of t
                     iq = ip;
                     while (iq > 0) {
                       if (t.id === (path as HState[])[iq].id) {              // is this the LCA?

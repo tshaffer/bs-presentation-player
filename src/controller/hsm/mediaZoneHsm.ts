@@ -86,12 +86,14 @@ const createMediaHState = (
           return videoHStateId;
         case ContentItemType.SuperState:
           const superStateHStateId: string = dispatch(createSuperState(hsmId, bsdmMediaState, superStateId));
-          const superStateHState: HState | null = getHStateById(bsPpStateFromState(getState()), superStateHStateId) as HState;
+          const superStateHState: HState | null =
+            getHStateById(bsPpStateFromState(getState()), superStateHStateId) as HState;
           const superStateStateIdToHState: LUT =
             cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
           superStateStateIdToHState[bsdmMediaState.id] = superStateHState;
           dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: superStateStateIdToHState }));
-          dispatch(addSuperStateContent(dmFilterDmState(bsPpStateFromState(getState())), superStateHState, bsdmMediaState));
+          dispatch(addSuperStateContent(
+            dmFilterDmState(bsPpStateFromState(getState())), superStateHState, bsdmMediaState));
           return superStateHStateId;
         default:
           return '';
