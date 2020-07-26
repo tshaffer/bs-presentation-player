@@ -8,7 +8,7 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
-const getClientEnvironment = require('./env').getClientEnvironment;
+const getClientEnvironment = require('./env');
 const paths = require('./paths');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
@@ -25,11 +25,11 @@ const isElectron = env.raw.PLATFORM === 'electron';
 let nodeStubs = {};
 if (!isElectron) {
   nodeStubs =  {
-      dgram: 'empty',
-      fs: 'empty',
-      net: 'empty',
-      tls: 'empty',
-      child_process: 'empty',
+    dgram: 'empty',
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    child_process: 'empty',
   };
 }
 
@@ -257,38 +257,15 @@ module.exports = {
     // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
     // You can remove this if you don't use Moment.js:
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new webpack.NormalModuleReplacementPlugin(/^@brightsign.*$/, (resource) => {
-      resource.request = resource.request.replace(/^@brightsign\/assetpool$/,  path.resolve(paths.appBrightSignMock, 'assetpool'));
-      resource.request = resource.request.replace(/^@brightsign\/assetpoolfetcher$/,  path.resolve(paths.appBrightSignMock, 'assetpoolfetcher'));
-      resource.request = resource.request.replace(/^@brightsign\/assetrealizer$/,  path.resolve(paths.appBrightSignMock, 'assetrealizer'));
-      resource.request = resource.request.replace(/^@brightsign\/compositor$/,  path.resolve(paths.appBrightSignMock, 'compositor'));
-      resource.request = resource.request.replace(/^@brightsign\/decoderconfiguration$/,  path.resolve(paths.appBrightSignMock, 'decoderconfiguration'));
-      resource.request = resource.request.replace(/^@brightsign\/dwsconfiguration$/,  path.resolve(paths.appBrightSignMock, 'dwsconfiguration'));
-      resource.request = resource.request.replace(/^@brightsign\/filesysteminfo$/,  path.resolve(paths.appBrightSignMock, 'filesysteminfo'));
-      resource.request = resource.request.replace(/^@brightsign\/hostconfiguration$/,  path.resolve(paths.appBrightSignMock, 'hostconfiguration'));
-      resource.request = resource.request.replace(/^@brightsign\/keyboard$/,  path.resolve(paths.appBrightSignMock, 'keyboard'));
-      resource.request = resource.request.replace(/^@brightsign\/keystore$/,  path.resolve(paths.appBrightSignMock, 'keystore'));
-      resource.request = resource.request.replace(/^@brightsign\/networkconfiguration$/,  path.resolve(paths.appBrightSignMock, 'networkconfiguration'));
-      resource.request = resource.request.replace(/^@brightsign\/networkdiagnostics$/,  path.resolve(paths.appBrightSignMock, 'networkdiagnostics'));
-      resource.request = resource.request.replace(/^@brightsign\/pointer$/,  path.resolve(paths.appBrightSignMock, 'pointer'));
-      resource.request = resource.request.replace(/^@brightsign\/pointercalibration$/,  path.resolve(paths.appBrightSignMock, 'pointercalibration'));
-      resource.request = resource.request.replace(/^@brightsign\/registry$/,  path.resolve(paths.appBrightSignMock, 'registry'));
-      resource.request = resource.request.replace(/^@brightsign\/screenshot$/,  path.resolve(paths.appBrightSignMock, 'screenshot'));
-      resource.request = resource.request.replace(/^@brightsign\/storageinfo$/,  path.resolve(paths.appBrightSignMock, 'storageinfo'));
-      resource.request = resource.request.replace(/^@brightsign\/system$/,  path.resolve(paths.appBrightSignMock, 'system'));
-      resource.request = resource.request.replace(/^@brightsign\/systemtime$/,  path.resolve(paths.appBrightSignMock, 'systemtime'));
-      resource.request = resource.request.replace(/^@brightsign\/videoinput$/,  path.resolve(paths.appBrightSignMock, 'videoinput'));
-      resource.request = resource.request.replace(/^@brightsign\/videomodeconfiguration$/,  path.resolve(paths.appBrightSignMock, 'videomodeconfiguration'));
-      resource.request = resource.request.replace(/^@brightsign\/videooutput$/,  path.resolve(paths.appBrightSignMock, 'videooutput'));
-    }),
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works
   // in the browser build
   node: nodeStubs,
-  target: isElectron 
+  target: isElectron
     ? 'electron'
     : 'web',
+
   // Turn off performance hints during development because we don't do any
   // splitting or minification in interest of speed. These warnings become
   // cumbersome.

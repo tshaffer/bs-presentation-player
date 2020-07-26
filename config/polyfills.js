@@ -9,7 +9,6 @@ if (typeof Promise === 'undefined') {
 }
 
 // fetch() polyfill for making API calls.
-require('whatwg-fetch');
 require('raf/polyfill');
 
 // Object.assign() is commonly used with React.

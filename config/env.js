@@ -88,11 +88,4 @@ function getClientEnvironment(publicUrl) {
   return { raw, stringified };
 }
 
-const isBrowser = process.env.PLATFORM === 'browser';
-const isElectron = process.env.PLATFORM === 'electron' && !isBrowser;
-const isStandalone = process.env.PLATFORM === 'standalone' && !isBrowser && !isElectron;
-
-module.exports.getClientEnvironment = getClientEnvironment;
-module.exports.isBrowser = isBrowser;
-module.exports.isElectron = isElectron;
-module.exports.isStandalone = isStandalone;
+module.exports = getClientEnvironment;

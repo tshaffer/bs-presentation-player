@@ -14,6 +14,7 @@ process.on('unhandledRejection', err => {
 // Ensure environment variables are read.
 require('../config/env');
 
+
 const fs = require('fs');
 var spawn = require('cross-spawn');
 const chalk = require('chalk');
@@ -28,7 +29,7 @@ const {
   prepareUrls,
 } = require('react-dev-utils/WebpackDevServerUtils');
 const openBrowser = require('react-dev-utils/openBrowser');
-const getClientEnvironment = require('../config/env').getClientEnvironment;
+const getClientEnvironment = require('../config/env');
 const paths = require('../config/paths');
 const config = require('../config/webpack.config.dev');
 const createDevServerConfig = require('../config/webpackDevServer.config');
@@ -97,7 +98,7 @@ choosePort(HOST, DEFAULT_PORT)
         clearConsole();
       }
       console.log(chalk.cyan('Starting the development server...\n'));
-      
+
       const isElectron = getClientEnvironment(urls.localUrlForBrowser).raw.PLATFORM === 'electron';
 
       if (isElectron) {

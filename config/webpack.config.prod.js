@@ -10,11 +10,7 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
-const env = require('./env');
-const getClientEnvironment = env.getClientEnvironment;
-const isElectron = env.isElectron;
-const isBrowser = env.isBrowser;
-const isStandalone = env.isStandalone;
+const getClientEnvironment = require('./env');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -29,34 +25,18 @@ const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
 const publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
-const envVar = getClientEnvironment(publicUrl);
-
-let appProdIndexJs = paths.appProdIndexJs;
-if (isStandalone) {
-  appProdIndexJs = paths.appProdStandaloneIndexJs;
-}
-
-let distDeploymentDir = paths.appDistElectron;;
-if (isBrowser) {
-  distDeploymentDir = paths.appDistBrowser;
-} else if (isStandalone) {
-  distDeploymentDir = paths.appDistStandalone;
-}
-
-let distFileNameSuffix = '';
-if (isBrowser) {
-  distFileNameSuffix = '.browser';
-} else if (isStandalone) {
-  distFileNameSuffix = '.[hash:8].standalone';
-}
+const env = getClientEnvironment(publicUrl);
+const isElectron = env.raw.PLATFORM === 'electron';
 
 let nodeStubs = {};
-if (isBrowser) {
-  nodeStubs.dgram = 'empty';
-  nodeStubs.fs = 'empty';
-  nodeStubs.net = 'empty';
-  nodeStubs.tls = 'empty';
-  nodeStubs.child_process = 'empty';
+if (!isElectron) {
+  nodeStubs =  {
+    dgram: 'empty',
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    child_process: 'empty',
+  };
 }
 
 function DtsBundlePlugin(){}
@@ -66,23 +46,22 @@ DtsBundlePlugin.prototype.apply = function (compiler) {
 
     dts.bundle({
       name: '[name]',
-      main: distDeploymentDir + '/index.d.ts',
-      out: '../../index.d.ts',
+      main: paths.appDist + '/index.d.ts',
+      out: '../index.d.ts',
       removeSource: true,
       outputAsModuleFolder: true // to use npm in-package typings
     });
   });
 };
 
-
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
-if (envVar.stringified['process.env'].NODE_ENV !== '"production"') {
+if (env.stringified['process.env'].NODE_ENV !== '"production"') {
   throw new Error('Production builds must have NODE_ENV=production.');
 }
 
 // Note: defined here because it will be used more than once.
-const cssFilename = '[name].[contenthash:8].css';
+const cssFilename = 'static/css/[name].[contenthash:8].css';
 
 // ExtractTextPlugin expects the build output to be flat.
 // (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
@@ -92,121 +71,6 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
   ? // Making sure that the publicPath goes back to to build folder.
     { publicPath: Array(cssFilename.split('/').length).join('../') }
   : {};
-
-
-const externals = [];
-if (isStandalone) {
-  externals.push({
-    '@brightsign/assetpool': 'commonjs @brightsign/assetpool',
-    '@brightsign/assetpoolfetcher': 'commonjs @brightsign/assetpoolfetcher',
-    '@brightsign/assetrealizer': 'commonjs @brightsign/assetrealizer',
-    '@brightsign/compositor': 'commonjs @brightsign/compositor',
-    '@brightsign/decoderconfiguration': 'commonjs @brightsign/decoderconfiguration',
-    '@brightsign/dwsconfiguration': 'commonjs @brightsign/dwsconfiguration',
-    '@brightsign/filesysteminfo': 'commonjs @brightsign/filesysteminfo',
-    '@brightsign/hostconfiguration': 'commonjs @brightsign/hostconfiguration',
-    '@brightsign/keyboard': 'commonjs @brightsign/keyboard',
-    '@brightsign/keystore': 'commonjs @brightsign/keystore',
-    '@brightsign/networkconfiguration': 'commonjs @brightsign/networkconfiguration',
-    '@brightsign/networkdiagnostics': 'commonjs @brightsign/networkdiagnostics',
-    '@brightsign/pointer': 'commonjs @brightsign/pointer',
-    '@brightsign/pointercalibration': 'commonjs @brightsign/pointercalibration',
-    '@brightsign/registry': 'commonjs @brightsign/registry',
-    '@brightsign/screenshot': 'commonjs @brightsign/screenshot',
-    '@brightsign/storageinfo': 'commonjs @brightsign/storageinfo',
-    '@brightsign/system': 'commonjs @brightsign/system',
-    '@brightsign/systemtime': 'commonjs @brightsign/systemtime',
-    '@brightsign/videoinput': 'commonjs @brightsign/videoinput',
-    '@brightsign/videomodeconfiguration': 'commonjs @brightsign/videomodeconfiguration',
-    '@brightsign/videooutput': 'commonjs @brightsign/videooutput',
-  });
-} else {
-  externals.push(function(context, request, callback) {
-    if (/^lodash.*/.test(request)) {
-      return callback(null, 'commonjs ' + request);
-    }
-    callback();
-  });
-  externals.push(function(context, request, callback) {
-    if (/^@brightsign.*/.test(request)) {
-      return callback(null, 'commonjs ' + request);
-    }
-    callback();
-  });
-
-  externals.push({
-    'react': 'commonjs react',
-    'react-dom': 'commonjs react-dom',
-    'react-redux': 'commonjs react-redux',
-    'react-tap-event-plugin': 'commonjs react-tap-event-plugin',
-    'redux': 'commonjs redux',
-    'redux-promise': 'commonjs redux-promise',
-    'redux-thunk': 'commonjs redux-thunk',
-    'reselect': 'commonjs reselect',
-    'isomorphic-fetch-extended': 'commonjs isomorphic-fetch-extended',
-    'csx': 'commonjs csx',
-    'csstips': 'commonjs csstips',
-    'typestyle': 'commonjs typesstyle',
-  });
-}
-
-const plugins = [];
-// Makes some environment variables available to the JS code, for example:
-// if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
-// It is absolutely essential that NODE_ENV was set to production here.
-// Otherwise React will be compiled in the very slow development mode.
-plugins.push(new webpack.DefinePlugin(envVar.stringified));
-
-// Minify the code.
-// DEFER THIS TO CONSUMING PACKAGE
-// TODO find solution that allows two staging minification
-// plugins.push(
-//   new webpack.optimize.UglifyJsPlugin({
-//     compress: {
-//       warnings: false,
-//       // Disabled because of an issue with Uglify breaking seemingly valid code:
-//       // https://github.com/facebookincubator/create-react-app/issues/2376
-//       // Pending further investigation:
-//       // https://github.com/mishoo/UglifyJS2/issues/2011
-//       comparisons: false,
-//     },
-//     output: {
-//       comments: false,
-//       // Turned on because emoji and regex is not minified properly using default
-//       // https://github.com/facebookincubator/create-react-app/issues/2488
-//       ascii_only: true,
-//     },
-//     sourceMap: shouldUseSourceMap,
-//   })
-// );
-
-// Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
-plugins.push(new ExtractTextPlugin({ filename: cssFilename }));
-
-// Generate a manifest file which contains a mapping of all asset filenames
-// to their corresponding output file so that tools can pick it up without
-// having to parse `index.html`.
-plugins.push(new ManifestPlugin({ fileName: 'asset-manifest.json' }));
-
-// Moment.js is an extremely popular library that bundles large locale files
-// by default due to how Webpack interprets its code. This is a practical
-// solution that requires the user to opt into importing specific locales.
-// https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
-// You can remove this if you don't use Moment.js:
-plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/));
-
-// add auto types generation
-plugins.push(new DtsBundlePlugin());
-
-if (isStandalone) {
-  // Makes some environment variables available in index.html.
-  // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-  // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-  // In development, this will be an empty string.
-  plugins.push(new InterpolateHtmlPlugin(envVar.raw));
-  // Generates an `index.html` file with the <script> injected.
-  plugins.push(new HtmlWebpackPlugin({ inject: true, template: paths.appHtml }));
-}
 
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
@@ -218,16 +82,16 @@ module.exports = {
   // You can exclude the *.map files from the build during deployment.
   devtool: shouldUseSourceMap ? 'source-map' : false,
   // In production, we only want to load the polyfills and the app code.
-  entry: [require.resolve('./polyfills'), appProdIndexJs],
+  entry: [require.resolve('./polyfills'), paths.appProdIndexJs],
   output: {
     // The build folder.
-    path: distDeploymentDir,
+    path: paths.appDist,
     libraryTarget: 'umd',
     // Generated JS file names (with nested folders).
     // There will be one main bundle, and one file per asynchronous chunk.
     // We don't currently advertise code splitting but Webpack supports it.
-    filename: '[name]' + (distFileNameSuffix) + '.js',
-    chunkFilename: '[name].chunk' + (distFileNameSuffix) + '.js',
+    filename: 'bspp' + (isElectron ? '' : '.browser')+ '.js',
+    chunkFilename: 'bspp.chunk' + (isElectron ? '' : '.browser')+ '.js',
     // We inferred the "public path" (such as / or /my-project) from homepage.
     publicPath: publicPath,
     // Point sourcemap entries to original disk location (format as URL on Windows)
@@ -396,13 +260,88 @@ module.exports = {
     ],
   },
   // Delegate bundling of specified package to client of generated dist
-  externals: externals,
-  plugins: plugins,
+  externals: [
+    {
+      'react': 'commonjs react',
+      'react-dom': 'commonjs react-dom',
+      'react-redux': 'commonjs react-redux',
+      'react-router': 'commonjs react-router',
+      'react-tap-event-plugin': 'commonjs react-tap-event-plugin',
+      'redux': 'commonjs redux',
+      'redux-promise': 'commonjs redux-promise',
+      'redux-thunk': 'commonjs redux-thunk',
+      'reselect': 'commonjs reselect',
+      'prop-types': 'commonjs prop-types',
+      'moment': 'commonjs moment',
+      'moment-range': 'commonjs moment-range',
+      'isomorphic-fetch-extended': 'commonjs isomorphic-fetch-extended',
+      'isomorphic-path': 'commonjs isomorphic-path',
+      'xlsx': 'commonjs xlsx',
+      // 'csx': 'commonjs csx', TODO: bacon doesn't support these two.
+      // 'csstips': 'commonjs csstips',
+    },
+    function(context, request, callback) {
+      if (/^@brightsign.*/.test(request)) {
+        return callback(null, 'commonjs ' + request);
+      }
+      callback();
+    },
+    function(context, request, callback) {
+      if (/^lodash.*/.test(request)) {
+        return callback(null, 'commonjs ' + request);
+      }
+      callback();
+    },
+  ],
+  plugins: [
+    // Makes some environment variables available to the JS code, for example:
+    // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
+    // It is absolutely essential that NODE_ENV was set to production here.
+    // Otherwise React will be compiled in the very slow development mode.
+    new webpack.DefinePlugin(env.stringified),
+    // Minify the code.
+    // DEFER THIS TO CONSUMING PACKAGE
+    // TODO find solution that allows two staging minification
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compress: {
+    //     warnings: false,
+    //     // Disabled because of an issue with Uglify breaking seemingly valid code:
+    //     // https://github.com/facebookincubator/create-react-app/issues/2376
+    //     // Pending further investigation:
+    //     // https://github.com/mishoo/UglifyJS2/issues/2011
+    //     comparisons: false,
+    //   },
+    //   output: {
+    //     comments: false,
+    //     // Turned on because emoji and regex is not minified properly using default
+    //     // https://github.com/facebookincubator/create-react-app/issues/2488
+    //     ascii_only: true,
+    //   },
+    //   sourceMap: shouldUseSourceMap,
+    // }),
+    // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
+    new ExtractTextPlugin({
+      filename: cssFilename,
+    }),
+    // Generate a manifest file which contains a mapping of all asset filenames
+    // to their corresponding output file so that tools can pick it up without
+    // having to parse `index.html`.
+    new ManifestPlugin({
+      fileName: 'asset-manifest.json',
+    }),
+    // Moment.js is an extremely popular library that bundles large locale files
+    // by default due to how Webpack interprets its code. This is a practical
+    // solution that requires the user to opt into importing specific locales.
+    // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
+    // You can remove this if you don't use Moment.js:
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new DtsBundlePlugin(),
+  ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works
   // in the browser build
   node: nodeStubs,
-  target: isStandalone || isElectron
+  target: isElectron
     ? 'electron'
     : 'web',
 };
