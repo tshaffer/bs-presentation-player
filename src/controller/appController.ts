@@ -56,7 +56,8 @@ const loadPresentationData = (): BsPpVoidPromiseThunkAction => {
 
 const setRuntimeEnvironment = (): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch) => {
-    const runtimeEnvironment: RuntimeEnvironment = RuntimeEnvironment.BaconPreview;
+    // const runtimeEnvironment: RuntimeEnvironment = RuntimeEnvironment.BaconPreview;
+    const runtimeEnvironment: RuntimeEnvironment = RuntimeEnvironment.Dev;
     // try {
     //   const gpio = new BSControlPort('BrightSign') as BSControlPort;
     //   console.log('create controlPort: ');
