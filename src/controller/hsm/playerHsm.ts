@@ -24,7 +24,7 @@ import { setHsmTop } from '../../model';
 
 import {
   BsPpState,
-  PpSchedule,
+  // PpSchedule,
 } from '../../type';
 import {
   BsPpDispatch,
@@ -33,16 +33,16 @@ import {
 } from '../../model';
 
 import {
-  getAutoschedule,
-  getSyncSpecFileMap,
-  getSrcDirectory,
+  // getAutoschedule,
+  // getSyncSpecFileMap,
+  // getSrcDirectory,
   getZoneHsmList,
-  getSyncSpecReferencedFile,
+  // getSyncSpecReferencedFile,
 } from '../../selector';
 import {
   BsDmId,
-  DmSignState,
-  dmOpenSign,
+  // DmSignState,
+  // dmOpenSign,
   DmState,
   dmGetZoneById,
   DmZone,
@@ -52,6 +52,7 @@ import { hsmConstructorFunction } from '../hsm/eventHandler';
 import { createMediaZoneHsm } from './mediaZoneHsm';
 import { getIsHsmInitialized } from '../../selector';
 import { addHsmEvent } from '../hsmController';
+import { openSign } from '../appController';
 
 export const createPlayerHsm = (): any => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -169,30 +170,32 @@ export const launchSchedulePlayback = (presentationName: string): BsPpVoidPromis
   console.log('invoke restartPlayback');
 
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    const autoSchedule: PpSchedule | null = getAutoschedule(bsPpStateFromState(getState()));
-    if (!isNil(autoSchedule)) {
-      //  - only a single scheduled item is currently supported
-      const scheduledPresentation = autoSchedule!.scheduledPresentations[0];
-      const presentationToSchedule = scheduledPresentation.presentationToSchedule;
-      presentationName = presentationToSchedule.name;
-      const autoplayFileName = presentationName + '.bml';
+    const action = openSign(presentationName);
+    const promise = dispatch(action as any);
+    return promise;
 
-      const syncSpecFileMap = getSyncSpecFileMap(bsPpStateFromState(getState()));
-      if (!isNil(syncSpecFileMap)) {
-        return getSyncSpecReferencedFile(
-          autoplayFileName,
-          syncSpecFileMap!,
-          getSrcDirectory(bsPpStateFromState(getState())))
-          .then((bpfxState: any) => {
-            const autoPlay: any = bpfxState.bsdm;
-            const signState = autoPlay as DmSignState;
-            dispatch(dmOpenSign(signState));
-          });
-      }
-      return Promise.resolve();
-    } else {
-      return Promise.resolve();
-    }
+    // const autoSchedule: PpSchedule | null = getAutoschedule(bsPpStateFromState(getState()));
+    // if (!isNil(autoSchedule)) {
+    //   //  - only a single scheduled item is currently supported
+    //   const scheduledPresentation = autoSchedule!.scheduledPresentations[0];
+    //   const presentationToSchedule = scheduledPresentation.presentationToSchedule;
+    //   presentationName = presentationToSchedule.name;
+    //   const autoplayFileName = presentationName + '.bml';
+
+    //   const syncSpecFileMap = getSyncSpecFileMap(bsPpStateFromState(getState()));
+    //   if (!isNil(syncSpecFileMap)) {
+    //     return getSyncSpecReferencedFile(autoplayFileName, syncSpecFileMap!, 
+    // getSrcDirectory(bsPpStateFromState(getState())))
+    //       .then((bpfxState: any) => {
+    //         const autoPlay: any = bpfxState.bsdm;
+    //         const signState = autoPlay as DmSignState;
+    //         dispatch(dmOpenSign(signState));
+    //       });
+    //   }
+    //   return Promise.resolve();
+    // } else {
+    //   return Promise.resolve();
+    // }
   };
 };
 

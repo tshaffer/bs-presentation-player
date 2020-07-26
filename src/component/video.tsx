@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import isomorphicPath from 'isomorphic-path';
 
 import { connect } from 'react-redux';
-import { getPoolFilePath } from '../selector';
+import { getAssetPath } from '../selector';
 import { bsPpStateFromState } from '../type';
 import { postVideoEnd } from '../controller';
 import { setVideoElementRef } from '../model/playback';
@@ -15,7 +15,7 @@ import { setVideoElementRef } from '../model/playback';
 // -----------------------------------------------------------------------
 
 export interface VideoPropsFromParent {
-  fileName: string;
+  assetName: string;
   width: number;
   height: number;
 }
@@ -73,10 +73,10 @@ export class VideoComponent extends React.Component<any> {
 const mapStateToProps = (state: any, ownProps: VideoPropsFromParent): any => {
   state = bsPpStateFromState(state);
   return {
-    filePath: getPoolFilePath(state, ownProps.fileName),
+    filePath: getAssetPath(state, ownProps.assetName),
     width: ownProps.width,
     height: ownProps.height,
-    fileName: ownProps.fileName,
+    assetName: ownProps.assetName,
   };
 };
 

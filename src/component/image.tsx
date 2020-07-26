@@ -3,7 +3,7 @@ import { isNil } from 'lodash';
 import isomorphicPath from 'isomorphic-path';
 
 import { connect } from 'react-redux';
-import { getPoolFilePath } from '../selector';
+import { getAssetPath } from '../selector';
 import { BsPpState, bsPpStateFromState } from '../type';
 
 // -----------------------------------------------------------------------
@@ -11,7 +11,7 @@ import { BsPpState, bsPpStateFromState } from '../type';
 // -----------------------------------------------------------------------
 
 export interface ImagePropsFromParent {
-  fileName: string;
+  assetName: string;
   width: number;
   height: number;
 }
@@ -54,10 +54,10 @@ export class ImageComponent extends React.Component<ImageProps> {
 const mapStateToProps = (state: BsPpState, ownProps: ImagePropsFromParent): ImageProps => {
   state = bsPpStateFromState(state);
   return {
-    filePath: getPoolFilePath(state, ownProps.fileName),
+    filePath: getAssetPath(state, ownProps.assetName),
     width: ownProps.width,
     height: ownProps.height,
-    fileName: ownProps.fileName,
+    assetName: ownProps.assetName,
   };
 };
 

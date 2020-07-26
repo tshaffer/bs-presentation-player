@@ -58,7 +58,7 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
       case ContentItemType.Image: {
         return (
           <Image
-            fileName={mediaState.name}
+            assetName={mediaState.name}
             width={this.props.width}
             height={this.props.height}
           />
@@ -67,7 +67,7 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
       case ContentItemType.Video: {
         return (
           <Video
-            fileName={mediaState.name}
+            assetName={mediaState.name}
             width={this.props.width}
             height={this.props.height}
           />

@@ -6,11 +6,12 @@ import {
   //  ScheduledPresentation,
   PpSchedule,
   SyncSpecFileMap,
+  RuntimeEnvironment,
 } from '../type';
 import { isObject } from 'lodash';
 
 export const UPDATE_PRESENTATION_DATA = 'UPDATE_PRESENTATION_DATA';
-export const UPDATE_PRESENTATION_PLATFORM = 'UPDATE_PRESENTATION_PLATFORM';
+export const UPDATE_RUNTIME_ENVIRONMENT = 'UPDATE_RUNTIME_ENVIRONMENT';
 export const UPDATE_PRESENTATION_SRC_DIRECTORY = 'UPDATE_PRESENTATION_SRC_DIRECTORY';
 export const UPDATE_SYNC_SPEC_FILE_MAP = 'UPDATE_SYNC_SPEC_FILE_MAP';
 export const UPDATE_AUTOSCHEDULE = 'UPDATE_AUTOSCHEDULE';
@@ -31,13 +32,13 @@ export function updatePresentationData(
   };
 }
 
-export const updatePresentationPlatform = (
-  platform: string,
+export const updateRuntimeEnvironment = (
+  runtimeEnvironment: RuntimeEnvironment,
 ): UpdatePresentationDataAction => {
   return {
-    type: UPDATE_PRESENTATION_PLATFORM,
+    type: UPDATE_RUNTIME_ENVIRONMENT,
     payload: {
-      platform,
+      runtimeEnvironment,
     }
   };
 };
@@ -76,7 +77,7 @@ export const updatePresentationAutoschedule = (
 };
 
 export const presentationDataDefaults: PresentationDataState = {
-  platform: '',
+  runtimeEnvironment: RuntimeEnvironment.Dev,
   srcDirectory: '',
   syncSpecFileMap: null,
   autoSchedule: null,
@@ -92,10 +93,10 @@ export const presentationDataReducer = (
   switch (type) {
     case UPDATE_PRESENTATION_DATA:
       return Object.assign({}, state, payload);
-    case UPDATE_PRESENTATION_PLATFORM:
+    case UPDATE_RUNTIME_ENVIRONMENT:
       return {
         ...state,
-        platform: payload.platform as string,
+        runtimeEnvironment: payload.runtimeEnvironment as RuntimeEnvironment,
       };
     case UPDATE_PRESENTATION_SRC_DIRECTORY:
       return {

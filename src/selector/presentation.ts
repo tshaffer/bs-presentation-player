@@ -3,23 +3,24 @@ import * as fs from 'fs-extra';
 import isomorphicPath from 'isomorphic-path';
 
 import {
-  BsPpState, RawSyncSpec, FileLUT, SyncSpecDownload, PpSchedule, SyncSpecFileMap, bsPpStateFromState,
+  BsPpState, FileLUT, SyncSpecDownload, PpSchedule, SyncSpecFileMap, bsPpStateFromState, RuntimeEnvironment,
 } from '../type';
+import { DmState, dmFilterDmState, dmGetAssetItemListForFileName } from '@brightsign/bsdatamodel';
+import { BsAssetItem } from '@brightsign/bscore';
 
 // ------------------------------------
 // Selectors
 // ------------------------------------
-export function getPresentationPlatform(state: any): string {
+export function getRuntimeEnvironment(state: any): RuntimeEnvironment {
 
   const bsPpState: BsPpState = bsPpStateFromState(state);
 
   if (
     !isNil(bsPpState.bsPlayer)
-    && !isNil(bsPpState.bsPlayer.presentationData)
-    && !isNil(bsPpState.bsPlayer.presentationData.platform)) {
-    return bsPpState.bsPlayer.presentationData.platform;
+    && !isNil(bsPpState.bsPlayer.presentationData)) {
+    return bsPpState.bsPlayer.presentationData.runtimeEnvironment;
   }
-  return '';
+  return RuntimeEnvironment.Dev;
 }
 
 export function getSrcDirectory(state: any): string {
@@ -53,7 +54,7 @@ export const getAutoschedule = (state: any): PpSchedule | null => {
   return null;
 };
 
-export function getPoolAssetFiles(state: BsPpState): FileLUT {
+function getPoolAssetFiles(state: BsPpState): FileLUT {
   state = bsPpStateFromState(state);
 
   const poolAssetFiles: FileLUT = {};
@@ -73,7 +74,34 @@ export function getPoolAssetFiles(state: BsPpState): FileLUT {
   return poolAssetFiles;
 }
 
-export function getPoolFilePath(state: BsPpState, fileName: string): string {
+export function getPathFromAssetName(state: BsPpState, assetName: string): string {
+  const bsdm: DmState = dmFilterDmState(state);
+  const assetItems: BsAssetItem[] = dmGetAssetItemListForFileName(bsdm, { name: assetName });
+  if (assetItems.length === 1) {
+    const assetItem: BsAssetItem = assetItems[0];
+    const filePath: string = isomorphicPath.join(assetItem.path, assetItem.name);
+    return filePath;
+  }
+  return '';
+}
+
+export function getAssetPath(state: BsPpState, assetName: string): string {
+
+  const runtimeEnvironment: RuntimeEnvironment = getRuntimeEnvironment(state);
+  switch (runtimeEnvironment) {
+    case RuntimeEnvironment.BaconPreview:
+      return getPathFromAssetName(state, assetName);
+    case RuntimeEnvironment.Dev:
+      return getPoolFilePath(state, assetName);
+    case RuntimeEnvironment.BrightSign:
+      return getPoolFilePath(state, assetName);
+    default:
+      break;
+  }
+  return '';
+}
+
+function getPoolFilePath(state: BsPpState, fileName: string): string {
   state = bsPpStateFromState(state);
   return getPoolAssetFiles(state)[fileName];
 }
@@ -101,21 +129,6 @@ export const getSyncSpecFile = (state: BsPpState, fileName: string): Promise<obj
       return Promise.resolve(file);
     });
 };
-
-export function getFile(syncSpec: RawSyncSpec, fileName: string): SyncSpecDownload | null {
-
-  let file: SyncSpecDownload | null = null;
-
-  // TEDTODO - use map instead of array
-  syncSpec.files.download.forEach((syncSpecFile: SyncSpecDownload) => {
-    if (syncSpecFile.name === fileName) {
-      file = syncSpecFile;
-      return;
-    }
-  });
-
-  return file;
-}
 
 export function
   getSyncSpecReferencedFile(fileName: string, syncSpecFileMap: SyncSpecFileMap, rootPath: string): Promise<object> {

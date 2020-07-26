@@ -1,7 +1,14 @@
 import { PpSchedule } from './schedule';
 
+export class RuntimeEnvironment {
+  static BrightSign = 'BrightSign';
+  static BaconPreview = 'BaconPreview';
+  static Dev = 'Dev';
+}
+Object.freeze(RuntimeEnvironment);
+
 export interface PresentationDataState {
-  platform: string;
+  runtimeEnvironment: RuntimeEnvironment;
   srcDirectory: string;
   syncSpecFileMap: SyncSpecFileMap | null;
   autoSchedule: PpSchedule | null;
