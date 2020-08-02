@@ -72,9 +72,10 @@ function getPoolAssetFiles(state: BsPpState): FileLUT {
   const poolAssetFiles: FileLUT = {};
 
   const syncSpecFileMap = getSyncSpecFileMap(state);
+
   const rootDirectory = getSrcDirectory(state);
 
-  if (!isNil(syncSpecFileMap) && isString(rootDirectory) && rootDirectory.length > 0) {
+  if (!isNil(syncSpecFileMap) && isString(rootDirectory)) {
     for (const fileName in syncSpecFileMap) {
       if (syncSpecFileMap.hasOwnProperty(fileName)) {
         const syncSpecDownload: SyncSpecDownload = syncSpecFileMap[fileName];
