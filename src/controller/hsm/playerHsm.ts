@@ -184,7 +184,7 @@ export const launchSchedulePlayback = (presentationName: string): BsPpVoidPromis
 
     //   const syncSpecFileMap = getSyncSpecFileMap(bsPpStateFromState(getState()));
     //   if (!isNil(syncSpecFileMap)) {
-    //     return getSyncSpecReferencedFile(autoplayFileName, syncSpecFileMap!, 
+    //     return getSyncSpecReferencedFile(autoplayFileName, syncSpecFileMap!,
     // getSrcDirectory(bsPpStateFromState(getState())))
     //       .then((bpfxState: any) => {
     //         const autoPlay: any = bpfxState.bsdm;
