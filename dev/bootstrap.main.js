@@ -5577,8 +5577,8 @@ var mainWindow;
 function createWindow() {
     // Create the browser window.
     mainWindow = new __WEBPACK_IMPORTED_MODULE_0_electron__["BrowserWindow"]({
-        height: 600,
-        width: 800,
+        height: 1080,
+        width: 1920,
         webPreferences: {
             nodeIntegration: true,
             webSecurity: false

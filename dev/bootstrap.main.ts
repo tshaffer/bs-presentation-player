@@ -11,8 +11,10 @@ let mainWindow: Electron.BrowserWindow | null;
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    // height: 600,
+    // width: 800,
+    height: 1080,
+    width: 1920,
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false
