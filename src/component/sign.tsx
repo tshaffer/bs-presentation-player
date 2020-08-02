@@ -46,8 +46,8 @@ class SignComponent extends React.Component<SignProps> {
           key={zone.id}
           bsdm={this.props.bsdm}
           zone={zone}
-          width={Number(zone.absolutePosition.width)}
-          height={Number(zone.absolutePosition.height)}
+          zoneWidth={Number(zone.absolutePosition.width)}
+          zoneHeight={Number(zone.absolutePosition.height)}
         />
       </div>
     );

@@ -31,8 +31,8 @@ import { Video } from './video';
 export interface MediaZonePropsFromParent {
   bsdm: DmState;
   zone: DmZone;
-  width: number;
-  height: number;
+  zoneWidth: number;
+  zoneHeight: number;
 }
 
 export interface MediaZoneProps extends MediaZonePropsFromParent {
@@ -59,8 +59,8 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
         return (
           <Image
             assetName={mediaState.name}
-            width={this.props.width}
-            height={this.props.height}
+            zoneWidth={this.props.zoneWidth}
+            zoneHeight={this.props.zoneHeight}
           />
         );
       }
@@ -68,8 +68,8 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
         return (
           <Video
             assetName={mediaState.name}
-            width={this.props.width}
-            height={this.props.height}
+            zoneWidth={this.props.zoneWidth}
+            zoneHeight={this.props.zoneHeight}
           />
         );
 
@@ -130,8 +130,8 @@ const mapStateToProps = (
   return {
     bsdm: ownProps.bsdm,
     zone: ownProps.zone,
-    width: ownProps.width,
-    height: ownProps.height,
+    zoneWidth: ownProps.zoneWidth,
+    zoneHeight: ownProps.zoneHeight,
     mediaStateId: getActiveMediaStateId(state, ownProps.zone.id),
   };
 };

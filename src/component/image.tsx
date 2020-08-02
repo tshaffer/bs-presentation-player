@@ -5,6 +5,7 @@ import isomorphicPath from 'isomorphic-path';
 import { connect } from 'react-redux';
 import { getAssetPath } from '../selector';
 import { BsPpState, bsPpStateFromState } from '../type';
+import * as sizeOf from 'image-size';
 
 // -----------------------------------------------------------------------
 // Types
@@ -12,8 +13,8 @@ import { BsPpState, bsPpStateFromState } from '../type';
 
 export interface ImagePropsFromParent {
   assetName: string;
-  width: number;
-  height: number;
+  zoneWidth: number;
+  zoneHeight: number;
 }
 
 export interface ImageProps extends ImagePropsFromParent {
@@ -24,26 +25,41 @@ export interface ImageProps extends ImagePropsFromParent {
 // Component
 // -----------------------------------------------------------------------
 
+interface Dimensions {
+  width: number;
+  height: number;
+}
+
 export class ImageComponent extends React.Component<ImageProps> {
+
+  calculateAspectRatioFit(srcWidth: number, srcHeight: number, maxWidth: number, maxHeight: number): Dimensions {
+
+    const ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+
+    return {
+      width: srcWidth * ratio,
+      height: srcHeight * ratio
+    };
+  }
+
   render() {
 
     const src: string = isomorphicPath.join('file://', this.props.filePath);
 
-    if (isNil(this.props.width)) {
-      return (
-        <img
-          src={src}
-        />
-      );
-    } else {
-      return (
-        <img
-          src={src}
-          width={this.props.width.toString()}
-          height={this.props.height.toString()}
-        />
-      );
+    console.log(this.props.filePath);
+
+    const dimensions = sizeOf(this.props.filePath);
+    if (isNil(dimensions)) {
+      return null;
     }
+
+    return (
+      <img
+        src={src}
+        width={dimensions.width.toString()}
+        height={dimensions.height.toString()}
+      />
+    );
   }
 }
 
@@ -55,8 +71,8 @@ const mapStateToProps = (state: BsPpState, ownProps: ImagePropsFromParent): Imag
   state = bsPpStateFromState(state);
   return {
     filePath: getAssetPath(state, ownProps.assetName),
-    width: ownProps.width,
-    height: ownProps.height,
+    zoneWidth: ownProps.zoneWidth,
+    zoneHeight: ownProps.zoneHeight,
     assetName: ownProps.assetName,
   };
 };

@@ -16,8 +16,8 @@ import { setVideoElementRef } from '../model/playback';
 
 export interface VideoPropsFromParent {
   assetName: string;
-  width: number;
-  height: number;
+  zoneWidth: number;
+  zoneHeight: number;
 }
 
 export interface VideoProps extends VideoPropsFromParent {
@@ -49,9 +49,9 @@ export class VideoComponent extends React.Component<any> {
     return (
       <video
         src={src}
+        width={this.props.zoneWidth.toString()}
+        height={this.props.zoneHeight.toString()}
         autoPlay={true}
-        width={this.props.width.toString()}
-        height={this.props.height.toString()}
         ref={(videoElementRef) => {
           console.log('videoElementRef retrieved');
           self.handleSetVideoElementRef(videoElementRef);
@@ -74,8 +74,8 @@ const mapStateToProps = (state: any, ownProps: VideoPropsFromParent): any => {
   state = bsPpStateFromState(state);
   return {
     filePath: getAssetPath(state, ownProps.assetName),
-    width: ownProps.width,
-    height: ownProps.height,
+    width: ownProps.zoneWidth,
+    height: ownProps.zoneHeight,
     assetName: ownProps.assetName,
   };
 };
