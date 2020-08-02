@@ -10,6 +10,7 @@ import {
 } from '@brightsign/bsdatamodel';
 import { MediaZone } from './mediaZone';
 import { bsPpStateFromState } from '../type';
+import { calculateAspectRatioFit } from '../utility';
 
 // -----------------------------------------------------------------------
 // Types
@@ -31,6 +32,13 @@ class SignComponent extends React.Component<SignProps> {
 
   renderMediaZone(zone: DmcZone): object {
 
+    const scaledDimensions = calculateAspectRatioFit(
+      zone.absolutePosition.width,
+      zone.absolutePosition.height,
+      800,
+      600
+    );
+
     return (
       <div
         key={zone.id}
@@ -38,8 +46,8 @@ class SignComponent extends React.Component<SignProps> {
           position: 'absolute',
           left: zone.absolutePosition.x,
           top: zone.absolutePosition.y,
-          width: zone.absolutePosition.width,
-          height: zone.absolutePosition.height,
+          width: scaledDimensions.width,
+          height: scaledDimensions.height,
         }}
       >
         <MediaZone

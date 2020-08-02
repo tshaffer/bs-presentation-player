@@ -23,6 +23,7 @@ import { bsPpStateFromState } from '../type';
 import { getActiveMediaStateId } from '../selector';
 import { Image } from './image';
 import { Video } from './video';
+import { calculateAspectRatioFit } from '../utility';
 
 // -----------------------------------------------------------------------
 // Types
@@ -54,13 +55,20 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
     const mediaType: ContentItemType = mediaContentItem.type;
 
+    const scaledDimensions = calculateAspectRatioFit(
+      this.props.zoneWidth,
+      this.props.zoneHeight,
+      800,
+      600
+    );
+
     switch (mediaType) {
       case ContentItemType.Image: {
         return (
           <Image
             assetName={mediaState.name}
-            zoneWidth={this.props.zoneWidth}
-            zoneHeight={this.props.zoneHeight}
+            zoneWidth={scaledDimensions.width}
+            zoneHeight={scaledDimensions.height}
           />
         );
       }
@@ -68,8 +76,8 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
         return (
           <Video
             assetName={mediaState.name}
-            zoneWidth={this.props.zoneWidth}
-            zoneHeight={this.props.zoneHeight}
+            zoneWidth={scaledDimensions.width}
+            zoneHeight={scaledDimensions.height}
           />
         );
 
