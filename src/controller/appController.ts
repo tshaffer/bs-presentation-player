@@ -20,7 +20,8 @@ import {
   updateRuntimeEnvironment,
   updatePresentationSrcDirectory,
   updatePresentationSyncSpecFileMap,
-  updatePresentationAutoschedule
+  updatePresentationAutoschedule,
+  updateScreenDimensions
 } from '../model/presentation';
 import {
   getRuntimeEnvironment,
@@ -81,10 +82,15 @@ const setSrcDirectory = (): BsPpVoidThunkAction => {
     let srcDirectory = '';
     if (runtimeEnvironment === RuntimeEnvironment.Dev) {
       require('dotenv').config();
-      // srcDirectory = process.env.SOURCE_DIRECTORY;
-      srcDirectory = '/Users/tedshaffer/Desktop/autotronSuperState';
+
+      dispatch(updateScreenDimensions({
+        width: process.env.SCREEN_WIDTH,
+        height: process.env.SCREEN_HEIGHT,
+      }));
+
+      srcDirectory = process.env.SOURCE_DIRECTORY;
     } else if (runtimeEnvironment === RuntimeEnvironment.BaconPreview) {
-      srcDirectory = '/Users/tedshaffer/Desktop/autotronSuperState';
+      srcDirectory = '/Users/tedshaffer/Desktop/autotron-2020';
     } else {
       process.chdir('/storage/sd');
     }

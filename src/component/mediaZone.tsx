@@ -23,7 +23,7 @@ import { bsPpStateFromState } from '../type';
 import { getActiveMediaStateId } from '../selector';
 import { Image } from './image';
 import { Video } from './video';
-import { calculateAspectRatioFit } from '../utility';
+import { calculateAspectRatioFit, Dimensions } from '../utility';
 
 // -----------------------------------------------------------------------
 // Types
@@ -34,6 +34,7 @@ export interface MediaZonePropsFromParent {
   zone: DmZone;
   zoneWidth: number;
   zoneHeight: number;
+  screenDimensions: Dimensions;
 }
 
 export interface MediaZoneProps extends MediaZonePropsFromParent {
@@ -58,8 +59,8 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
     const scaledDimensions = calculateAspectRatioFit(
       this.props.zoneWidth,
       this.props.zoneHeight,
-      800,
-      600
+      this.props.screenDimensions.width,
+      this.props.screenDimensions.height,
     );
 
     switch (mediaType) {
@@ -69,6 +70,7 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
             assetName={mediaState.name}
             zoneWidth={scaledDimensions.width}
             zoneHeight={scaledDimensions.height}
+            screenDimensions={this.props.screenDimensions}
           />
         );
       }
@@ -80,7 +82,6 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
             zoneHeight={scaledDimensions.height}
           />
         );
-
       }
       default:
         debugger;

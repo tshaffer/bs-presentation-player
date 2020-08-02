@@ -9,12 +9,13 @@ import * as url from 'url';
 let mainWindow: Electron.BrowserWindow | null;
 
 function createWindow() {
+
+  require('dotenv').config();
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    // height: 600,
-    // width: 800,
-    height: 1080,
-    width: 1920,
+    height: parseInt(process.env.SCREEN_HEIGHT as string, 10),
+    width: parseInt(process.env.SCREEN_WIDTH as string, 10),
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false

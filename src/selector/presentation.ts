@@ -7,6 +7,7 @@ import {
 } from '../type';
 import { DmState, dmFilterDmState, dmGetAssetItemListForFileName } from '@brightsign/bsdatamodel';
 import { BsAssetItem } from '@brightsign/bscore';
+import { Dimensions } from '../utility/utilities';
 
 // ------------------------------------
 // Selectors
@@ -32,6 +33,17 @@ export function getSrcDirectory(state: any): string {
     return bsPpState.bsPlayer.presentationData.srcDirectory;
   }
   return '';
+}
+
+export function getScreenDimensions(state: any): Dimensions {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+  if (
+    !isNil(bsPpState.bsPlayer)
+    && !isNil(bsPpState.bsPlayer.presentationData)
+    && !isNil(bsPpState.bsPlayer.presentationData.screenDimensions)) {
+    return bsPpState.bsPlayer.presentationData.screenDimensions;
+  }
+  return { width: 1920, height: 1080 };
 }
 
 export const getSyncSpecFileMap = (state: BsPpState): SyncSpecFileMap | null => {

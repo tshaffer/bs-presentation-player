@@ -155,6 +155,7 @@ export const UPDATE_RUNTIME_ENVIRONMENT = "UPDATE_RUNTIME_ENVIRONMENT";
 export const UPDATE_PRESENTATION_SRC_DIRECTORY = "UPDATE_PRESENTATION_SRC_DIRECTORY";
 export const UPDATE_SYNC_SPEC_FILE_MAP = "UPDATE_SYNC_SPEC_FILE_MAP";
 export const UPDATE_AUTOSCHEDULE = "UPDATE_AUTOSCHEDULE";
+export const UPDATE_SCREEN_DIMENSIONS = "UPDATE_SCREEN_DIMENSIONS";
 export type UpdatePresentationDataAction = BsPpAction<Partial<PresentationDataState>>;
 export type UpdatePresentationStringAction = BsPpAction<Partial<PresentationDataState>>;
 export function updatePresentationData(presentationDataState: PresentationDataState): UpdatePresentationDataAction;
@@ -162,6 +163,7 @@ export const updateRuntimeEnvironment: (runtimeEnvironment: RuntimeEnvironment) 
 export const updatePresentationSrcDirectory: (srcDirectory: string) => UpdatePresentationDataAction;
 export const updatePresentationSyncSpecFileMap: (syncSpecFileMap: SyncSpecFileMap) => UpdatePresentationDataAction;
 export const updatePresentationAutoschedule: (autoSchedule: PpSchedule) => UpdatePresentationDataAction;
+export const updateScreenDimensions: (screenDimensions: Dimensions) => UpdatePresentationDataAction;
 export const presentationDataDefaults: PresentationDataState;
 export const presentationDataReducer: (state: PresentationDataState | undefined, { type, payload }: (UpdatePresentationDataAction)) => PresentationDataState;
 
@@ -182,6 +184,7 @@ export function getVideoRef(state: BsPpState): HTMLVideoElement | null;
 
 export function getRuntimeEnvironment(state: any): RuntimeEnvironment;
 export function getSrcDirectory(state: any): string;
+export function getScreenDimensions(state: any): Dimensions;
 export const getSyncSpecFileMap: (state: BsPpState) => SyncSpecFileMap | null;
 export const getAutoschedule: (state: any) => PpSchedule | null;
 export function getPathFromAssetName(state: BsPpState, assetName: string): string;
@@ -307,6 +310,7 @@ export class RuntimeEnvironment {
 }
 export interface PresentationDataState {
     runtimeEnvironment: RuntimeEnvironment;
+    screenDimensions: Dimensions;
     srcDirectory: string;
     syncSpecFileMap: SyncSpecFileMap | null;
     autoSchedule: PpSchedule | null;
@@ -427,4 +431,11 @@ export const STVideoStateEventHandler: (hState: HState, event: HsmEventType, sta
 
 export const createSuperState: (hsmId: string, mediaState: DmMediaState, superStateId: string) => BsPpStringThunkAction;
 export const STSuperStateEventHandler: (hState: HState, event: HsmEventType, stateData: HSMStateData) => BsPpVoidThunkAction;
+
+export const newBsPpId: () => string;
+export interface Dimensions {
+    width: number;
+    height: number;
+}
+export const calculateAspectRatioFit: (srcWidth: number, srcHeight: number, maxWidth: number, maxHeight: number) => Dimensions;
 

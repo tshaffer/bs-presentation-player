@@ -9,12 +9,14 @@ import {
   RuntimeEnvironment,
 } from '../type';
 import { isObject } from 'lodash';
+import { Dimensions } from '../utility';
 
 export const UPDATE_PRESENTATION_DATA = 'UPDATE_PRESENTATION_DATA';
 export const UPDATE_RUNTIME_ENVIRONMENT = 'UPDATE_RUNTIME_ENVIRONMENT';
 export const UPDATE_PRESENTATION_SRC_DIRECTORY = 'UPDATE_PRESENTATION_SRC_DIRECTORY';
 export const UPDATE_SYNC_SPEC_FILE_MAP = 'UPDATE_SYNC_SPEC_FILE_MAP';
 export const UPDATE_AUTOSCHEDULE = 'UPDATE_AUTOSCHEDULE';
+export const UPDATE_SCREEN_DIMENSIONS = 'UPDATE_SCREEN_DIMENSIONS';
 
 export type UpdatePresentationDataAction = BsPpAction<Partial<PresentationDataState>>;
 
@@ -76,11 +78,26 @@ export const updatePresentationAutoschedule = (
   };
 };
 
+export const updateScreenDimensions = (
+  screenDimensions: Dimensions,
+): UpdatePresentationDataAction => {
+  return {
+    type: UPDATE_SCREEN_DIMENSIONS,
+    payload: {
+      screenDimensions,
+    }
+  };
+};
+
 export const presentationDataDefaults: PresentationDataState = {
   runtimeEnvironment: RuntimeEnvironment.Dev,
   srcDirectory: '',
   syncSpecFileMap: null,
   autoSchedule: null,
+  screenDimensions: {
+    width: 1920,
+    height: 1080
+  },
 };
 Object.freeze(presentationDataDefaults);
 
@@ -112,6 +129,11 @@ export const presentationDataReducer = (
       return {
         ...state,
         autoSchedule: payload.autoSchedule as any,
+      };
+    case UPDATE_SCREEN_DIMENSIONS:
+      return {
+        ...state,
+        screenDimensions: payload.screenDimensions as any,
       };
     default:
       return state;

@@ -1,4 +1,5 @@
 import { PpSchedule } from './schedule';
+import { Dimensions } from '../utility';
 
 export class RuntimeEnvironment {
   static BrightSign = 'BrightSign';
@@ -9,6 +10,7 @@ Object.freeze(RuntimeEnvironment);
 
 export interface PresentationDataState {
   runtimeEnvironment: RuntimeEnvironment;
+  screenDimensions: Dimensions;
   srcDirectory: string;
   syncSpecFileMap: SyncSpecFileMap | null;
   autoSchedule: PpSchedule | null;

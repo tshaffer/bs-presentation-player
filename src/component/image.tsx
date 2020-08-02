@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { getAssetPath } from '../selector';
 import { BsPpState, bsPpStateFromState } from '../type';
 import * as sizeOf from 'image-size';
-import { calculateAspectRatioFit } from '../utility';
+import { calculateAspectRatioFit, Dimensions } from '../utility';
 
 // -----------------------------------------------------------------------
 // Types
@@ -16,6 +16,7 @@ export interface ImagePropsFromParent {
   assetName: string;
   zoneWidth: number;
   zoneHeight: number;
+  screenDimensions: Dimensions;
 }
 
 export interface ImageProps extends ImagePropsFromParent {
@@ -45,8 +46,8 @@ export class ImageComponent extends React.Component<ImageProps> {
       this.props.zoneWidth,
       this.props.zoneHeight);
 
-    const left = (800 - scaledDimensions.width) / 2;
-    const top = (600 - scaledDimensions.height) / 2;
+    const left = (this.props.screenDimensions.width - scaledDimensions.width) / 2;
+    const top = (this.props.screenDimensions.height - scaledDimensions.height) / 2;
 
     return (
       <img
@@ -67,7 +68,7 @@ export class ImageComponent extends React.Component<ImageProps> {
 // Container
 // -----------------------------------------------------------------------
 
-const mapStateToProps = (state: BsPpState, ownProps: ImagePropsFromParent): ImageProps => {
+const mapStateToProps = (state: BsPpState, ownProps: ImagePropsFromParent): Partial<ImageProps> => {
   state = bsPpStateFromState(state);
   return {
     filePath: getAssetPath(state, ownProps.assetName),

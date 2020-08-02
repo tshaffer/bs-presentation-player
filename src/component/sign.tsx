@@ -10,7 +10,8 @@ import {
 } from '@brightsign/bsdatamodel';
 import { MediaZone } from './mediaZone';
 import { bsPpStateFromState } from '../type';
-import { calculateAspectRatioFit } from '../utility';
+import { calculateAspectRatioFit, Dimensions } from '../utility';
+import { getScreenDimensions } from '../selector';
 
 // -----------------------------------------------------------------------
 // Types
@@ -18,6 +19,7 @@ import { calculateAspectRatioFit } from '../utility';
 
 export interface SignProps {
   bsdm: DmState;
+  screenDimensions: Dimensions;
 }
 
 // -----------------------------------------------------------------------
@@ -35,8 +37,8 @@ class SignComponent extends React.Component<SignProps> {
     const scaledDimensions = calculateAspectRatioFit(
       zone.absolutePosition.width,
       zone.absolutePosition.height,
-      800,
-      600
+      this.props.screenDimensions.width,
+      this.props.screenDimensions.height,
     );
 
     return (
@@ -56,6 +58,7 @@ class SignComponent extends React.Component<SignProps> {
           zone={zone}
           zoneWidth={Number(zone.absolutePosition.width)}
           zoneHeight={Number(zone.absolutePosition.height)}
+          screenDimensions={this.props.screenDimensions}
         />
       </div>
     );
@@ -124,6 +127,7 @@ const mapStateToProps = (state: any): Partial<SignProps> => {
   state = bsPpStateFromState(state);
   return {
     bsdm: state.bsdm,
+    screenDimensions: getScreenDimensions(state),
   };
 };
 
