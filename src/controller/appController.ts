@@ -58,16 +58,16 @@ const loadPresentationData = (): BsPpVoidPromiseThunkAction => {
 const setRuntimeEnvironment = (): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     // const runtimeEnvironment: RuntimeEnvironment = RuntimeEnvironment.BaconPreview;
-    const runtimeEnvironment: RuntimeEnvironment = RuntimeEnvironment.Dev;
-    // try {
-    //   const gpio = new BSControlPort('BrightSign') as BSControlPort;
-    //   console.log('create controlPort: ');
-    //   console.log(gpio);
-    //   runtimeEnvironment = 'BrightSign';
-    // } catch (e) {
-    //   runtimeEnvironment = 'Desktop';
-    //   console.log('failed to create controlPort: ');
-    // }
+    let runtimeEnvironment: RuntimeEnvironment = RuntimeEnvironment.Dev;
+    try {
+      const gpio = new BSControlPort('BrightSign') as BSControlPort;
+      console.log('create controlPort: ');
+      console.log(gpio);
+      runtimeEnvironment = RuntimeEnvironment.BrightSign;
+    } catch (e) {
+      // runtimeEnvironment = 'Desktop';
+      console.log('failed to create controlPort: ');
+    }
     dispatch(updateRuntimeEnvironment(runtimeEnvironment));
   });
 };
@@ -226,19 +226,47 @@ const openSignBaconPreview = (presentationName: string) => {
     const state = getState();
     const presentationLocator: BsAssetLocator | null = baCmGetPresentationLocator(state);
     if (!isNil(presentationLocator)) {
-      console.log(presentationLocator);
-
       const filePath: string = isomorphicPath.join(presentationLocator.path, presentationLocator.name);
       return fs.readFile(filePath, 'utf8')
         .then((fileStr: string) => {
           const file: any = JSON.parse(fileStr);
           dispatch(dmOpenSign(file.bsdm));
-          console.log(getState());
           return Promise.resolve();
         });
 
     } else {
       debugger;
+      return Promise.resolve();
+    }
+  });
+};
+
+const openSignBrightSign = (presentationName: string) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
+
+    const autoSchedule: PpSchedule | null = getAutoschedule(bsPpStateFromState(getState()));
+    if (!isNil(autoSchedule)) {
+
+      //  - only a single scheduled item is currently supported
+      const scheduledPresentation = autoSchedule!.scheduledPresentations[0];
+      const presentationToSchedule = scheduledPresentation.presentationToSchedule;
+      presentationName = presentationToSchedule.name;
+      const autoplayFileName = presentationName + '.bml';
+
+      const syncSpecFileMap = getSyncSpecFileMap(bsPpStateFromState(getState()));
+      if (!isNil(syncSpecFileMap)) {
+        return getSyncSpecReferencedFile(
+          autoplayFileName,
+          syncSpecFileMap!,
+          getSrcDirectory(bsPpStateFromState(getState())))
+          .then((bpfxState: any) => {
+            const autoPlay: any = bpfxState.bsdm;
+            const signState = autoPlay as DmSignState;
+            dispatch(dmOpenSign(signState));
+          });
+      }
+      return Promise.resolve();
+    } else {
       return Promise.resolve();
     }
   });
@@ -259,8 +287,9 @@ export const openSign = (presentationName: string) => {
       const promise = dispatch(action as any);
       return promise;
     } else {
-      debugger;
+      const action = openSignBrightSign(presentationName);
+      const promise = dispatch(action as any);
+      return promise;
     }
-    return Promise.resolve();
   });
 };
