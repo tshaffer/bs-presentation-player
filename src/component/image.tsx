@@ -42,6 +42,31 @@ export class ImageComponent extends React.Component<ImageProps> {
     };
   }
 
+  /*
+.container-div{ 
+Display: flex;
+Height: 100vh;
+Width: 100vw; 
+Align-Items: center;
+Justify-Content: centre;
+}
+
+<Image
+    img src={cur} alt="cur"
+    height={350}
+    width={700}
+    style={{ alignSelf: 'center' }}
+/>
+
+.center{
+    text-align: center;
+    display: block;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    width: 100%;
+  }
+*/
   render() {
 
     const src: string = isomorphicPath.join('file://', this.props.filePath);
@@ -53,11 +78,56 @@ export class ImageComponent extends React.Component<ImageProps> {
       return null;
     }
 
+    const scaledDimensions = this.calculateAspectRatioFit(dimensions.width, dimensions.height, 800, 600);
+
+    const left = (800 - scaledDimensions.width) / 2;
+    const top = (600 - scaledDimensions.height) / 2;
+    /*
+        style={{
+          position: 'absolute', left: '50%', top: '50%',
+          transform: 'translate(-50%, -50%)'
+        }}
+
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+
+        style={{
+          position: 'absolute',
+          left,
+          top,
+        }}
+
+    */
+    // return (
+    //   <div
+    //     style={{
+    //       position: 'absolute',
+    //       left,
+    //       top,
+    //       width: 800,
+    //       height: 600,
+    //     }}
+    //   >
+    //     <img
+    //       src={src}
+    //       width={scaledDimensions.width.toString()}
+    //       height={scaledDimensions.height.toString()}
+    //     />
+    //   </div >
+    // );
     return (
       <img
+        style={{
+          position: 'absolute',
+          left,
+          top,
+        }}
         src={src}
-        width={dimensions.width.toString()}
-        height={dimensions.height.toString()}
+        width={scaledDimensions.width.toString()}
+        height={scaledDimensions.height.toString()}
       />
     );
   }
