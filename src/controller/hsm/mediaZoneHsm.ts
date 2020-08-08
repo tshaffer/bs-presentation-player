@@ -36,6 +36,7 @@ import {
   // setHsmData
 } from '../../model';
 import { getHsmById, getHStateById, getHStateByMediaStateId } from '../../selector';
+import { createMrssState } from './mrssState';
 
 export const createMediaZoneHsm = (hsmName: string, hsmType: HsmType, bsdmZone: DmZone): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -87,6 +88,19 @@ const createMediaHState = (
           videoStateIdToHState[bsdmMediaState.id] = videoHState;
           dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: videoStateIdToHState }));
           return videoHStateId;
+        case ContentItemType.MrssFeed:
+          const dataFeedContentItem: DmDataFeedContentItem = bsdmMediaState.contentItem as DmDataFeedContentItem;
+          const dataFeedId: BsDmId = dataFeedContentItem.dataFeedId;
+          const dataFeed: DmcDataFeed | null =
+            dmGetDataFeedById(dmFilterDmState(bsPpStateFromState(getState())), { id: dataFeedId });
+          if (!isNil(dataFeed)) {
+            const mrssHStateId: string = dispatch(createMrssState(hsmId, bsdmMediaState, dataFeed.id, superStateId));
+            const mrssHState: HState | null = getHStateById(bsPpStateFromState(getState()), mrssHStateId);
+            const mrssStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
+            mrssStateIdToHState[bsdmMediaState.id] = mrssHState;
+            dispatch(updateHsmProperties({ id: hsmId, mediaStateIdToHState: mrssStateIdToHState }));
+            }
+          break;
         case ContentItemType.SuperState:
           const superStateHStateId: string = dispatch(createSuperState(hsmId, bsdmMediaState, superStateId));
           const superStateHState: HState | null =
@@ -98,15 +112,6 @@ const createMediaHState = (
           dispatch(addSuperStateContent(
             dmFilterDmState(bsPpStateFromState(getState())), superStateHState, bsdmMediaState));
           return superStateHStateId;
-        case ContentItemType.MrssFeed:
-          const dataFeedContentItem: DmDataFeedContentItem = bsdmMediaState.contentItem as DmDataFeedContentItem;
-          const dataFeedId: BsDmId = dataFeedContentItem.dataFeedId;
-          const dataFeed: DmcDataFeed | null = 
-            dmGetDataFeedById(dmFilterDmState(bsPpStateFromState(getState())), { id: dataFeedId });
-          if (!isNil(dataFeed)) {
-            newState = new MrssState(this, bsdmMediaState, superState, dataFeedId);
-          }
-          break;
         default:
           return '';
       }

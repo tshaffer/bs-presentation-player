@@ -1,6 +1,8 @@
 import * as fs from 'fs-extra';
 import axios from 'axios';
 
+import { HsmEventType } from '../type';
+
 import { ArTextItem, ArTextFeed, ArMrssItem, ArMrssFeed, ArContentFeedItem, ArContentFeed, ArDataFeed, ArFeed } from '../type/dataFeed';
 import { DmState } from '@brightsign/bsdatamodel';
 import {
@@ -13,22 +15,25 @@ import {
 import { isNil, isObject } from 'lodash';
 import { DataFeedUsageType, DataFeedType } from '@brightsign/bscore';
 import AssetPool, { Asset } from '@brightsign/assetpool';
-import { xmlStringToJson } from '../utility/helpers';
 import { addDataFeed } from '../model/dataFeed';
 import { getMrssFeedItems, getDataFeedById, allDataFeedContentExists } from '../selector/dataFeed';
 
 import AssetPoolFetcher from '@brightsign/assetpoolfetcher';
-import { ArEventType } from '../type/runtime';
 
-import { postMessage, getPlatform } from './runtime';
-import { BsBspVoidPromiseThunkAction, BsBspVoidThunkAction } from '../index';
+import { addHsmEvent } from './hsmController';
+import { xmlStringToJson } from '../utility';
+import { getRuntimeEnvironment } from '../selector';
+import {
+  BsPpVoidPromiseThunkAction,
+  BsPpVoidThunkAction,
+} from '../model';
 
 let assetPoolFetcher: AssetPoolFetcher | null = null;
 
 // ******************** FEEDS: ********************/
 
 // Promise is resolved with the raw data feed (xml converted to json)
-export function retrieveDataFeed(bsdm: DmState, dataFeed: DmcDataFeed): Promise<ArFeed> {
+export function retrieveDataFeed(state: any, bsdm: DmState, dataFeed: DmcDataFeed): Promise<ArFeed> {
 
   const dataFeedSource = dmGetDataFeedSourceForFeedId(bsdm, { id: dataFeed.id });
   if (isNil(dataFeedSource)) {
@@ -45,7 +50,7 @@ export function retrieveDataFeed(bsdm: DmState, dataFeed: DmcDataFeed): Promise<
       url,
       responseType: 'text',
     }).then((response: any) => {
-      fs.writeFileSync(getFeedCacheRoot() + dataFeed.id + '.xml', response.data);
+      fs.writeFileSync(getFeedCacheRoot(state) + dataFeed.id + '.xml', response.data);
       return xmlStringToJson(response.data);
     }).then((feedAsJson: ArFeed) => {
       console.log(feedAsJson);
@@ -58,9 +63,9 @@ export function retrieveDataFeed(bsdm: DmState, dataFeed: DmcDataFeed): Promise<
   return Promise.reject('dataFeedSources url is null');
 }
 
-export function readCachedFeed(bsdmDataFeed: DmcDataFeed): Promise<ArFeed | null> {
+export function readCachedFeed(state: any, bsdmDataFeed: DmcDataFeed): Promise<ArFeed | null> {
 
-  const feedFileName: string = getFeedCacheRoot() + bsdmDataFeed.id + '.xml';
+  const feedFileName: string = getFeedCacheRoot(state) + bsdmDataFeed.id + '.xml';
 
   console.log('Read existing content for feed ' + bsdmDataFeed.id);
 
@@ -85,7 +90,7 @@ export function readCachedFeed(bsdmDataFeed: DmcDataFeed): Promise<ArFeed | null
   }
 }
 
-export function processFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsBspVoidPromiseThunkAction {
+export function processFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsPpVoidPromiseThunkAction {
   return (dispatch: any, getState: any) => {
     switch (bsdmDataFeed.usage) {
       case DataFeedUsageType.Mrss: {
@@ -106,7 +111,7 @@ export function processFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsBspVoidP
 
 // ******************** MRSS FEEDS: ********************/
 
-function processMrssFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsBspVoidPromiseThunkAction {
+function processMrssFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsPpVoidPromiseThunkAction {
 
   return (dispatch: any, getState: any) => {
 
@@ -164,7 +169,7 @@ export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed) {
 
     const dataFeed = getDataFeedById(getState(), arDataFeed.id) as ArDataFeed;
 
-    const feedAssetPool: AssetPool = getFeedAssetPool();
+    const feedAssetPool: AssetPool = getFeedAssetPool(getState());
     assetPoolFetcher = new AssetPoolFetcher(feedAssetPool);
 
     assetPoolFetcher.addEventListener('progressevent', (data: any) => {
@@ -190,12 +195,12 @@ export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed) {
     console.log('post MRSS_SPEC_UPDATED message');
 
     // indicate that the mrss spec has been updated
-    const event: ArEventType = {
+    const event: HsmEventType = {
       EventType: 'MRSS_SPEC_UPDATED',
       // EventData: dataFeedSource.id,
       EventData: dataFeed.id,
     };
-    const action: any = postMessage(event);
+    const action: any = addHsmEvent(event);
     dispatch(action);
 
     console.log('assetPoolFetcher.start');
@@ -204,12 +209,12 @@ export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed) {
         console.log('assetPoolFetcher promise resolved');
 
         // after all files complete
-        const actionEvent: ArEventType = {
+        const actionEvent: HsmEventType = {
           EventType: 'MRSS_DATA_FEED_LOADED',
           // EventData: dataFeedSource.id,
           EventData: dataFeed.id,
         };
-        const actionToPost: any = postMessage(actionEvent);
+        const actionToPost: any = addHsmEvent(actionEvent);
         dispatch(actionToPost);
       })
       .catch((err) => {
@@ -222,13 +227,13 @@ export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed) {
 
 // ******************** CONTENT FEEDS: BSN & BS  ********************/
 
-function processContentFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsBspVoidPromiseThunkAction {
+function processContentFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsPpVoidPromiseThunkAction {
   return (dispatch: any, getState: any) => {
     return dispatch(loadContentFeed(bsdmDataFeed, feed));
   };
 }
 
-function loadContentFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsBspVoidPromiseThunkAction {
+function loadContentFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsPpVoidPromiseThunkAction {
 
   return (dispatch: any, getState: any) => {
 
@@ -267,7 +272,7 @@ export function downloadContentFeedContent(arDataFeed: ArContentFeed) {
 
     console.log('downloadContentFeedContent - entry');
 
-    const feedAssetPool: AssetPool = getFeedAssetPool();
+    const feedAssetPool: AssetPool = getFeedAssetPool(getState());
     assetPoolFetcher = new AssetPoolFetcher(feedAssetPool);
 
     assetPoolFetcher.addEventListener('progressevent', (data: any) => {
@@ -295,12 +300,12 @@ export function downloadContentFeedContent(arDataFeed: ArContentFeed) {
         console.log('assetPoolFetcher promise resolved');
 
         // post message indicating load complete
-        const event: ArEventType = {
+        const event: HsmEventType = {
           EventType: 'CONTENT_DATA_FEED_LOADED',
           EventData: arDataFeed.id,
         };
         console.log('POST CONTENT_DATA_FEED_LOADED');
-        const action: any = postMessage(event);
+        const action: any = addHsmEvent(event);
         dispatch(action);
       })
       .catch((err) => {
@@ -313,7 +318,7 @@ export function downloadContentFeedContent(arDataFeed: ArContentFeed) {
 // ******************** BSN CONTENT FEED ********************/
 
 // returns a promise
-function processBsnContentFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsBspVoidPromiseThunkAction {
+function processBsnContentFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsPpVoidPromiseThunkAction {
   return (dispatch: any, getState: any) => {
     return parseMrssFeed(feed)
       .then((mrssItems: ArMrssItem[]) => {
@@ -353,19 +358,19 @@ function convertMrssFormatToContentFormat(mrssItems: ArMrssItem[]): ArContentFee
 
 // ******************** URL CONTENT FEED ********************/
 
-function processUrlContentFeed(bsdmDataFeed: DmcDataFeed, urlFeed: ArFeed): BsBspVoidThunkAction {
+function processUrlContentFeed(bsdmDataFeed: DmcDataFeed, urlFeed: ArFeed): BsPpVoidPromiseThunkAction {
 
   return (dispatch: any, getState: any) => {
     // TODO - can buildContentFeed return the arDataFeed it just created?
     dispatch(buildContentFeedFromUrlFeed(bsdmDataFeed, urlFeed));
     const arDataFeed = getDataFeedById(getState(), bsdmDataFeed.id) as ArDataFeed;
     if (!isNil(arDataFeed)) {
-      if (allDataFeedContentExists(arDataFeed as ArContentFeed)) {
-        const event: ArEventType = {
+      if (allDataFeedContentExists(getState(), arDataFeed as ArContentFeed)) {
+        const event: HsmEventType = {
           EventType: 'CONTENT_DATA_FEED_LOADED',
           EventData: arDataFeed.id,
         };
-        const action: any = postMessage(event);
+        const action: any = addHsmEvent(event);
         dispatch(action);
       }
     }
@@ -388,7 +393,7 @@ function addContentFeed(bsdmDataFeed: DmcDataFeed, contentItems: ArContentFeedIt
   };
 }
 
-function buildContentFeedFromUrlFeed(bsdmDataFeed: DmcDataFeed, urlFeed: ArFeed): BsBspVoidThunkAction {
+function buildContentFeedFromUrlFeed(bsdmDataFeed: DmcDataFeed, urlFeed: ArFeed): BsPpVoidPromiseThunkAction {
   return (dispatch: any, getState: any) => {
     const contentItems: ArContentFeedItem[] = [];
     for (const item of urlFeed.rss.channel.item) {
@@ -406,14 +411,14 @@ function buildContentFeedFromUrlFeed(bsdmDataFeed: DmcDataFeed, urlFeed: ArFeed)
 
 // ******************** TEXT FEED  ********************/
 
-export function processTextDataFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsBspVoidPromiseThunkAction {
+export function processTextDataFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsPpVoidPromiseThunkAction {
   return (dispatch: any, getState: any) => {
     dispatch(parseSimpleRSSFeed(bsdmDataFeed, textFeed));
     return Promise.resolve();
   };
 }
 
-export function parseSimpleRSSFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsBspVoidThunkAction {
+export function parseSimpleRSSFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsPpVoidThunkAction {
 
   return (dispatch: any, getState: any) => {
 
@@ -453,8 +458,8 @@ export function parseSimpleRSSFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed):
 
 // ******************** UTILIES / SHARED ********************/
 
-export function getFeedCacheRoot(): string {
-  switch (getPlatform()) {
+export function getFeedCacheRoot(state: any): string {
+  switch (getRuntimeEnvironment(state)) {
     case 'Desktop':
     default:
       return '/Users/tedshaffer/Desktop/autotron/feed_cache/';
@@ -463,8 +468,8 @@ export function getFeedCacheRoot(): string {
   }
 }
 
-function getFeedAssetPool(): AssetPool {
-  switch (getPlatform()) {
+function getFeedAssetPool(state: any): AssetPool {
+  switch (getRuntimeEnvironment(state)) {
     case 'Desktop':
     default:
       return new AssetPool('/Users/tedshaffer/Desktop/autotron/feedPool');

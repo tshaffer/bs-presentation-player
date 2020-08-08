@@ -1,16 +1,14 @@
 import * as fs from 'fs-extra';
-import isomorphicPath from 'isomorphic-path';
-import { BsBrightSignPlayerState } from '../type';
-import { ArDataFeed, ArMrssItem, ArMrssFeed, ArContentFeed } from '../type';
+import { ArDataFeed, ArMrssItem, ArMrssFeed, ArContentFeed, bsPpStateFromState } from '../type';
 import { Hash, Asset } from '@brightsign/assetpool';
-import { getFeedDirectory } from '../controller';
+import { getFeedPoolFilePath } from './presentation';
 
 // ------------------------------------
 // Selectors
 // ------------------------------------
 // TEDTODO - create selector?
-export function getDataFeedById(state: BsBrightSignPlayerState, dataFeedId: string): ArDataFeed | null {
-  const dataFeedsById = state.bsPlayer.arDataFeeds;
+export function getDataFeedById(state: any, dataFeedId: string): ArDataFeed | null {
+  const dataFeedsById = bsPpStateFromState(state).bsPlayer.arDataFeeds;
   return dataFeedsById[dataFeedId];
 }
 
@@ -38,9 +36,9 @@ export function getMrssFeedItems(feed: any): ArMrssItem[] {
   return feedItems;
 }
 
-export function allDataFeedContentExists(dataFeed: ArMrssFeed | ArContentFeed): boolean {
+export function allDataFeedContentExists(state: any, dataFeed: ArMrssFeed | ArContentFeed): boolean {
   for (const asset of dataFeed.assetList as Asset[]) {
-    const filePath = getFeedPoolFilePathFromAsset(asset);
+    const filePath = getFeedPoolFilePathFromAsset(state, asset);
     if (filePath === '' || !fs.existsSync(filePath)) {
       return false;
     }
@@ -48,9 +46,9 @@ export function allDataFeedContentExists(dataFeed: ArMrssFeed | ArContentFeed): 
   return true;
 }
 
-export function dataFeedContentExists(dataFeed: ArMrssFeed): boolean {
+export function dataFeedContentExists(state: any, dataFeed: ArMrssFeed): boolean {
   for (const asset of dataFeed.assetList as Asset[]) {
-    const filePath = getFeedPoolFilePathFromAsset(asset);
+    const filePath = getFeedPoolFilePathFromAsset(state, asset);
     if (filePath !== '' && fs.existsSync(filePath)) {
       return true;
     }
@@ -58,35 +56,11 @@ export function dataFeedContentExists(dataFeed: ArMrssFeed): boolean {
   return false;
 }
 
-export function getFeedPoolFilePathFromAsset(asset: Asset): string {
+export function getFeedPoolFilePathFromAsset(state: any, asset: Asset): string {
 
   const hash = asset.hash as Hash;
   if (hash.method !== 'SHA1') {
     return '';
   }
-  return getFeedPoolFilePath(hash.hex);
+  return getFeedPoolFilePath(state, hash.hex);
 }
-
-export function getFeedPoolFilePath(hashValue: string): string {
-  const feedPoolDirectory = getFeedDirectory();
-  const hashValueLength = hashValue.length;
-  const dir1 = hashValue.substring(hashValueLength - 2, hashValueLength - 1);
-  const dir2 = hashValue.substring(hashValueLength - 1, hashValueLength);
-  const feedFileName = 'sha1-' + hashValue;
-  return isomorphicPath.join(feedPoolDirectory, dir1, dir2, feedFileName);
-}
-
-export function feedPoolFileExists(hashValue: string): string {
-  const feedPoolDirectory = getFeedDirectory();
-  const hashValueLength = hashValue.length;
-  const dir1 = hashValue.substring(hashValueLength - 2, hashValueLength - 1);
-  const dir2 = hashValue.substring(hashValueLength - 1, hashValueLength);
-  const feedFileName = 'sha1-' + hashValue;
-  const feedPoolPath: string = isomorphicPath.join(feedPoolDirectory, dir1, dir2, feedFileName);
-  if (feedPoolPath !== '' && fs.existsSync(feedPoolPath)) {
-    return feedPoolPath;
-  }
-  return '';
-}
-
-

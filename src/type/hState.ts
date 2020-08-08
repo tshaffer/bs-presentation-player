@@ -4,6 +4,7 @@ export class HStateType {
   static Playing = 'Playing';
   static Waiting = 'Waiting';
   static Image = 'Image';
+  static Mrss = 'Mrss';
   static Video = 'Video';
   static SuperState = 'SuperState';
 }
@@ -28,6 +29,7 @@ export interface HStateSpecification {
 
 export interface MediaHState extends HState {
   mediaStateId: string;
+  dataFeedId?: string;
   timeoutId?: number;
 }
 

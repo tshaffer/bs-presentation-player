@@ -119,6 +119,31 @@ function getPoolFilePath(state: BsPpState, fileName: string): string {
   return getPoolAssetFiles(state)[fileName];
 }
 
+export function getFeedPoolFilePath(state: any, hashValue: string): string {
+  const rootDirectory = getSrcDirectory(state);
+  const feedPoolDirectory = isomorphicPath.join(rootDirectory, 'feedPool');
+  const hashValueLength = hashValue.length;
+  const dir1 = hashValue.substring(hashValueLength - 2, hashValueLength - 1);
+  const dir2 = hashValue.substring(hashValueLength - 1, hashValueLength);
+  const feedFileName = 'sha1-' + hashValue;
+  return isomorphicPath.join(feedPoolDirectory, dir1, dir2, feedFileName);
+}
+
+export function feedPoolFileExists(state: any, hashValue: string): string {
+  const rootDirectory = getSrcDirectory(state);
+  const feedPoolDirectory = isomorphicPath.join(rootDirectory, 'feedPool');
+  const hashValueLength = hashValue.length;
+  const dir1 = hashValue.substring(hashValueLength - 2, hashValueLength - 1);
+  const dir2 = hashValue.substring(hashValueLength - 1, hashValueLength);
+  const feedFileName = 'sha1-' + hashValue;
+  const feedPoolPath: string = isomorphicPath.join(feedPoolDirectory, dir1, dir2, feedFileName);
+  if (feedPoolPath !== '' && fs.existsSync(feedPoolPath)) {
+    return feedPoolPath;
+  }
+  return '';
+}
+
+
 export const getSyncSpecFile = (state: BsPpState, fileName: string): Promise<object> => {
   state = bsPpStateFromState(state);
 

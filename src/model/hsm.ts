@@ -123,10 +123,12 @@ export type AddHStateAction = BsPpAction<{
   name: string;
   mediaStateId?: string;
   timeoutId?: number;
+  dataFeedId?: string;
 }>;
 
 export interface AddHStateOptions {
   mediaStateId: string;
+  dataFeedId?: string;
   timeoutId?: number;
 }
 
@@ -137,9 +139,11 @@ export function addHState(
 
   let mediaStateId;
   let timeoutId;
+  let dataFeedId;
 
   if (!isNil(options)) {
     mediaStateId = options.mediaStateId;
+    dataFeedId = options.dataFeedId;
     timeoutId = options.timeoutId;
   }
 
@@ -154,6 +158,7 @@ export function addHState(
       superStateId,
       name,
       mediaStateId,
+      dataFeedId,
       timeoutId,
     },
   };

@@ -7,6 +7,13 @@ import { PresentationDataState } from './presentation';
 import { PlaybackState } from './playback';
 import { ArDataFeedMap } from './dataFeed';
 
+export class RuntimeEnvironment {
+  static BrightSign = 'BrightSign';
+  static BaconPreview = 'BaconPreview';
+  static Dev = 'Dev';
+}
+Object.freeze(RuntimeEnvironment);
+
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };

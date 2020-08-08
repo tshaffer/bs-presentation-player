@@ -19,7 +19,7 @@ import {
 import {
   BsPpAnyPromiseThunkAction,
 } from '../../model';
-import { isNil } from 'lodash';
+import { isNil, isString } from 'lodash';
 import { setHsmTop } from '../../model';
 
 import {
@@ -37,6 +37,7 @@ import {
   // getSyncSpecFileMap,
   // getSrcDirectory,
   getZoneHsmList,
+  getDataFeedById,
   // getSyncSpecReferencedFile,
 } from '../../selector';
 import {
@@ -47,6 +48,7 @@ import {
   dmGetZoneById,
   DmZone,
   dmGetZonesForSign,
+  dmFilterDmState,
 } from '@brightsign/bsdatamodel';
 import { hsmConstructorFunction } from '../hsm/eventHandler';
 import { createMediaZoneHsm } from './mediaZoneHsm';
@@ -69,7 +71,6 @@ import {
 } from '../dataFeed';
 import { DataFeedUsageType } from '@brightsign/bscore';
 import { ArContentFeed, ArMrssFeed, ArDataFeed } from '../../type/dataFeed';
-import { getDataFeedById } from '../../selector/dataFeed';
 
 export const createPlayerHsm = (): any => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -141,14 +142,26 @@ export const STPlayingEventHandler = (
     console.log('***** - STPlayingEventHandler, event type ' + event.EventType);
 
     if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
+
       console.log(hState.id + ': entry signal');
 
-      const action: any = launchPresentationPlayback();
-      dispatch(action);
+      const readStoredFeedsAction: any = readCachedFeeds();
+      dispatch(readStoredFeedsAction)
+        .then(() => {
+          dispatch(fetchFeeds());
+          const action: any = launchPresentationPlayback();
+          dispatch(action);
+          return 'HANDLED';
+        });
+
+      // const action: any = launchPresentationPlayback();
+      // dispatch(action);
 
       return 'HANDLED';
+
     } else if (isString(event.EventType) && (event.EventType === 'MRSS_DATA_FEED_LOADED') || (event.EventType === 'CONTENT_DATA_FEED_LOADED') || (event.EventType === 'CONTENT_DATA_FEED_UNCHANGED')) {
-      dispatch(advanceToNextDataFeedInQueue(getState().bsdm).bind(this));
+
+      dispatch(advanceToNextDataFeedInQueue());
       return 'HANDLED';
     }
 
@@ -261,53 +274,66 @@ export const launchPresentationPlayback = (): BsPpVoidThunkAction => {
 // ids of dataFeeds to download
 const bsdmDataFeedIdsToDownload: BsDmId[] = [];
 
-export function advanceToNextDataFeedInQueue(bsdm: DmState) {
+export const advanceToNextDataFeedInQueue = () => {
   return (dispatch: any, getState: any) => {
-    this.bsdmDataFeedIdsToDownload.shift();
+    bsdmDataFeedIdsToDownload.shift();
 
-    if (this.bsdmDataFeedIdsToDownload.length > 0) {
-      const bsdmDataFeedId = this.bsdmDataFeedIdsToDownload[0];
-      dispatch(this.retrieveAndProcessDataFeed(bsdm, bsdmDataFeedId));
+    if (bsdmDataFeedIdsToDownload.length > 0) {
+      const bsdmDataFeedId = bsdmDataFeedIdsToDownload[0];
+      dispatch(retrieveAndProcessDataFeed(bsdmDataFeedId));
     }
   };
-}
+};
 
-export function queueRetrieveDataFeed(bsdm: DmState, bsdmDataFeedId: BsDmId) {
+export const queueRetrieveDataFeed = (bsdmDataFeedId: BsDmId) => {
   return (dispatch: any, getState: any) => {
+    const bsdm: DmState = dmFilterDmState(bsPpStateFromState(getState()));
     const bsdmDataFeed: DmcDataFeed | null = dmGetDataFeedById(bsdm, { id: bsdmDataFeedId }) as DmcDataFeed;
     if (!isNil(bsdmDataFeed)) {
       if (bsdmDataFeed.usage === DataFeedUsageType.Text) {
-        dispatch(this.retrieveAndProcessDataFeed(bsdm, bsdmDataFeedId));
+        dispatch(retrieveAndProcessDataFeed(bsdmDataFeedId));
       } else {
-        this.bsdmDataFeedIdsToDownload.push(bsdmDataFeedId);
-        if (this.bsdmDataFeedIdsToDownload.length === 1) {
-          dispatch(this.retrieveAndProcessDataFeed(bsdm, bsdmDataFeedId));
+        bsdmDataFeedIdsToDownload.push(bsdmDataFeedId);
+        if (bsdmDataFeedIdsToDownload.length === 1) {
+          dispatch(retrieveAndProcessDataFeed(bsdmDataFeedId));
         }
       }
     }
   };
+};
+
+interface DataFeedTimeoutEventCallbackParams {
+  dispatch: BsPpDispatch;
+  dataFeedId: string;
 }
 
-export function launchRetrieveFeedTimer(dataFeedId: BsDmId, bsdm: DmState): any {
+export const launchRetrieveFeedTimer = (dataFeedId: BsDmId): any => {
   return (dispatch: any, getState: any) => {
-
+    const bsdm: DmState = dmFilterDmState(bsPpStateFromState(getState()));
     const dataFeedSource = dmGetDataFeedSourceForFeedId(bsdm, { id: dataFeedId }) as DmDataFeedSource;
     let updateInterval = dataFeedSource.updateInterval;
 
     // test
     updateInterval = 60;
 
-    setTimeout(this.retrieveFeedTimeoutHandler.bind(this), updateInterval * 1000, dispatch, this, dataFeedId, bsdm);
+    const dataFeedTimeoutEventCallbackParams: DataFeedTimeoutEventCallbackParams = {
+      dispatch,
+      dataFeedId,
+    };
+    setTimeout(retrieveFeedTimeoutHandler, updateInterval * 1000, dataFeedTimeoutEventCallbackParams);
   };
-}
+};
 
-export function retrieveFeedTimeoutHandler(dispatch: any, playerHSM: PlayerHSM, dataFeedId: BsDmId, bsdm: DmState): any {
-  dispatch(this.queueRetrieveDataFeed(bsdm, dataFeedId));
-}
+const retrieveFeedTimeoutHandler = (callbackParams: DataFeedTimeoutEventCallbackParams): void => {
+  console.log(callbackParams);
+  callbackParams.dispatch(queueRetrieveDataFeed(callbackParams.dataFeedId));
+};
 
-function readCachedFeeds(bsdm: DmState) {
+const readCachedFeeds = () => {
 
-  return (dispatch: any) => {
+  return (dispatch: any, getState: any) => {
+
+    const bsdm: DmState = dmFilterDmState(bsPpStateFromState(getState()));
 
     const bsdmDataFeedIds: BsDmId[] = dmGetDataFeedIdsForSign(bsdm);
 
@@ -319,7 +345,7 @@ function readCachedFeeds(bsdm: DmState) {
 
       const bsdmDataFeedId = bsdmDataFeedIds[index];
       const bsdmDataFeed: DmcDataFeed | null = dmGetDataFeedById(bsdm, { id: bsdmDataFeedId }) as DmcDataFeed;
-      return (readCachedFeed(bsdmDataFeed))
+      return (readCachedFeed(getState(), bsdmDataFeed))
         .then((rawFeed: any) => {
           if (!isNil(rawFeed)) {
             // const promise = dispatch(processFeed(bsdmDataFeed, rawFeed));
@@ -335,22 +361,24 @@ function readCachedFeeds(bsdm: DmState) {
 
     return readNextCachedFeed(0);
   };
-}
+};
 
-function fetchFeeds(bsdm: DmState) {
+const fetchFeeds = () => {
   return (dispatch: any, getState: any) => {
+    const bsdm: DmState = dmFilterDmState(bsPpStateFromState(getState()));
     const bsdmDataFeedIds: BsDmId[] = dmGetDataFeedIdsForSign(bsdm);
     for (const bsdmDataFeedId of bsdmDataFeedIds) {
-      dispatch(this.queueRetrieveDataFeed(bsdm, bsdmDataFeedId));
+      dispatch(queueRetrieveDataFeed(bsdmDataFeedId));
     }
   };
-}
+};
 
-function retrieveAndProcessDataFeed(bsdm: DmState, bsdmDataFeedId: BsDmId) {
+function retrieveAndProcessDataFeed(bsdmDataFeedId: BsDmId) {
   return (dispatch: any, getState: any) => {
+    const bsdm: DmState = dmFilterDmState(bsPpStateFromState(getState()));
     const bsdmDataFeed: DmcDataFeed | null = dmGetDataFeedById(bsdm, { id: bsdmDataFeedId }) as DmcDataFeed;
     // const feedFileName: string = getFeedCacheRoot() + bsdmDataFeed.id + '.xml';
-    retrieveDataFeed(bsdm, bsdmDataFeed)
+    retrieveDataFeed(getState(), bsdm, bsdmDataFeed)
       .then((rawFeed) => {
         dispatch(processFeed(bsdmDataFeed, rawFeed))
           .then(() => {
@@ -366,14 +394,14 @@ function retrieveAndProcessDataFeed(bsdm: DmState, bsdmDataFeedId: BsDmId) {
               debugger;
             }
 
-            const event: ArEventType = {
+            const event: HsmEventType = {
               EventType: 'LIVE_DATA_FEED_UPDATE',
               EventData: bsdmDataFeedId,
             };
-            const action: any = (this.stateMachine as PlayerHSM).postMessage(event);
-            dispatch(action);
 
-            dispatch(this.launchRetrieveFeedTimer(bsdmDataFeedId, bsdm).bind(this));
+            dispatch(addHsmEvent(event));
+
+            dispatch(launchRetrieveFeedTimer(bsdmDataFeedId));
 
           }).catch((err: any) => {
             console.log(err);
@@ -381,5 +409,3 @@ function retrieveAndProcessDataFeed(bsdm: DmState, bsdmDataFeedId: BsDmId) {
       });
   };
 }
-
-

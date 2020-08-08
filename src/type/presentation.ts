@@ -1,12 +1,6 @@
 import { PpSchedule } from './schedule';
 import { Dimensions } from '../utility';
-
-export class RuntimeEnvironment {
-  static BrightSign = 'BrightSign';
-  static BaconPreview = 'BaconPreview';
-  static Dev = 'Dev';
-}
-Object.freeze(RuntimeEnvironment);
+import { RuntimeEnvironment } from './base';
 
 export interface PresentationDataState {
   runtimeEnvironment: RuntimeEnvironment;
