@@ -12,6 +12,7 @@ import {
 import { hsmReducer } from './hsm';
 import { presentationDataReducer } from './presentation';
 import { playbackReducer } from './playback';
+import { dataFeedReducer, isValidDataFeedState } from './dataFeed';
 
 // -----------------------------------------------------------------------
 // Defaults
@@ -47,6 +48,7 @@ export const bsPpReducer = enableBatching(combineReducers<BsPpModelState>({
   hsmState: hsmReducer,
   presentationData: presentationDataReducer,
   playback: playbackReducer,
+  arDataFeeds: dataFeedReducer,
 }));
 
 // -----------------------------------------------------------------------
@@ -55,12 +57,16 @@ export const bsPpReducer = enableBatching(combineReducers<BsPpModelState>({
 
 /** @internal */
 /** @private */
+// TEDTODO - requires further development
 export function isValidBsPpModelState(state: any): boolean {
-  return !isNil(state);
+  return !isNil(state)
+  && state.hasOwnProperty('arDataFeeds') && isValidDataFeedState(state.arDataFeeds);
+
 }
 
 /** @internal */
 /** @private */
+// TEDTODO - requires further development
 export function isValidBsPpModelStateShallow(state: any): boolean {
   return !isNil(state);
 }

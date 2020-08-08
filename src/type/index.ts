@@ -1,6 +1,8 @@
 /** @module Types:index */
 
+export * from './activeMrssDisplayItem';
 export * from './base';
+export * from './dataFeed';
 export * from './hsm';
 export * from './hsmTypes';
 export * from './hState';

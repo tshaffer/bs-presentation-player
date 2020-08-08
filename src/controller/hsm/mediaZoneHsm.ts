@@ -9,6 +9,9 @@ import {
   BsDmId,
   dmGetInitialMediaStateIdForZone,
   dmGetContainedMediaStateIdsForMediaState,
+  DmDataFeedContentItem,
+  DmcDataFeed,
+  dmGetDataFeedById,
 } from '@brightsign/bsdatamodel';
 import {
   MediaZoneHsmProperties,
@@ -95,6 +98,15 @@ const createMediaHState = (
           dispatch(addSuperStateContent(
             dmFilterDmState(bsPpStateFromState(getState())), superStateHState, bsdmMediaState));
           return superStateHStateId;
+        case ContentItemType.MrssFeed:
+          const dataFeedContentItem: DmDataFeedContentItem = bsdmMediaState.contentItem as DmDataFeedContentItem;
+          const dataFeedId: BsDmId = dataFeedContentItem.dataFeedId;
+          const dataFeed: DmcDataFeed | null = 
+            dmGetDataFeedById(dmFilterDmState(bsPpStateFromState(getState())), { id: dataFeedId });
+          if (!isNil(dataFeed)) {
+            newState = new MrssState(this, bsdmMediaState, superState, dataFeedId);
+          }
+          break;
         default:
           return '';
       }

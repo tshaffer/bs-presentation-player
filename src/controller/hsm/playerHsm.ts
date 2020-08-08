@@ -53,6 +53,23 @@ import { createMediaZoneHsm } from './mediaZoneHsm';
 import { getIsHsmInitialized } from '../../selector';
 import { addHsmEvent } from '../hsmController';
 import { openSign } from '../appController';
+import {
+  DmDataFeedSource,
+  dmGetDataFeedIdsForSign,
+  DmcDataFeed,
+  dmGetDataFeedById,
+  dmGetDataFeedSourceForFeedId
+} from '@brightsign/bsdatamodel';
+import {
+  downloadMRSSFeedContent,
+  retrieveDataFeed,
+  readCachedFeed,
+  downloadContentFeedContent,
+  processFeed
+} from '../dataFeed';
+import { DataFeedUsageType } from '@brightsign/bscore';
+import { ArContentFeed, ArMrssFeed, ArDataFeed } from '../../type/dataFeed';
+import { getDataFeedById } from '../../selector/dataFeed';
 
 export const createPlayerHsm = (): any => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -129,6 +146,9 @@ export const STPlayingEventHandler = (
       const action: any = launchPresentationPlayback();
       dispatch(action);
 
+      return 'HANDLED';
+    } else if (isString(event.EventType) && (event.EventType === 'MRSS_DATA_FEED_LOADED') || (event.EventType === 'CONTENT_DATA_FEED_LOADED') || (event.EventType === 'CONTENT_DATA_FEED_UNCHANGED')) {
+      dispatch(advanceToNextDataFeedInQueue(getState().bsdm).bind(this));
       return 'HANDLED';
     }
 
@@ -237,3 +257,129 @@ export const launchPresentationPlayback = (): BsPpVoidThunkAction => {
 
   };
 };
+
+// ids of dataFeeds to download
+const bsdmDataFeedIdsToDownload: BsDmId[] = [];
+
+export function advanceToNextDataFeedInQueue(bsdm: DmState) {
+  return (dispatch: any, getState: any) => {
+    this.bsdmDataFeedIdsToDownload.shift();
+
+    if (this.bsdmDataFeedIdsToDownload.length > 0) {
+      const bsdmDataFeedId = this.bsdmDataFeedIdsToDownload[0];
+      dispatch(this.retrieveAndProcessDataFeed(bsdm, bsdmDataFeedId));
+    }
+  };
+}
+
+export function queueRetrieveDataFeed(bsdm: DmState, bsdmDataFeedId: BsDmId) {
+  return (dispatch: any, getState: any) => {
+    const bsdmDataFeed: DmcDataFeed | null = dmGetDataFeedById(bsdm, { id: bsdmDataFeedId }) as DmcDataFeed;
+    if (!isNil(bsdmDataFeed)) {
+      if (bsdmDataFeed.usage === DataFeedUsageType.Text) {
+        dispatch(this.retrieveAndProcessDataFeed(bsdm, bsdmDataFeedId));
+      } else {
+        this.bsdmDataFeedIdsToDownload.push(bsdmDataFeedId);
+        if (this.bsdmDataFeedIdsToDownload.length === 1) {
+          dispatch(this.retrieveAndProcessDataFeed(bsdm, bsdmDataFeedId));
+        }
+      }
+    }
+  };
+}
+
+export function launchRetrieveFeedTimer(dataFeedId: BsDmId, bsdm: DmState): any {
+  return (dispatch: any, getState: any) => {
+
+    const dataFeedSource = dmGetDataFeedSourceForFeedId(bsdm, { id: dataFeedId }) as DmDataFeedSource;
+    let updateInterval = dataFeedSource.updateInterval;
+
+    // test
+    updateInterval = 60;
+
+    setTimeout(this.retrieveFeedTimeoutHandler.bind(this), updateInterval * 1000, dispatch, this, dataFeedId, bsdm);
+  };
+}
+
+export function retrieveFeedTimeoutHandler(dispatch: any, playerHSM: PlayerHSM, dataFeedId: BsDmId, bsdm: DmState): any {
+  dispatch(this.queueRetrieveDataFeed(bsdm, dataFeedId));
+}
+
+function readCachedFeeds(bsdm: DmState) {
+
+  return (dispatch: any) => {
+
+    const bsdmDataFeedIds: BsDmId[] = dmGetDataFeedIdsForSign(bsdm);
+
+    const readNextCachedFeed = (index: number): Promise<void> => {
+
+      if (index >= bsdmDataFeedIds.length) {
+        return Promise.resolve();
+      }
+
+      const bsdmDataFeedId = bsdmDataFeedIds[index];
+      const bsdmDataFeed: DmcDataFeed | null = dmGetDataFeedById(bsdm, { id: bsdmDataFeedId }) as DmcDataFeed;
+      return (readCachedFeed(bsdmDataFeed))
+        .then((rawFeed: any) => {
+          if (!isNil(rawFeed)) {
+            // const promise = dispatch(processFeed(bsdmDataFeed, rawFeed));
+            dispatch(processFeed(bsdmDataFeed, rawFeed));
+            // TODO - wait for promise to get resolved before starting next one?
+          }
+          return readNextCachedFeed(index + 1);
+        }).catch((error: Error) => {
+          console.log(error);
+          debugger;
+        });
+    };
+
+    return readNextCachedFeed(0);
+  };
+}
+
+function fetchFeeds(bsdm: DmState) {
+  return (dispatch: any, getState: any) => {
+    const bsdmDataFeedIds: BsDmId[] = dmGetDataFeedIdsForSign(bsdm);
+    for (const bsdmDataFeedId of bsdmDataFeedIds) {
+      dispatch(this.queueRetrieveDataFeed(bsdm, bsdmDataFeedId));
+    }
+  };
+}
+
+function retrieveAndProcessDataFeed(bsdm: DmState, bsdmDataFeedId: BsDmId) {
+  return (dispatch: any, getState: any) => {
+    const bsdmDataFeed: DmcDataFeed | null = dmGetDataFeedById(bsdm, { id: bsdmDataFeedId }) as DmcDataFeed;
+    // const feedFileName: string = getFeedCacheRoot() + bsdmDataFeed.id + '.xml';
+    retrieveDataFeed(bsdm, bsdmDataFeed)
+      .then((rawFeed) => {
+        dispatch(processFeed(bsdmDataFeed, rawFeed))
+          .then(() => {
+            // TYPESCRIPT issues
+            const arDataFeed = getDataFeedById(getState(), bsdmDataFeed.id) as ArDataFeed;
+            if (arDataFeed.type === 'content') {
+              dispatch(downloadContentFeedContent(arDataFeed as ArContentFeed));
+            } else if (arDataFeed.type === 'mrss') {
+              dispatch(downloadMRSSFeedContent(arDataFeed as ArMrssFeed));
+            } else if (arDataFeed.type === 'text') {
+              console.log('text feed: return from processFeed - no content to download');
+            } else {
+              debugger;
+            }
+
+            const event: ArEventType = {
+              EventType: 'LIVE_DATA_FEED_UPDATE',
+              EventData: bsdmDataFeedId,
+            };
+            const action: any = (this.stateMachine as PlayerHSM).postMessage(event);
+            dispatch(action);
+
+            dispatch(this.launchRetrieveFeedTimer(bsdmDataFeedId, bsdm).bind(this));
+
+          }).catch((err: any) => {
+            console.log(err);
+          });
+      });
+  };
+}
+
+

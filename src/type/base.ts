@@ -5,6 +5,7 @@ import { BaContextModelState } from '@brightsign/ba-context-model';
 import { HsmState } from './hsm';
 import { PresentationDataState } from './presentation';
 import { PlaybackState } from './playback';
+import { ArDataFeedMap } from './dataFeed';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
@@ -20,6 +21,7 @@ export interface BsPpModelState {
   hsmState: HsmState;
   presentationData: PresentationDataState;
   playback: PlaybackState;
+  arDataFeeds: ArDataFeedMap;
 }
 
 export const bsPpStateFromState = (state: any): BsPpState => {
@@ -32,6 +34,7 @@ export const bsPpStateFromState = (state: any): BsPpState => {
         playback: bsPpModelState.playback,
         presentationData: bsPpModelState.presentationData,
         hsmState: bsPpModelState.hsmState,
+        arDataFeeds: bsPpModelState.arDataFeeds,
       }
     };
     return bsPpState;
