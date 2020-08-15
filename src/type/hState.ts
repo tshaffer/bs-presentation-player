@@ -27,15 +27,29 @@ export interface MediaHStateData {
   mediaStateData?: MediaHStateParamsData | null;
 }
 
-export type MediaHStateParamsData = MediaHStateCustomData & MediaHStateTimerData;
+// export type MediaHStateParamsData = (MediaHStateCustomData & MediaHStateTimerData) | null;
+export type MediaHStateParamsData = MediaHStateCustomData;
 
-export type MediaHStateCustomData = MrssStateData;
+export type MediaHStateCustomData = ImageStateData | VideoStateData | SuperStateData | MrssStateData;
 
-export interface MediaHStateTimerData {
+// export interface MediaHStateTimerData {
+//   timeoutId?: number;
+// }
+
+export interface ImageStateData {
+  timeoutId?: number;
+}
+
+export interface VideoStateData {
+  timeoutId?: number;
+}
+
+export interface SuperStateData {
   timeoutId?: number;
 }
 
 export interface MrssStateData {
+  timeoutId?: number;
   dataFeedId: string;
   currentFeedId: string | null;
   pendingFeedId: string | null;

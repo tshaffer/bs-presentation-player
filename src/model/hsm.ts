@@ -19,6 +19,8 @@ import {
   HsmEventType,
   LUT,
   MediaHStateData,
+  MediaHState,
+  MediaHStateParamsData,
 } from '../type';
 import {
   BsPpAction, BsPpBaseAction,
@@ -34,6 +36,7 @@ export const SET_HSM_TOP: string = 'SET_HSM_TOP';
 export const SET_HSM_INITIALIZED: string = 'SET_HSM_INITIALIZED';
 export const ADD_HSTATE = 'ADD_HSTATE';
 export const SET_MEDIA_H_STATE_TIMEOUT_ID = 'SET_MEDIA_H_STATE_TIMEOUT_ID';
+export const SET_MEDIA_H_STATE_PARAMETER_DATA = 'SET_MEDIA_H_STATE_PARAMETER_DATA';
 export const SET_ACTIVE_HSTATE = 'SET_ACTIVE_HSTATE';
 export const QUEUE_HSM_EVENT = 'QUEUE_HSM_EVENT';
 export const DEQUEUE_HSM_EVENT = 'DEQUEUE_HSM_EVENT';
@@ -151,7 +154,8 @@ export function setMediaHStateTimeoutId(
   timeoutId: number,
 ): any {
   return {
-    type: SET_MEDIA_H_STATE_TIMEOUT_ID,
+    // type: SET_MEDIA_H_STATE_TIMEOUT_ID,
+    type: SET_MEDIA_H_STATE_PARAMETER_DATA,
     payload: {
       hStateId,
       timeoutId,
@@ -193,8 +197,8 @@ const hsmById = (
     }
     case UPDATE_HSM_PROPERTIES: {
       const { id, mediaStateIdToHState } = (action as UpdateHsmPropertiesAction).payload;
-      const updatedHsm = {...state[id], properties: { ...state[id].properties, mediaStateIdToHState} };
-      return { ...state, [id]:  updatedHsm };
+      const updatedHsm = { ...state[id], properties: { ...state[id].properties, mediaStateIdToHState } };
+      return { ...state, [id]: updatedHsm };
     }
     case SET_HSM_TOP: {
       const { hsmId, topStateId } = action.payload as SetHsmTopActionParams;
@@ -239,8 +243,42 @@ const hStateById = (
     }
     case SET_MEDIA_H_STATE_TIMEOUT_ID: {
       const hStateId: string = (action.payload as any).hStateId;
-      const updatedHState = {...state[hStateId], ...action.payload};
-      return { ...state, [hStateId]: updatedHState};
+      const updatedHState = { ...state[hStateId], ...action.payload };
+      return { ...state, [hStateId]: updatedHState };
+    }
+    case SET_MEDIA_H_STATE_PARAMETER_DATA: {
+      console.log('SET_MEDIA_H_STATE_PARAMETER_DATA');
+      const hStateId: string = (action.payload as any).hStateId;
+      console.log(state[hStateId]);
+      const updatedMediaHState: MediaHState =
+        { ...state[hStateId], ...(state[hStateId] as MediaHState).data, ...action.payload } as MediaHState;
+
+      const mediaHState: MediaHState = cloneDeep(state[hStateId]) as MediaHState;
+      const mediaHStateData: MediaHStateData = mediaHState.data;
+      if (isNil(mediaHStateData.mediaStateData)) {
+        const keys = Object.keys(action.payload);
+        for (const key of keys) {
+          if (key !== 'hStateId') {
+            const mediaHStateParamsData: MediaHStateParamsData = {
+              [key]: action.payload[key]
+            };
+            mediaHStateData.mediaStateData = mediaHStateParamsData;
+            updatedMediaHState.data.mediaStateData = mediaHStateParamsData;
+          }
+        }
+      } else {
+        const mediaHStateParamsData: MediaHStateParamsData = mediaHStateData.mediaStateData;
+        const keys = Object.keys(action.payload);
+        for (const key of keys) {
+          if (key !== 'hStateId') {
+            mediaHStateParamsData[key] = action.payload[key];
+          }
+        }
+        mediaHStateData.mediaStateData = mediaHStateParamsData;
+        updatedMediaHState.data.mediaStateData = mediaHStateParamsData;
+      }
+      console.log(updatedMediaHState);
+      return { ...state, [hStateId]: updatedMediaHState };
     }
     default:
       return state;
