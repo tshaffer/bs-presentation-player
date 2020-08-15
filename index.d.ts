@@ -3,15 +3,21 @@
 //   ../../react
 //   ../../@brightsign/bsdatamodel
 //   ../../redux
+//   ../../@brightsign/assetpool
 //   ../../@brightsign/ba-context-model
 //   ../../@brightsign/bscore
 
 import * as React from 'react';
 import { DmState } from '@brightsign/bsdatamodel';
+import { DmcDataFeed } from '@brightsign/bsdatamodel';
 import { Store } from 'redux';
 import { Action, Dispatch, ActionCreator } from 'redux';
 import { Reducer } from 'redux';
+import { Asset } from '@brightsign/assetpool';
+import AssetPool from '@brightsign/assetpool';
 import { BaContextModelState } from '@brightsign/ba-context-model';
+import { BsDmId } from '@brightsign/bsdatamodel';
+import { DataFeedUsageType } from '@brightsign/bscore';
 import { BsAssetLocator } from '@brightsign/bscore';
 import { DmZone } from '@brightsign/bsdatamodel';
 import { DmMediaState } from '@brightsign/bsdatamodel';
@@ -37,6 +43,15 @@ export const BsPp: import("react-redux").ComponentClass<Pick<BsPpProps, never>> 
 
 export const initPresentation: () => BsPpVoidThunkAction;
 export const openSign: (presentationName: string) => (dispatch: BsPpDispatch, getState: () => BsPpState) => any;
+
+export function retrieveDataFeed(state: any, bsdm: DmState, dataFeed: DmcDataFeed): Promise<ArFeed>;
+export function readCachedFeed(state: any, bsdmDataFeed: DmcDataFeed): Promise<ArFeed | null>;
+export function processFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsPpVoidPromiseThunkAction;
+export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed): (dispatch: any, getState: any) => void;
+export function downloadContentFeedContent(arDataFeed: ArContentFeed): (dispatch: any, getState: any) => void;
+export function processTextDataFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsPpVoidPromiseThunkAction;
+export function parseSimpleRSSFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsPpVoidThunkAction;
+export function feedIsMrss(feed: any): boolean;
 
 export let _bsPpStore: Store<BsPpState>;
 /** @private */
@@ -81,6 +96,18 @@ export interface BsPpModelBatchAction extends Action {
     payload: BsPpBaseAction[];
 }
 
+export const ADD_DATA_FEED = "ADD_DATA_FEED";
+export function addDataFeed(dataFeedId: string, arDataFeed: ArDataFeed): {
+    type: string;
+    payload: {
+        dataFeedId: string;
+        arDataFeed: ArDataFeed;
+    };
+};
+export const dataFeedReducer: (state: ArDataFeedMap | undefined, action: any) => ArDataFeedMap;
+/** @private */
+export const isValidDataFeedState: (state: any) => boolean;
+
 /** @module Model:template */
 export const ADD_HSM: string;
 export const UPDATE_HSM_PROPERTIES: string;
@@ -119,10 +146,11 @@ export type AddHStateAction = BsPpAction<{
     name: string;
     mediaStateId?: string;
     timeoutId?: number;
+    dataFeedId?: string;
 }>;
 export interface AddHStateOptions {
     mediaStateId: string;
-    timeoutId?: number;
+    mediaStateData?: MediaHStateData | null;
 }
 export function addHState(hStateSpecification: HStateSpecification, options?: AddHStateOptions): AddHStateAction;
 export function setMediaHStateTimeoutId(hStateId: string, timeoutId: number): any;
@@ -167,6 +195,12 @@ export const updateScreenDimensions: (screenDimensions: Dimensions) => UpdatePre
 export const presentationDataDefaults: PresentationDataState;
 export const presentationDataReducer: (state: PresentationDataState | undefined, { type, payload }: (UpdatePresentationDataAction)) => PresentationDataState;
 
+export function getDataFeedById(state: any, dataFeedId: string): ArDataFeed | null;
+export function getMrssFeedItems(feed: any): ArMrssItem[];
+export function allDataFeedContentExists(state: any, dataFeed: ArMrssFeed | ArContentFeed): boolean;
+export function dataFeedContentExists(state: any, dataFeed: ArMrssFeed): boolean;
+export function getFeedPoolFilePathFromAsset(state: any, asset: Asset): string;
+
 export function getHsmMap(state: any): HsmMap;
 export function getHsmById(state: any, hsmId: string): Hsm;
 export function getHsmByName(state: BsPpState, hsmName: string): Hsm | null;
@@ -191,8 +225,22 @@ export function getPathFromAssetName(state: BsPpState, assetName: string): strin
 export function getAssetPath(state: BsPpState, assetName: string): string;
 export const getSyncSpecFile: (state: BsPpState, fileName: string) => Promise<object>;
 export function getSyncSpecReferencedFile(fileName: string, syncSpecFileMap: SyncSpecFileMap, rootPath: string): Promise<object>;
+export function getFeedPoolDirectory(state: any): string;
+export function getFeedPoolFilePath(state: any, hashValue: string): string;
+export function feedPoolFileExists(state: any, hashValue: string): string;
+export function getFeedCacheRoot(state: any): string;
+export function getFeedAssetPool(state: any): AssetPool;
+
+export interface MrssDisplayItemMap {
+    [hsmId: string]: ArMrssItem | null;
+}
 
 /** @module Types:base */
+export class RuntimeEnvironment {
+    static BrightSign: string;
+    static BaconPreview: string;
+    static Dev: string;
+}
 export type DeepPartial<T> = {
     [P in keyof T]?: DeepPartial<T[P]>;
 };
@@ -205,6 +253,7 @@ export interface BsPpModelState {
     hsmState: HsmState;
     presentationData: PresentationDataState;
     playback: PlaybackState;
+    arDataFeeds: ArDataFeedMap;
 }
 export const bsPpStateFromState: (state: any) => BsPpState;
 export interface LUT {
@@ -218,6 +267,64 @@ export interface BsPpMap<T extends BsPpBaseObject> {
 }
 export interface FileLUT {
     [fileName: string]: string;
+}
+
+export interface ArFeed {
+    rss: any;
+}
+export interface ArDataFeedBase {
+    type: string;
+    id: BsDmId;
+    sourceId: BsDmId;
+    usage: DataFeedUsageType;
+}
+export interface ArTextItem {
+    articleTitle: string;
+    articleDescription: string;
+}
+export interface ArTextFeedProperties {
+    textItems: ArTextItem[];
+    articlesByTitle: any;
+}
+export interface ArMrssItem {
+    guid: string;
+    link: string;
+    title: string;
+    pubDate: string;
+    duration: string;
+    fileSize: string;
+    medium: string;
+    type: string;
+    url: string;
+    filePath?: string;
+}
+export interface ArMrssFeedProperties {
+    mrssItems: ArMrssItem[];
+    title: string;
+    playtime: string;
+    ttl: string;
+    assetList: Asset[];
+}
+export interface ArContentFeedItem {
+    name: string;
+    url: string;
+    medium: string;
+    hash: string;
+}
+export interface ArContentFeedProperties {
+    contentItems: ArContentFeedItem[];
+    assetList: Asset[];
+}
+export interface ArMediaFeedItem {
+    filePath: string;
+    medium: string;
+}
+export type ArDataFeed = ArTextFeed | ArMrssFeed | ArContentFeed;
+export type ArTextFeed = ArDataFeedBase & ArTextFeedProperties;
+export type ArMrssFeed = ArDataFeedBase & ArMrssFeedProperties;
+export type ArContentFeed = ArDataFeedBase & ArContentFeedProperties;
+export interface ArDataFeedMap {
+    [dataFeedId: string]: ArDataFeed;
 }
 
 export type HsmMap = BsPpMap<Hsm>;
@@ -265,6 +372,7 @@ export class HStateType {
     static Playing: string;
     static Waiting: string;
     static Image: string;
+    static Mrss: string;
     static Video: string;
     static SuperState: string;
 }
@@ -282,9 +390,22 @@ export interface HStateSpecification {
     superStateId: string;
     name: string;
 }
+export interface MediaHStateTimerData {
+    timeoutId?: number;
+}
+export interface MrssStateData {
+    dataFeedId: string;
+    currentFeedId: string | null;
+    pendingFeedId: string | null;
+    displayIndex: number;
+    firstItemDisplayed: boolean;
+    waitForContentTimer: any;
+}
+export type MediaHStateCustomData = MrssStateData;
+export type MediaHStateData = MediaHStateCustomData & MediaHStateTimerData;
 export interface MediaHState extends HState {
     mediaStateId: string;
-    timeoutId?: number;
+    mediaStateData: MediaHStateData | null;
 }
 export interface HSMStateData {
     nextStateId: string | null;
@@ -303,11 +424,6 @@ export interface ArState {
     stateName?: string;
 }
 
-export class RuntimeEnvironment {
-    static BrightSign: string;
-    static BaconPreview: string;
-    static Dev: string;
-}
 export interface PresentationDataState {
     runtimeEnvironment: RuntimeEnvironment;
     screenDimensions: Dimensions;
@@ -412,6 +528,9 @@ export const createMediaZoneHsm: (hsmName: string, hsmType: HsmType, bsdmZone: D
 export const initializeVideoOrImagesZoneHsm: (hsmId: string) => BsPpVoidThunkAction;
 export const videoOrImagesZoneHsmGetInitialState: (hsmId: string) => BsPpAnyPromiseThunkAction;
 
+export const createMrssState: (hsmId: string, mediaState: DmMediaState, dataFeedId: string, superStateId: string) => BsPpStringThunkAction;
+export const STMrssStateEventHandler: (hState: HState, event: HsmEventType, stateData: HSMStateData) => BsPpVoidThunkAction;
+
 export const createPlayerHsm: () => any;
 export const initializePlayerHsm: () => any;
 export const playerHsmGetInitialState: () => BsPpAnyPromiseThunkAction;
@@ -420,6 +539,9 @@ export const STPlayingEventHandler: (hState: HState, event: HsmEventType, stateD
 export const STWaitingEventHandler: (hState: HState, event: HsmEventType, stateData: HSMStateData) => any;
 export const launchSchedulePlayback: (presentationName: string) => BsPpVoidPromiseThunkAction;
 export const launchPresentationPlayback: () => BsPpVoidThunkAction;
+export const advanceToNextDataFeedInQueue: () => (dispatch: any, getState: any) => void;
+export const queueRetrieveDataFeed: (bsdmDataFeedId: BsDmId) => (dispatch: any, getState: any) => void;
+export const launchRetrieveFeedTimer: (dataFeedId: BsDmId) => any;
 
 export const createZoneHsm: (hsmName: string, hsmType: HsmType, hsmData: HsmProperties) => BsPpStringThunkAction;
 
@@ -438,4 +560,6 @@ export interface Dimensions {
     height: number;
 }
 export const calculateAspectRatioFit: (srcWidth: number, srcHeight: number, maxWidth: number, maxHeight: number) => Dimensions;
+
+export function xmlStringToJson(xml: string): Promise<any>;
 

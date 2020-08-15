@@ -1,6 +1,10 @@
 import { DmMediaState } from '@brightsign/bsdatamodel';
 import {
-  HStateType, HState, HsmEventType, HSMStateData,
+  HStateType,
+  HState,
+  HsmEventType,
+  HSMStateData,
+  // ArDataFeed,
 } from '../../type';
 import {
   BsPpDispatch,
@@ -9,6 +13,7 @@ import {
 } from '../../model';
 import { createHState } from './hState';
 import { launchTimer, mediaHStateExitHandler, mediaHStateEventHandler } from './mediaHState';
+// import { getDataFeedById } from '../../selector';
 
 export const createMrssState = (
   hsmId: string,
@@ -24,7 +29,14 @@ export const createMrssState = (
       '',
       {
         mediaStateId: mediaState.id,
-        dataFeedId,
+        mediaStateData: {
+          dataFeedId,
+          currentFeedId: null,
+          pendingFeedId: null,
+          displayIndex: 0,
+          firstItemDisplayed: false,
+          waitForContentTimer: null,
+        }
       },
     ));
     return mrssStateId;
@@ -36,9 +48,26 @@ export const STMrssStateEventHandler = (
   event: HsmEventType,
   stateData: HSMStateData
 ): BsPpVoidThunkAction => {
-  return (dispatch: BsPpDispatch) => {
+  return (dispatch: BsPpDispatch, getState: any) => {
     if (event.EventType === 'ENTRY_SIGNAL') {
       console.log('STMrssStateEventHandler: entry signal');
+
+      // this.waitForContentTimer = null;
+      // this.firstItemDisplayed = false;
+      // this.currentFeed = null;
+      // this.pendingFeed = null;
+
+      // // see if the designated feed has already been downloaded (doesn't imply content exists)
+      // // TODODF - does the code below properly check to see if the designated feed has been downloaded?
+      // console.log('mrssState.ts#STDisplayingMrssStateEventHandler, entry signal - invoke getDataFeedById: ' + this.dataFeedId);
+
+      // // get the data feed associated with the state
+      // const dataFeed: ArDataFeed | null = getDataFeedById(getState(), this.dataFeedId) as ArMrssFeed;
+
+
+
+
+
       dispatch(launchTimer(hState));
       return 'HANDLED';
     } else if (event.EventType === 'EXIT_SIGNAL') {

@@ -6,8 +6,8 @@ import {
   HsmEventType,
   MediaZoneHsmProperties,
   ZoneHsmProperties,
-  MediaHState,
   bsPpStateFromState,
+  MediaHState,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';

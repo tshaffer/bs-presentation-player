@@ -2,10 +2,11 @@ import {
   BsPpState,
   HsmEventType,
   HSMStateData,
-  MediaHState,
+  // MediaHState,
   Hsm,
   MediaZoneHsmProperties,
   bsPpStateFromState,
+  MediaHState,
 } from '../../type';
 import {
   BsPpDispatch,
@@ -110,7 +111,7 @@ const executeEventMatchAction = (
 
     const mediaZoneHsmData: MediaZoneHsmProperties = zoneHsm.properties as MediaZoneHsmProperties;
 
-    let targetHState: MediaHState = mediaZoneHsmData.mediaStateIdToHState[targetMediaStateId];
+    let targetHState: HState = mediaZoneHsmData.mediaStateIdToHState[targetMediaStateId];
     if (!isNil(targetHState)) {
 
       // check to see if target of transition is a superState
@@ -176,11 +177,13 @@ export const mediaHStateExitHandler = (
     const hState: HState | null = getHStateById(bsPpStateFromState(getState()), hStateId);
     if (!isNil(hState)) {
       const mediaHState: MediaHState = hState as MediaHState;
-      if (isNumber(mediaHState.timeoutId)) {
-        clearTimeout(mediaHState.timeoutId);
-        // TEDTODO - is it okay to dispatching an action inside of a whatever
-        dispatch(setMediaHStateTimeoutId(hStateId, 0));
-      }
+      if (!isNil(mediaHState.mediaStateData)) {
+        if (isNumber(mediaHState.mediaStateData.timeoutId)) {
+          clearTimeout(mediaHState.mediaStateData.timeoutId);
+          // TEDTODO - is it okay to dispatching an action inside of a whatever
+          dispatch(setMediaHStateTimeoutId(hStateId, 0));
+        }
+        }
     }
   };
 };
