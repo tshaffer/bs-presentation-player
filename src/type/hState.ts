@@ -16,6 +16,30 @@ export interface HState {
   hsmId: string;
   superStateId: string;
   name: string;
+  // data: HStateData | null;
+}
+
+export interface MediaHState extends HState {
+  mediaStateId: string;
+  mediaStateData: MediaHStateData | null;
+}
+
+export type MediaHStateData = MediaHStateCustomData & MediaHStateTimerData;
+
+export type MediaHStateCustomData = MrssStateData;
+
+export interface MediaHStateTimerData {
+  timeoutId?: number;
+}
+
+export interface MrssStateData {
+  dataFeedId: string;
+  // liveDataFeedId: string;
+  currentFeedId: string | null;
+  pendingFeedId: string | null;
+  displayIndex: number;
+  firstItemDisplayed: boolean;
+  waitForContentTimer: any;
 }
 
 // TEDTODO - duplicate of HStateinterface
@@ -25,12 +49,6 @@ export interface HStateSpecification {
   hsmId: string;
   superStateId: string;
   name: string;
-}
-
-export interface MediaHState extends HState {
-  mediaStateId: string;
-  dataFeedId?: string;
-  timeoutId?: number;
 }
 
 export interface HSMStateData {

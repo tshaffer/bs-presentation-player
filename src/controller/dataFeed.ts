@@ -22,11 +22,11 @@ import AssetPoolFetcher from '@brightsign/assetpoolfetcher';
 
 import { addHsmEvent } from './hsmController';
 import { xmlStringToJson } from '../utility';
-import { getRuntimeEnvironment } from '../selector';
 import {
   BsPpVoidPromiseThunkAction,
   BsPpVoidThunkAction,
 } from '../model';
+import { getFeedCacheRoot, getFeedAssetPool } from '../selector';
 
 let assetPoolFetcher: AssetPoolFetcher | null = null;
 
@@ -457,26 +457,6 @@ export function parseSimpleRSSFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed):
 }
 
 // ******************** UTILIES / SHARED ********************/
-
-export function getFeedCacheRoot(state: any): string {
-  switch (getRuntimeEnvironment(state)) {
-    case 'Desktop':
-    default:
-      return '/Users/tedshaffer/Desktop/autotron/feed_cache/';
-    case 'BrightSign':
-      return 'feed_cache/';
-  }
-}
-
-function getFeedAssetPool(state: any): AssetPool {
-  switch (getRuntimeEnvironment(state)) {
-    case 'Desktop':
-    default:
-      return new AssetPool('/Users/tedshaffer/Desktop/autotron/feedPool');
-    case 'BrightSign':
-      return new AssetPool('SD:/feedPool');
-  }
-}
 
 function isBsnFeed(bsdmDataFeed: DmcDataFeed): boolean {
   // return true;

@@ -14,6 +14,7 @@ import { Store } from 'redux';
 import { Action, Dispatch, ActionCreator } from 'redux';
 import { Reducer } from 'redux';
 import { Asset } from '@brightsign/assetpool';
+import AssetPool from '@brightsign/assetpool';
 import { BaContextModelState } from '@brightsign/ba-context-model';
 import { BsDmId } from '@brightsign/bsdatamodel';
 import { DataFeedUsageType } from '@brightsign/bscore';
@@ -50,7 +51,10 @@ export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed): (dispatch: any,
 export function downloadContentFeedContent(arDataFeed: ArContentFeed): (dispatch: any, getState: any) => void;
 export function processTextDataFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsPpVoidPromiseThunkAction;
 export function parseSimpleRSSFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsPpVoidThunkAction;
+<<<<<<< HEAD
 export function getFeedCacheRoot(state: any): string;
+=======
+>>>>>>> tmp-2
 export function feedIsMrss(feed: any): boolean;
 
 export let _bsPpStore: Store<BsPpState>;
@@ -150,8 +154,12 @@ export type AddHStateAction = BsPpAction<{
 }>;
 export interface AddHStateOptions {
     mediaStateId: string;
+<<<<<<< HEAD
     dataFeedId?: string;
     timeoutId?: number;
+=======
+    mediaStateData?: MediaHStateData | null;
+>>>>>>> tmp-2
 }
 export function addHState(hStateSpecification: HStateSpecification, options?: AddHStateOptions): AddHStateAction;
 export function setMediaHStateTimeoutId(hStateId: string, timeoutId: number): any;
@@ -228,6 +236,15 @@ export function getFeedPoolFilePath(state: any, hashValue: string): string;
 export function feedPoolFileExists(state: any, hashValue: string): string;
 export const getSyncSpecFile: (state: BsPpState, fileName: string) => Promise<object>;
 export function getSyncSpecReferencedFile(fileName: string, syncSpecFileMap: SyncSpecFileMap, rootPath: string): Promise<object>;
+export function getFeedPoolDirectory(state: any): string;
+export function getFeedPoolFilePath(state: any, hashValue: string): string;
+export function feedPoolFileExists(state: any, hashValue: string): string;
+export function getFeedCacheRoot(state: any): string;
+export function getFeedAssetPool(state: any): AssetPool;
+
+export interface MrssDisplayItemMap {
+    [hsmId: string]: ArMrssItem | null;
+}
 
 export interface MrssDisplayItemMap {
     [hsmId: string]: ArMrssItem | null;
@@ -388,10 +405,27 @@ export interface HStateSpecification {
     superStateId: string;
     name: string;
 }
+export interface MediaHStateTimerData {
+    timeoutId?: number;
+}
+export interface MrssStateData {
+    dataFeedId: string;
+    currentFeedId: string | null;
+    pendingFeedId: string | null;
+    displayIndex: number;
+    firstItemDisplayed: boolean;
+    waitForContentTimer: any;
+}
+export type MediaHStateCustomData = MrssStateData;
+export type MediaHStateData = MediaHStateCustomData & MediaHStateTimerData;
 export interface MediaHState extends HState {
     mediaStateId: string;
+<<<<<<< HEAD
     dataFeedId?: string;
     timeoutId?: number;
+=======
+    mediaStateData: MediaHStateData | null;
+>>>>>>> tmp-2
 }
 export interface HSMStateData {
     nextStateId: string | null;

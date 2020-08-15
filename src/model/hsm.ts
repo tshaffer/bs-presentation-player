@@ -18,6 +18,7 @@ import {
   HStateSpecification,
   HsmEventType,
   LUT,
+  MediaHStateData,
 } from '../type';
 import {
   BsPpAction, BsPpBaseAction,
@@ -128,8 +129,9 @@ export type AddHStateAction = BsPpAction<{
 
 export interface AddHStateOptions {
   mediaStateId: string;
-  dataFeedId?: string;
-  timeoutId?: number;
+  mediaStateData?: MediaHStateData | null;
+  // dataFeedId?: string;
+  // timeoutId?: number;
 }
 
 export function addHState(
@@ -143,8 +145,10 @@ export function addHState(
 
   if (!isNil(options)) {
     mediaStateId = options.mediaStateId;
-    dataFeedId = options.dataFeedId;
-    timeoutId = options.timeoutId;
+    if (!isNil(options.mediaStateData)) {
+      timeoutId = options.mediaStateData.timeoutId;
+      dataFeedId = options.mediaStateData.dataFeedId;
+    }
   }
 
   const { id, type, hsmId, superStateId, name } = hStateSpecification;

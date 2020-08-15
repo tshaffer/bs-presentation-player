@@ -22,6 +22,7 @@ import {
 } from '../../model';
 import { STVideoStateEventHandler } from './videoState';
 import { STSuperStateEventHandler } from './superState';
+import { STMrssStateEventHandler } from './mrssState';
 
 export const hsmConstructorFunction = (hsmId: string): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -80,6 +81,8 @@ export const HStateEventHandler = (
           return dispatch(STVideoStateEventHandler(hState, event, stateData));
         case HStateType.SuperState:
           return dispatch(STSuperStateEventHandler(hState, event, stateData));
+        case HStateType.Mrss:
+          return dispatch(STMrssStateEventHandler(hState, event, stateData));
         default:
           debugger;
           break;
