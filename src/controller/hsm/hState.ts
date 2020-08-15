@@ -1,11 +1,10 @@
-import { HStateSpecification, HStateType, MediaHState } from '../../type';
+import { HStateSpecification, HStateType, MediaHState, MediaHStateData } from '../../type';
 import { addHState, AddHStateOptions } from '../../model';
 import { newBsPpId } from '../../utility';
 import {
   BsPpDispatch,
   BsPpStringThunkAction,
 } from '../../model';
-import { MediaHStateData } from '../../..';
 
 export const createHState = (
   type: string,
