@@ -1,4 +1,10 @@
-import { HStateSpecification, HStateType, MediaHState, MediaHStateParamsData, MediaHStateData } from '../../type';
+import {
+  HStateSpecification,
+  // HStateType,
+  // MediaHState,
+  // MediaHStateParamsData,
+  MediaHStateData
+} from '../../type';
 import { addHState } from '../../model';
 import { newBsPpId } from '../../utility';
 import {
@@ -8,21 +14,10 @@ import {
 
 export const createHState = (
   hStateSpecification: HStateSpecification,
-  // type: string,
-  // hsmId: string,
-  // superStateId: string,
-  // name: string,
   data: MediaHStateData | null = null,
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     const id: string = newBsPpId();
-    // const hStateSpecification: HStateSpecification = {
-    //   id,
-    //   type,
-    //   hsmId,
-    //   superStateId,
-    //   name,
-    // };
     dispatch(addHState(id, hStateSpecification, data));
     return id;
   });
@@ -43,26 +38,26 @@ export const createHStateSpecification = (
   return hStateSpecification;
 };
 
-export const createStateDataForStateType = (
-  stateType: HStateType,
-  mediaHState: MediaHState,
-): MediaHStateParamsData | null => {
-  switch (stateType) {
-    case HStateType.Mrss: {
-      const mediaStateData: MediaHStateParamsData = {
-        dataFeedId: mediaHState.data.mediaStateData!.dataFeedId as string,
-        currentFeedId: null,
-        pendingFeedId: null,
-        displayIndex: 0,
-        firstItemDisplayed: false,
-        waitForContentTimer: null,
-      };
-      return mediaStateData;
-    }
-    default: {
-      break;
-    }
-  }
+// export const createStateDataForStateType = (
+//   stateType: HStateType,
+//   mediaHState: MediaHState,
+// ): MediaHStateParamsData | null => {
+//   switch (stateType) {
+//     case HStateType.Mrss: {
+//       const mediaStateData: MediaHStateParamsData = {
+//         dataFeedId: mediaHState.data.mediaStateData!.dataFeedId as string,
+//         currentFeedId: null,
+//         pendingFeedId: null,
+//         displayIndex: 0,
+//         firstItemDisplayed: false,
+//         waitForContentTimer: null,
+//       };
+//       return mediaStateData;
+//     }
+//     default: {
+//       break;
+//     }
+//   }
 
-  return null;
-};
+//   return null;
+// };

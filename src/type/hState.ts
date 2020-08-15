@@ -16,13 +16,10 @@ export interface HState {
   hsmId: string;
   superStateId: string;
   name: string;
-  // data: HStateData | null;
 }
 
 export interface MediaHState extends HState {
   data: MediaHStateData;
-  // mediaStateId: string;
-  // mediaStateData: MediaHStateParamsData | null;
 }
 
 export interface MediaHStateData {
@@ -40,7 +37,6 @@ export interface MediaHStateTimerData {
 
 export interface MrssStateData {
   dataFeedId: string;
-  // liveDataFeedId: string;
   currentFeedId: string | null;
   pendingFeedId: string | null;
   displayIndex: number;
@@ -48,9 +44,7 @@ export interface MrssStateData {
   waitForContentTimer: any;
 }
 
-// TEDTODO - duplicate of HStateinterface
 export interface HStateSpecification {
-  // id: string;
   type: HStateType;
   hsmId: string;
   superStateId: string;

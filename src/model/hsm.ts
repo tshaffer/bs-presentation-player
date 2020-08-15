@@ -125,28 +125,11 @@ export type AddHStateAction = BsPpAction<{
   data?: MediaHStateData | null;
 }>;
 
-// export interface MediaHStateData {
-//   mediaStateId: string;
-//   mediaStateData?: MediaHStateParamsData | null;
-// }
-
 export function addHState(
   id: string,
   hStateSpecification: HStateSpecification,
   data: MediaHStateData | null = null,
 ): AddHStateAction {
-
-  // let mediaStateId;
-  // let timeoutId;
-  // let dataFeedId;
-
-  // if (!isNil(data)) {
-  //   mediaStateId = data.mediaStateId;
-  //   if (!isNil(data.mediaStateData)) {
-  //     timeoutId = data.mediaStateData.timeoutId;
-  //     dataFeedId = data.mediaStateData.dataFeedId;
-  //   }
-  // }
 
   const { type, hsmId, superStateId, name } = hStateSpecification;
 
