@@ -3,7 +3,7 @@ import {
   createHsm,
   initializeHsm,
 } from './hsm';
-import { createHState } from './hState';
+import { createHState, createHStateSpecification } from './hState';
 import {
   getHsmByName,
   getHStateByName,
@@ -78,19 +78,47 @@ export const createPlayerHsm = (): any => {
     const playerHsmId: string = dispatch(createHsm('player', HsmType.Player, {}));
 
     const stTopId = dispatch(createHState(
-      HStateType.Top,
-      playerHsmId,
-      '',
-      'top'
+      createHStateSpecification(
+        HStateType.Top,
+        playerHsmId,
+        '',
+        'top',
+      ),
     ));
 
     dispatch(setHsmTop(playerHsmId, stTopId));
 
-    const stPlayerId = dispatch(createHState(HStateType.Player, playerHsmId, stTopId, 'player'));
+    const stPlayerId = dispatch(createHState(
+      createHStateSpecification(
+        HStateType.Player,
+        playerHsmId,
+        stTopId,
+        'player',
+      ),
+    ));
 
-    dispatch(createHState(HStateType.Playing, playerHsmId, stPlayerId, 'playing'));
+    // const stPlayerId = dispatch(createHState(
+    //   HStateType.Player, playerHsmId, stTopId, 'player'));
 
-    dispatch(createHState(HStateType.Waiting, playerHsmId, stPlayerId, 'waiting'));
+    // dispatch(createHState(HStateType.Playing, playerHsmId, stPlayerId, 'playing'));
+    dispatch(createHState(
+      createHStateSpecification(
+        HStateType.Playing,
+        playerHsmId,
+        stPlayerId,
+        'playing',
+      ),
+    ));
+
+    // dispatch(createHState(HStateType.Waiting, playerHsmId, stPlayerId, 'waiting'));
+    dispatch(createHState(
+      createHStateSpecification(
+        HStateType.Waiting,
+        playerHsmId,
+        stPlayerId,
+        'waiting',
+      ),
+    ));
   });
 };
 
@@ -320,6 +348,8 @@ export const launchRetrieveFeedTimer = (dataFeedId: BsDmId): any => {
       dispatch,
       dataFeedId,
     };
+    console.log('launchRetrieveFeedTimer');
+    console.log(updateInterval);
     setTimeout(retrieveFeedTimeoutHandler, updateInterval * 1000, dataFeedTimeoutEventCallbackParams);
   };
 };

@@ -1,5 +1,5 @@
-import { HStateSpecification, HStateType, MediaHState, MediaHStateData } from '../../type';
-import { addHState, AddHStateOptions } from '../../model';
+import { HStateSpecification, HStateType, MediaHState, MediaHStateParamsData, MediaHStateData } from '../../type';
+import { addHState } from '../../model';
 import { newBsPpId } from '../../utility';
 import {
   BsPpDispatch,
@@ -7,55 +7,50 @@ import {
 } from '../../model';
 
 export const createHState = (
-  type: string,
-  hsmId: string,
-  superStateId: string,
-  name: string,
-  options?: AddHStateOptions,
+  hStateSpecification: HStateSpecification,
+  // type: string,
+  // hsmId: string,
+  // superStateId: string,
+  // name: string,
+  data: MediaHStateData | null = null,
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     const id: string = newBsPpId();
-    const hStateSpecification: HStateSpecification = {
-      id,
-      type,
-      hsmId,
-      superStateId,
-      name,
-    };
-    dispatch(addHState(hStateSpecification, options));
+    // const hStateSpecification: HStateSpecification = {
+    //   id,
+    //   type,
+    //   hsmId,
+    //   superStateId,
+    //   name,
+    // };
+    dispatch(addHState(id, hStateSpecification, data));
     return id;
   });
 };
 
-export const createHState2 = (
+export const createHStateSpecification = (
   type: string,
   hsmId: string,
   superStateId: string,
   name: string,
-  options?: AddHStateOptions,
-): BsPpStringThunkAction => {
-  return ((dispatch: BsPpDispatch) => {
-    const id: string = newBsPpId();
-    const hStateSpecification: HStateSpecification = {
-      id,
-      type,
-      hsmId,
-      superStateId,
-      name,
-    };
-    dispatch(addHState(hStateSpecification, options));
-    return id;
-  });
+): HStateSpecification => {
+  const hStateSpecification = {
+    type,
+    hsmId,
+    superStateId,
+    name
+  };
+  return hStateSpecification;
 };
 
 export const createStateDataForStateType = (
   stateType: HStateType,
   mediaHState: MediaHState,
-): MediaHStateData | null => {
+): MediaHStateParamsData | null => {
   switch (stateType) {
     case HStateType.Mrss: {
-      const mediaStateData: MediaHStateData = {
-        dataFeedId: mediaHState.mediaStateData!.dataFeedId as string,
+      const mediaStateData: MediaHStateParamsData = {
+        dataFeedId: mediaHState.data.mediaStateData!.dataFeedId as string,
         currentFeedId: null,
         pendingFeedId: null,
         displayIndex: 0,

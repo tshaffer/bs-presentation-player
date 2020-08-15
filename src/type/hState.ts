@@ -20,11 +20,17 @@ export interface HState {
 }
 
 export interface MediaHState extends HState {
-  mediaStateId: string;
-  mediaStateData: MediaHStateData | null;
+  data: MediaHStateData;
+  // mediaStateId: string;
+  // mediaStateData: MediaHStateParamsData | null;
 }
 
-export type MediaHStateData = MediaHStateCustomData & MediaHStateTimerData;
+export interface MediaHStateData {
+  mediaStateId: string;
+  mediaStateData?: MediaHStateParamsData | null;
+}
+
+export type MediaHStateParamsData = MediaHStateCustomData & MediaHStateTimerData;
 
 export type MediaHStateCustomData = MrssStateData;
 
@@ -44,7 +50,7 @@ export interface MrssStateData {
 
 // TEDTODO - duplicate of HStateinterface
 export interface HStateSpecification {
-  id: string;
+  // id: string;
   type: HStateType;
   hsmId: string;
   superStateId: string;

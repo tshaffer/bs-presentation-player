@@ -122,36 +122,33 @@ export type AddHStateAction = BsPpAction<{
   hsmId: string;
   superStateId: string;
   name: string;
-  mediaStateId?: string;
-  timeoutId?: number;
-  dataFeedId?: string;
+  data?: MediaHStateData | null;
 }>;
 
-export interface AddHStateOptions {
-  mediaStateId: string;
-  mediaStateData?: MediaHStateData | null;
-  // dataFeedId?: string;
-  // timeoutId?: number;
-}
+// export interface MediaHStateData {
+//   mediaStateId: string;
+//   mediaStateData?: MediaHStateParamsData | null;
+// }
 
 export function addHState(
+  id: string,
   hStateSpecification: HStateSpecification,
-  options?: AddHStateOptions,
+  data: MediaHStateData | null = null,
 ): AddHStateAction {
 
-  let mediaStateId;
-  let timeoutId;
-  let dataFeedId;
+  // let mediaStateId;
+  // let timeoutId;
+  // let dataFeedId;
 
-  if (!isNil(options)) {
-    mediaStateId = options.mediaStateId;
-    if (!isNil(options.mediaStateData)) {
-      timeoutId = options.mediaStateData.timeoutId;
-      dataFeedId = options.mediaStateData.dataFeedId;
-    }
-  }
+  // if (!isNil(data)) {
+  //   mediaStateId = data.mediaStateId;
+  //   if (!isNil(data.mediaStateData)) {
+  //     timeoutId = data.mediaStateData.timeoutId;
+  //     dataFeedId = data.mediaStateData.dataFeedId;
+  //   }
+  // }
 
-  const { id, type, hsmId, superStateId, name } = hStateSpecification;
+  const { type, hsmId, superStateId, name } = hStateSpecification;
 
   return {
     type: ADD_HSTATE,
@@ -161,9 +158,7 @@ export function addHState(
       hsmId,
       superStateId,
       name,
-      mediaStateId,
-      dataFeedId,
-      timeoutId,
+      data: cloneDeep(data),
     },
   };
 }

@@ -123,7 +123,7 @@ export function getActiveMediaStateId(state: any, zoneId: string): string {
           const activeHStateId: string = zoneHsm.activeStateId as string;
           const activeHState = getHStateById(bsPpState, activeHStateId);
           if (!isNil(activeHState)) {
-            return (activeHState as MediaHState).mediaStateId;
+            return (activeHState as MediaHState).data.mediaStateId;
           }
           return zoneHsm.activeStateId as string;
         }

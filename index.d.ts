@@ -144,15 +144,13 @@ export type AddHStateAction = BsPpAction<{
     hsmId: string;
     superStateId: string;
     name: string;
-    mediaStateId?: string;
-    timeoutId?: number;
-    dataFeedId?: string;
+    data?: MediaHStateData | null;
 }>;
-export interface AddHStateOptions {
+export interface MediaHStateData {
     mediaStateId: string;
-    mediaStateData?: MediaHStateData | null;
+    mediaStateData?: MediaHStateParamsData | null;
 }
-export function addHState(hStateSpecification: HStateSpecification, options?: AddHStateOptions): AddHStateAction;
+export function addHState(id: string, hStateSpecification: HStateSpecification, data?: MediaHStateData | null): AddHStateAction;
 export function setMediaHStateTimeoutId(hStateId: string, timeoutId: number): any;
 export type HsmEventAction = BsPpAction<HsmEventType>;
 export function queueHsmEvent(event: HsmEventType): HsmEventAction;
@@ -385,9 +383,9 @@ export interface HState {
 }
 export interface MediaHState extends HState {
     mediaStateId: string;
-    mediaStateData: MediaHStateData | null;
+    mediaStateData: MediaHStateParamsData | null;
 }
-export type MediaHStateData = MediaHStateCustomData & MediaHStateTimerData;
+export type MediaHStateParamsData = MediaHStateCustomData & MediaHStateTimerData;
 export type MediaHStateCustomData = MrssStateData;
 export interface MediaHStateTimerData {
     timeoutId?: number;
@@ -401,7 +399,6 @@ export interface MrssStateData {
     waitForContentTimer: any;
 }
 export interface HStateSpecification {
-    id: string;
     type: HStateType;
     hsmId: string;
     superStateId: string;
@@ -518,9 +515,9 @@ export function initializeHsm(hsmId: string): BsPpVoidPromiseThunkAction;
 export function constructorFunction(constructorHandler: () => void): void;
 export function hsmDispatch(event: HsmEventType, hsmId: string, activeStateId: string | null): (dispatch: BsPpDispatch, getState: () => BsPpState) => void;
 
-export const createHState: (type: string, hsmId: string, superStateId: string, name: string, options?: AddHStateOptions | undefined) => BsPpStringThunkAction;
-export const createHState2: (type: string, hsmId: string, superStateId: string, name: string, options?: AddHStateOptions | undefined) => BsPpStringThunkAction;
-export const createStateDataForStateType: (stateType: HStateType, mediaHState: MediaHState) => MediaHStateData | null;
+export const createHState: (hStateSpecification: HStateSpecification, data?: MediaHStateData | null) => BsPpStringThunkAction;
+export const createHStateSpecification: (type: string, hsmId: string, superStateId: string, name: string) => HStateSpecification;
+export const createStateDataForStateType: (stateType: HStateType, mediaHState: MediaHState) => MediaHStateParamsData | null;
 
 export const mediaHStateEventHandler: (hState: HState, event: HsmEventType, stateData: HSMStateData) => BsPpVoidThunkAction;
 export const mediaHStateExitHandler: (hStateId: string) => BsPpVoidThunkAction;

@@ -54,7 +54,7 @@ export const mediaHStateEventHandler = (
     const dmState: DmState = dmFilterDmState(bsPpStateFromState(getState()));
     const mediaState: DmMediaState = dmGetMediaStateById(
       dmState,
-      { id: (hState as MediaHState).mediaStateId }) as DmMediaState;
+      { id: (hState as MediaHState).data.mediaStateId }) as DmMediaState;
     if (isNil(mediaState)) {
       debugger;
     }
@@ -118,7 +118,7 @@ const executeEventMatchAction = (
       const targetMediaState: DmMediaState | null = dmGetMediaStateById(
         dmFilterDmState(state),
         {
-          id: (targetHState as MediaHState).mediaStateId,
+          id: (targetHState as MediaHState).data.mediaStateId,
         }
       );
       if (!isNil(targetMediaState)) {
@@ -177,9 +177,9 @@ export const mediaHStateExitHandler = (
     const hState: HState | null = getHStateById(bsPpStateFromState(getState()), hStateId);
     if (!isNil(hState)) {
       const mediaHState: MediaHState = hState as MediaHState;
-      if (!isNil(mediaHState.mediaStateData)) {
-        if (isNumber(mediaHState.mediaStateData.timeoutId)) {
-          clearTimeout(mediaHState.mediaStateData.timeoutId);
+      if (!isNil(mediaHState.data.mediaStateData)) {
+        if (isNumber(mediaHState.data.mediaStateData.timeoutId)) {
+          clearTimeout(mediaHState.data.mediaStateData.timeoutId);
           // TEDTODO - is it okay to dispatching an action inside of a whatever
           dispatch(setMediaHStateTimeoutId(hStateId, 0));
         }
@@ -205,7 +205,7 @@ export const launchTimer = (
     const eventIds: BsDmId[] = dmGetEventIdsForMediaState(
       bsdm,
       {
-        id: (hState as MediaHState).mediaStateId
+        id: (hState as MediaHState).data.mediaStateId
       });
     for (const eventId of eventIds) {
       const event: DmEvent = dmGetEventStateById(bsdm, { id: eventId }) as DmEvent;
@@ -216,6 +216,8 @@ export const launchTimer = (
             dispatch,
             hState,
           };
+          console.log('launchTimer');
+          console.log(interval);
           const timeoutId: number =
             setTimeout(timeoutHandler, interval * 1000, timeoutEventCallbackParams) as unknown as number;
           dispatch(setMediaHStateTimeoutId(hState.id, timeoutId));
@@ -226,7 +228,7 @@ export const launchTimer = (
 };
 
 const timeoutHandler = (callbackParams: TimeoutEventCallbackParams): void => {
-
+  
   const event: HsmEventType = {
     EventType: EventType.Timer,
   };

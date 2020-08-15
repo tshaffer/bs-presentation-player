@@ -1,5 +1,5 @@
 import { createHsm } from './hsm';
-import { createHState } from './hState';
+import { createHState, createHStateSpecification } from './hState';
 import {
   HState,
   HStateType,
@@ -24,7 +24,14 @@ export const createZoneHsm = (
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     const hsmId: string = dispatch(createHsm(hsmName, hsmType, hsmData));
 
-    dispatch(createHState(HStateType.Top, hsmId, '', 'top'));
+    dispatch(createHState(
+      createHStateSpecification(
+        HStateType.Top,
+        hsmId,
+        '',
+        'top',
+      ),
+    ));
     const stTop: HState | null = getHStateByName(bsPpStateFromState(getState()), 'top');
     const stTopId: string = isNil(stTop) ? '' : stTop!.id;
 

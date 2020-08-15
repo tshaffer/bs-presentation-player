@@ -11,7 +11,7 @@ import {
   BsPpStringThunkAction,
 } from '../../model';
 import { launchTimer, mediaHStateExitHandler, mediaHStateEventHandler } from '.';
-import { createHState } from './hState';
+import { createHState, createHStateSpecification } from './hState';
 
 export const createVideoState = (
   hsmId: string,
@@ -20,10 +20,12 @@ export const createVideoState = (
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     const videoStateId: string = dispatch(createHState(
-      HStateType.Video,
-      hsmId,
-      superStateId,
-      '',
+      createHStateSpecification(
+        HStateType.Video,
+        hsmId,
+        superStateId,
+        '',
+      ),
       {
         mediaStateId: mediaState.id,
       },

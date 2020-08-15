@@ -11,7 +11,7 @@ import {
   BsPpStringThunkAction,
 } from '../../model';
 import { launchTimer, mediaHStateExitHandler, mediaHStateEventHandler } from '.';
-import { createHState } from './hState';
+import { createHState, createHStateSpecification } from './hState';
 
 export const createSuperState = (
   hsmId: string,
@@ -20,13 +20,15 @@ export const createSuperState = (
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
     const stateId: string = dispatch(createHState(
-      HStateType.SuperState,
-      hsmId,
-      superStateId,
-      '',
+      createHStateSpecification(
+        HStateType.SuperState,
+        hsmId,
+        superStateId,
+        '',
+      ),
       {
         mediaStateId: mediaState.id,
-      },
+      }
     ));
     return stateId;
   });
