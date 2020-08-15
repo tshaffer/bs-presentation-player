@@ -51,10 +51,6 @@ export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed): (dispatch: any,
 export function downloadContentFeedContent(arDataFeed: ArContentFeed): (dispatch: any, getState: any) => void;
 export function processTextDataFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsPpVoidPromiseThunkAction;
 export function parseSimpleRSSFeed(bsdmDataFeed: DmcDataFeed, textFeed: ArFeed): BsPpVoidThunkAction;
-<<<<<<< HEAD
-export function getFeedCacheRoot(state: any): string;
-=======
->>>>>>> tmp-2
 export function feedIsMrss(feed: any): boolean;
 
 export let _bsPpStore: Store<BsPpState>;
@@ -154,12 +150,7 @@ export type AddHStateAction = BsPpAction<{
 }>;
 export interface AddHStateOptions {
     mediaStateId: string;
-<<<<<<< HEAD
-    dataFeedId?: string;
-    timeoutId?: number;
-=======
     mediaStateData?: MediaHStateData | null;
->>>>>>> tmp-2
 }
 export function addHState(hStateSpecification: HStateSpecification, options?: AddHStateOptions): AddHStateAction;
 export function setMediaHStateTimeoutId(hStateId: string, timeoutId: number): any;
@@ -232,8 +223,6 @@ export const getSyncSpecFileMap: (state: BsPpState) => SyncSpecFileMap | null;
 export const getAutoschedule: (state: any) => PpSchedule | null;
 export function getPathFromAssetName(state: BsPpState, assetName: string): string;
 export function getAssetPath(state: BsPpState, assetName: string): string;
-export function getFeedPoolFilePath(state: any, hashValue: string): string;
-export function feedPoolFileExists(state: any, hashValue: string): string;
 export const getSyncSpecFile: (state: BsPpState, fileName: string) => Promise<object>;
 export function getSyncSpecReferencedFile(fileName: string, syncSpecFileMap: SyncSpecFileMap, rootPath: string): Promise<object>;
 export function getFeedPoolDirectory(state: any): string;
@@ -241,10 +230,6 @@ export function getFeedPoolFilePath(state: any, hashValue: string): string;
 export function feedPoolFileExists(state: any, hashValue: string): string;
 export function getFeedCacheRoot(state: any): string;
 export function getFeedAssetPool(state: any): AssetPool;
-
-export interface MrssDisplayItemMap {
-    [hsmId: string]: ArMrssItem | null;
-}
 
 export interface MrssDisplayItemMap {
     [hsmId: string]: ArMrssItem | null;
@@ -398,13 +383,12 @@ export interface HState {
     superStateId: string;
     name: string;
 }
-export interface HStateSpecification {
-    id: string;
-    type: HStateType;
-    hsmId: string;
-    superStateId: string;
-    name: string;
+export interface MediaHState extends HState {
+    mediaStateId: string;
+    mediaStateData: MediaHStateData | null;
 }
+export type MediaHStateData = MediaHStateCustomData & MediaHStateTimerData;
+export type MediaHStateCustomData = MrssStateData;
 export interface MediaHStateTimerData {
     timeoutId?: number;
 }
@@ -416,16 +400,12 @@ export interface MrssStateData {
     firstItemDisplayed: boolean;
     waitForContentTimer: any;
 }
-export type MediaHStateCustomData = MrssStateData;
-export type MediaHStateData = MediaHStateCustomData & MediaHStateTimerData;
-export interface MediaHState extends HState {
-    mediaStateId: string;
-<<<<<<< HEAD
-    dataFeedId?: string;
-    timeoutId?: number;
-=======
-    mediaStateData: MediaHStateData | null;
->>>>>>> tmp-2
+export interface HStateSpecification {
+    id: string;
+    type: HStateType;
+    hsmId: string;
+    superStateId: string;
+    name: string;
 }
 export interface HSMStateData {
     nextStateId: string | null;
@@ -539,6 +519,8 @@ export function constructorFunction(constructorHandler: () => void): void;
 export function hsmDispatch(event: HsmEventType, hsmId: string, activeStateId: string | null): (dispatch: BsPpDispatch, getState: () => BsPpState) => void;
 
 export const createHState: (type: string, hsmId: string, superStateId: string, name: string, options?: AddHStateOptions | undefined) => BsPpStringThunkAction;
+export const createHState2: (type: string, hsmId: string, superStateId: string, name: string, options?: AddHStateOptions | undefined) => BsPpStringThunkAction;
+export const createStateDataForStateType: (stateType: HStateType, mediaHState: MediaHState) => MediaHStateData | null;
 
 export const mediaHStateEventHandler: (hState: HState, event: HsmEventType, stateData: HSMStateData) => BsPpVoidThunkAction;
 export const mediaHStateExitHandler: (hStateId: string) => BsPpVoidThunkAction;
