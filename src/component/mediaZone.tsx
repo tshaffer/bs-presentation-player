@@ -24,6 +24,7 @@ import { getActiveMediaStateId } from '../selector';
 import { Image } from './image';
 import { Video } from './video';
 import { calculateAspectRatioFit, Dimensions } from '../utility';
+import { Mrss } from './mrssItem';
 
 // -----------------------------------------------------------------------
 // Types
@@ -90,11 +91,32 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
     return null;
   }
 
-  renderMrssDisplayItem() {
+  renderMrssDisplayItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem) {
 
     console.log('renderMrssDisplayItem');
     console.log(this.props.mediaStateId);
 
+    console.log(mediaState);
+    console.log(contentItem);
+
+    debugger;
+
+    const scaledDimensions = calculateAspectRatioFit(
+      this.props.zoneWidth,
+      this.props.zoneHeight,
+      this.props.screenDimensions.width,
+      this.props.screenDimensions.height,
+    );
+
+    return (
+      <Mrss
+        mediaStateId={mediaState.id}
+        assetName={mediaState.name}
+        zoneWidth={scaledDimensions.width}
+        zoneHeight={scaledDimensions.height}
+        screenDimensions={this.props.screenDimensions}
+      />
+    )
     // console.log(this.props.activeMrssDisplayItem);
 
     // const self = this;
@@ -188,7 +210,7 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
         return this.renderMediaItem(mediaState, contentItem as DmMediaContentItem);
       }
       case ContentItemType.MrssFeed: {
-        return this.renderMrssDisplayItem();
+        return this.renderMrssDisplayItem(mediaState, contentItem as DmMediaContentItem);
       }
       default: {
         break;
