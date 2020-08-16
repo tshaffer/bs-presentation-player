@@ -163,6 +163,20 @@ export function setMediaHStateTimeoutId(
   };
 }
 
+export function setMediaHStateParameter(
+  hStateId: string,
+  parameterName: string,
+  parameterValue: any,
+): any {
+  return {
+    type: SET_MEDIA_H_STATE_PARAMETER_DATA,
+    payload: {
+      hStateId,
+      parameterName: parameterValue,
+    },
+  };
+}
+
 export type HsmEventAction = BsPpAction<HsmEventType>;
 
 export function queueHsmEvent(

@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import * as fs from 'fs-extra';
 import axios from 'axios';
 
@@ -11,7 +12,7 @@ import {
   DmParameterizedString,
   dmGetSimpleStringFromParameterizedString,
   dmGetDataFeedSourceForFeedId
- } from '@brightsign/bsdatamodel';
+} from '@brightsign/bsdatamodel';
 import { isNil, isObject } from 'lodash';
 import { DataFeedUsageType, DataFeedType } from '@brightsign/bscore';
 import AssetPool, { Asset } from '@brightsign/assetpool';
@@ -140,7 +141,32 @@ function processMrssFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsPpVoidPromi
     const addDataFeedAction: any = addDataFeed(bsdmDataFeed.id, dataFeed);
     dispatch(addDataFeedAction);
     return Promise.resolve();
+
+    //   return generateMrssFeedAssetList(items)
+    //     .then((assetList) => {
+    //       debugger;
+    //       const dataFeed: ArMrssFeed = {
+    //         type: 'mrss',
+    //         id: bsdmDataFeed.id,
+    //         usage: DataFeedUsageType.Mrss,
+    //         sourceId: bsdmDataFeed.feedSourceId,
+    //         mrssItems: items,
+    //         assetList,
+    //         title: 'notSure',
+    //         playtime: '',
+    //         ttl: '',
+    //       };
+    //       const addDataFeedAction: any = addDataFeed(bsdmDataFeed.id, dataFeed);
+    //       dispatch(addDataFeedAction);
+    //       return Promise.resolve();
+    //     });
   };
+}
+
+function getSHA1(data: string): string {
+  const hash = crypto.createHash('sha1');
+  hash.update(data);
+  return hash.digest('hex');
 }
 
 function generateMrssFeedAssetList(contentItems: ArMrssItem[]): Asset[] {
@@ -148,19 +174,66 @@ function generateMrssFeedAssetList(contentItems: ArMrssItem[]): Asset[] {
   const assetList: Asset[] = [];
 
   for (const feedItem of contentItems) {
+
+    debugger;
+    const hashOfGuid: string = getSHA1(feedItem.guid).toUpperCase();
+    console.log(hashOfGuid);
+
+    const hash: string = getSHA1(feedItem.link + hashOfGuid);
+    console.log(hash);
+
     const asset: Asset = {
       name: feedItem.url,
       link: feedItem.url,
       changeHint: feedItem.guid,
       hash: {
-        method: 'SHA1',
-        hex: feedItem.guid,
+        method: 'nohash',
+        hex: hash,
       }
     };
     assetList.push(asset);
   }
 
   return assetList;
+
+  // contentItems.forEach((feedItem, index) => {
+  //   const asset: Asset = {
+  //     name: feedItem.url,
+  //     link: feedItem.url,
+  //     changeHint: feedItem.guid,
+  //     hash: {
+  //       method: 'nohash',
+  //       hex: sha1Values[index],
+  //     }
+  //   };
+  //   assetList.push(asset);
+  // });
+
+  // // TEDTODO
+  // const promises: Array<Promise<string>> = [];
+  // for (const feedItem of contentItems) {
+  //   const strToHash: string = feedItem.link + feedItem.guid;
+  //   promises.push(getSHA1(strToHash));
+  // }
+
+  // const promise = Promise.all(promises);
+  // promise
+  //   .then((sha1Values) => {
+  //     contentItems.forEach((feedItem, index) => {
+  //       const asset: Asset = {
+  //         name: feedItem.url,
+  //         link: feedItem.url,
+  //         changeHint: feedItem.guid,
+  //         hash: {
+  //           method: 'nohash',
+  //           hex: sha1Values[index],
+  //         }
+  //       };
+  //       assetList.push(asset);
+  //     });
+  //     return Promise.resolve(assetList);
+  //   });
+  // return promise;
 }
 
 export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed) {
