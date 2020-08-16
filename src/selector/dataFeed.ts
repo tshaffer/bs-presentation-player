@@ -59,7 +59,7 @@ export function dataFeedContentExists(state: any, dataFeed: ArMrssFeed): boolean
 export function getFeedPoolFilePathFromAsset(state: any, asset: Asset): string {
 
   const hash = asset.hash as Hash;
-  if (hash.method !== 'SHA1') {
+  if (hash.method !== 'SHA1' && hash.method !== 'nohash') {
     return '';
   }
   return getFeedPoolFilePath(state, hash.hex);

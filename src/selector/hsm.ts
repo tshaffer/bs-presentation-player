@@ -151,8 +151,8 @@ export const getIsHsmInitialized = (state: any): boolean => {
   }
 
   // TEDTODO - need to check if the hsm's associated with zones exist yet
-  console.log('number of hsms:');
-  console.log(Object.keys(hsmMap).length);
+  // console.log('number of hsms:');
+  // console.log(Object.keys(hsmMap).length);
 
   return true;
 };
