@@ -173,83 +173,23 @@ export const launchWaitForContentTimer = (): any => {
 };
 
 export const waitForContentTimeoutHandler = (dispatch: any, mrssState: any) => {
-
   console.log('************ waitForContentTimeoutHandler');
-
-  // if (!isNil(mrssState.currentFeed)) {
-  //   const dataFeedItems = mrssState.currentFeed.mrssItems as ArMrssItem[];
-  //   if ((dataFeedItems.length === 0 || (!allDataFeedContentExists(mrssState.currentFeed)))) {
-  //     console.log('******* - cc23');
-  //     if (dataFeedContentExists(mrssState.currentFeed)) {
-  //       if (isNil(mrssState.displayIndex)) {
-  //         console.log('******* - cc24');
-
-  //         mrssState.displayIndex = 0;
-  //       }
-  //       dispatch(mrssState.advanceToNextMRSSItem().bind(mrssState));
-  //     }
-  //     else {
-  //       console.log('******* - cc25');
-  //       dispatch(mrssState.launchWaitForContentTimer().bind(mrssState));
-  //     }
-  //   }
-  //   else if (!isNil(mrssState.currentFeed) && !isNil(mrssState.currentFeed.mrssItems) && mrssState.currentFeed.mrssItems.length === 0) {
-  //     console.log('******* - cc26');
-  //     dispatch(mrssState.launchWaitForContentTimer().bind(mrssState));
-  //   }
-  //   else {
-  //     console.log('******* - cc27');
-  //     mrssState.displayIndex = 0;
-  //     dispatch(mrssState.advanceToNextMRSSItem().bind(mrssState));
-  //   }
-  // }
-
-  // return HANDLED
 };
 
 export const launchMrssTimer = (): any => {
 
   return (dispatch: any, getState: any) => {
-
     console.log('launchMrssTimer');
-
-    // const interval: number = 3;
-    // if (interval && interval > 0) {
-    //   this.timeout = setTimeout(this.mrssTimeoutHandler, interval * 1000, this);
-    // }
   };
 };
 
 // equivalent to   'else if type(event) = "roTimerEvent" then' in autorun
 export const mrssTimeoutHandler = (mrssState: any) => {
-
   console.log('mrssTimeoutHandler');
-  // const reduxStore: any = getReduxStore();
-
-  // // if (mrssState.atEndOfFeed().bind(mrssState)) { ?proper way to do this?
-  // const atEndOfFeed = mrssState.atEndOfFeed.bind(mrssState);
-  // const endOfFeed = atEndOfFeed();
-  // if (endOfFeed) {
-  //   console.log('******* - cc28');
-
-  //   const event: ArEventType = {
-  //     EventType: 'EndOfFeed',
-  //   };
-  //   reduxStore.dispatch(mrssState.stateMachine.dispatchEvent(event));
-  //   // return dispatch(this.mediaHStateEventHandler(event, stateData));
-
-  // }
-  // else {
-  //   console.log('******* - cc29');
-
-  //   reduxStore.dispatch(mrssState.advanceToNextMRSSItem().bind(mrssState));
-  // }
 };
 
 //  need to also consider the case where it's not at the end but there's no more content.
 export const atEndOfFeed = (): boolean => {
   console.log('atEndOfFeed');
   return false;
-  // const dataFeedItems = (this.currentFeed as ArMrssFeed).mrssItems as ArMrssItem[];
-  // return this.displayIndex >= dataFeedItems.length;
 };

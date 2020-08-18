@@ -93,14 +93,6 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
 
   renderMrssDisplayItem(mediaState: DmMediaState, contentItem: DmDerivedContentItem) {
 
-    console.log('renderMrssDisplayItem');
-    console.log(this.props.mediaStateId);
-
-    console.log(mediaState);
-    console.log(contentItem);
-
-    debugger;
-
     const scaledDimensions = calculateAspectRatioFit(
       this.props.zoneWidth,
       this.props.zoneHeight,
@@ -116,66 +108,7 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
         zoneHeight={scaledDimensions.height}
         screenDimensions={this.props.screenDimensions}
       />
-    )
-    // console.log(this.props.activeMrssDisplayItem);
-
-    // const self = this;
-
-    // if (!isNil(this.props.activeMrssDisplayItem)) {
-    //   const dataFeedItem: ArMediaFeedItem = this.props.activeMrssDisplayItem;
-
-    //   const src: string = isomorphicPath.join('file://', dataFeedItem.filePath);
-
-    //   // does this work for videos?
-    //   const dimensions = sizeOf(dataFeedItem.filePath);
-    //   const { width, height } = dimensions;
-
-    //   const laptopMaxWidth = 1420;
-    //   const laptopMaxHeight = 780;
-
-    //   // scale down to get to screen size
-    //   const widthScaleFactor = width / laptopMaxWidth;
-    //   const heightScaleFactor = height / laptopMaxHeight;
-    //   let scaledWidth: number;
-    //   let scaledHeight: number;
-    //   if (widthScaleFactor > heightScaleFactor) {
-    //     scaledWidth = width / widthScaleFactor;
-    //     scaledHeight = height / widthScaleFactor;
-    //   }
-    //   else {
-    //     scaledWidth = width / heightScaleFactor;
-    //     scaledHeight = height / heightScaleFactor;
-    //   }
-
-    //   console.log('width: ', width);
-    //   console.log('height: ', height);
-    //   console.log('scaledWidth: ', scaledWidth);
-    //   console.log('scaledHeight: ', scaledHeight);
-
-    //   switch (dataFeedItem.medium) {
-    //     case 'image':
-    //       return (
-    //         <Image
-    //           src={src}
-    //           width={scaledWidth}
-    //           height={scaledHeight}
-    //         />
-    //       );
-    //     case 'video':
-    //       return (
-    //         <Video
-    //           width={this.props.width}
-    //           height={this.props.height}
-    //           src={src}
-    //           onVideoRefRetrieved={self.videoRefRetrieved}
-    //         />
-    //       );
-    //     default:
-    //       debugger;
-    //   }
-    // }
-
-    return null;
+    );
   }
 
   getEvents(bsdm: DmState, mediaStateId: string): DmEvent[] {

@@ -1,9 +1,17 @@
-// import { DmMediaState, dmGetMediaStateById, DmState, dmFilterDmState } from '@brightsign/bsdatamodel';
 import { getHStateByMediaStateId } from './hsm';
-import { HState, MediaHState, MediaHStateData } from '../type';
+import {
+  MediaHState,
+  MediaHStateData,
+  BsPpModelState,
+  MrssStateData,
+  ArMrssFeed,
+  ArDataFeedMap,
+} from '../type';
+import { Asset } from '@brightsign/assetpool';
 
 import { getHsmById } from './hsm';
 import { Hsm } from '../type';
+import { getFeedPoolFilePath } from './presentation';
 
 export function getMrssItemFilePath(state: any, mediaStateId: string): string {
 
@@ -17,11 +25,20 @@ export function getMrssItemFilePath(state: any, mediaStateId: string): string {
       const data: MediaHStateData = mediaHState.data;
       const mediaStateData = data.mediaStateData!;
       console.log(mediaStateData);
-      debugger;
+
+      const bsPlayer: BsPpModelState = state.bsPlayer;
+      const arDataFeeds: ArDataFeedMap = bsPlayer.arDataFeeds;
+      const arMrssFeed: ArMrssFeed = arDataFeeds[(mediaStateData as MrssStateData).dataFeedId] as ArMrssFeed;
+
+      const displayIndex: number = (mediaStateData as MrssStateData).displayIndex;
+
+      const asset: Asset = arMrssFeed.assetList[displayIndex];
+
+      const filePath = getFeedPoolFilePath(state, asset.hash!.hex);
+
+      return filePath;
     }
   }
-
-  debugger;
 
   return '';
 }

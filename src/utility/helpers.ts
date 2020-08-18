@@ -22,4 +22,3 @@ export function xmlStringToJson(xml: string): Promise<any> {
     }
   });
 }
-

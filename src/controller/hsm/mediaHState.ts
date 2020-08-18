@@ -228,7 +228,7 @@ export const launchTimer = (
 };
 
 const timeoutHandler = (callbackParams: TimeoutEventCallbackParams): void => {
-  
+
   const event: HsmEventType = {
     EventType: EventType.Timer,
   };
