@@ -172,7 +172,7 @@ export function setMediaHStateParameter(
     type: SET_MEDIA_H_STATE_PARAMETER_DATA,
     payload: {
       hStateId,
-      parameterName: parameterValue,
+      [parameterName]: parameterValue,
     },
   };
 }

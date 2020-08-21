@@ -68,8 +68,8 @@ export const STMrssStateEventHandler = (
 
       dispatch(setMediaHStateParameter(mediaHState.id, 'waitForContentTimer', null));
       dispatch(setMediaHStateParameter(mediaHState.id, 'firstItemDisplayed', false));
-      dispatch(setMediaHStateParameter(mediaHState.id, 'currentFeed', null));
-      dispatch(setMediaHStateParameter(mediaHState.id, 'pendingFeed', null));
+      dispatch(setMediaHStateParameter(mediaHState.id, 'currentFeedId', null));
+      dispatch(setMediaHStateParameter(mediaHState.id, 'pendingFeedId', null));
 
       // // see if the designated feed has already been downloaded (doesn't imply content exists)
       // // TODODF - does the code below properly check to see if the designated feed has been downloaded?
@@ -84,7 +84,7 @@ export const STMrssStateEventHandler = (
         // create local versions of key objects
         // m.assetCollection = m.liveDataFeed.assetCollection
         // m.assetPoolFiles = m.liveDataFeed.assetPoolFiles
-        dispatch(setMediaHStateParameter(mediaHState.id, 'currentFeed', dataFeed));
+        dispatch(setMediaHStateParameter(mediaHState.id, 'currentFeedId', dataFeed.id));
 
         // TODODF - protect the feed that is getting displayed
         // m.ProtectMRSSFeed("display-" + m.liveDataFeed.id$, m.assetCollection)
