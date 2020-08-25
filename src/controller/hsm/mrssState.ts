@@ -20,8 +20,8 @@ import {
 } from '../../model';
 import { createHState, createHStateSpecification } from './hState';
 import { launchTimer, mediaHStateExitHandler, mediaHStateEventHandler } from './mediaHState';
-import { getDataFeedById, allDataFeedContentExists } from '../../selector';
-import { isNil } from 'lodash';
+import { getDataFeedById, allDataFeedContentExists, dataFeedContentExists, feedPoolFileExists } from '../../selector';
+import { isNil, isString, isNumber } from 'lodash';
 import { addHsmEvent } from '../hsmController';
 // import { getDataFeedById } from '../../selector';
 
@@ -104,7 +104,7 @@ export const STMrssStateEventHandler = (
           };
           dispatch(addHsmEvent(mrssNotFullyLoadedPlaybackEvent));
         } else {
-          dispatch(advanceToNextMRSSItem());
+          dispatch(advanceToNextMRSSItem(hState));
         }
 
       }
@@ -125,19 +125,71 @@ export const STMrssStateEventHandler = (
 // if displayIndex >= numItems in feed, reset index to 0. checks for existence of pendingFeed
 // if pending feed is not nil, it sets current feed to pending feed, and sets pending feed to null
 
-export const advanceToNextMRSSItem = () => {
+export const advanceToNextMRSSItem = (hState: HState) => {
 
   return (dispatch: any, getState: any) => {
 
     // console.log('************ AdvanceToNextMRSSItem');
 
-    // let displayedItem = false;
+    const mediaHState: MediaHState = hState as MediaHState;
+    const mrssStateData: MrssStateData = mediaHState.data.mediaStateData! as MrssStateData;
 
-    // while (!displayedItem) {
+    let displayedItem = false;
 
-    //   if (!isNil(this.currentFeed)) {
+    while (!displayedItem) {
 
-    // }
+      if (!isNil(mrssStateData.currentFeedId)) {
+        const feed: ArDataFeed | null = getDataFeedById(getState(), mrssStateData.currentFeedId);
+        if (!isNil(feed)) {
+
+          let currentFeed = feed as ArMrssFeed;
+          let dataFeedItems = currentFeed.mrssItems as ArMrssItem[];
+
+          let displayIndex = mrssStateData.displayIndex;
+          if (displayIndex >= dataFeedItems.length) {
+
+            displayIndex = 0;
+            dispatch(setMediaHStateParameter(mediaHState.id, 'displayIndex', 0));
+
+            if (!isNil(mrssStateData.pendingFeedId)) {
+
+              currentFeed = getDataFeedById(getState(), mrssStateData.pendingFeedId) as ArMrssFeed;
+              dispatch(setMediaHStateParameter(mediaHState.id, 'currentFeedId', mrssStateData.currentFeedId));
+              dispatch(setMediaHStateParameter(mediaHState.id, 'pendingFeedId', null));
+
+              // protect the feed that we're switching to (see autorun.brs)
+
+              // check to see if the feed it switched to is empty OR doesn't have all its content
+              if (dataFeedItems.length === 0 || (!allDataFeedContentExists(getState(), currentFeed))) {
+                // if true, if it has some content, play it.
+                if (dataFeedContentExists(getState(), currentFeed)) {
+                  if (isNil(displayIndex)) {
+                    displayIndex = 0;
+                    dispatch(setMediaHStateParameter(mediaHState.id, 'displayIndex', 0));
+                  }
+                  // TODO - is this right? calls itself?
+                  dispatch(advanceToNextMRSSItem(mediaHState));
+                } else {
+                  dispatch(launchWaitForContentTimer(mediaHState));
+                }
+              }
+            }
+          }
+
+          dataFeedItems = currentFeed.mrssItems as ArMrssItem[];
+          const displayItem: ArMrssItem = dataFeedItems[displayIndex];
+          const filePath: string = feedPoolFileExists(getState(), displayItem.guid.toLowerCase());
+
+          if (isString(filePath) && filePath.length > 0) {
+            displayItem.filePath = filePath;
+            dispatch(displayMRSSSItem(displayItem));
+            displayedItem = true;
+          }
+          displayIndex++;
+          dispatch(setMediaHStateParameter(mediaHState.id, 'displayIndex', displayIndex));
+        }
+      }
+    }
   };
 };
 
@@ -145,51 +197,119 @@ export const displayMRSSSItem = (displayItem: ArMrssItem) => {
 
   return (dispatch: any, getState: any) => {
 
-    // console.log('displayMRSSItem');
+    console.log('displayMRSSItem');
+
+    // TEDTODO - does it need to do anything?
+    // TEDTODO - or is the display based on displayIndex, which was already set?
+
     // const filePath: string = getFeedPoolFilePath(displayItem.guid.toLowerCase());
 
     // const mediaZoneHSM: MediaZoneHSM = this.stateMachine as MediaZoneHSM;
     // dispatch(setActiveMrssDisplayItem(mediaZoneHSM.zoneId, displayItem));
 
-    // if (displayItem.medium === 'image') {
-    //   dispatch(this.launchMrssTimer());
-    // }
+    if (displayItem.medium === 'image') {
+      dispatch(launchMrssTimer(displayItem));
+    }
   };
 };
 
-export const launchWaitForContentTimer = (): any => {
+interface TimeoutEventCallbackParams {
+  dispatch: BsPpDispatch;
+  getState: any;
+  mediaHState: MediaHState;
+}
+
+export const launchWaitForContentTimer = (mediaHState: MediaHState): any => {
   return (dispatch: any, getState: any) => {
-    // console.log('launchWaitForContentTimer');
-    // if (isNumber(this.waitForContentTimer)) {
-    //   console.log('******* - cc22');
-    //   clearTimeout(this.waitForContentTimer);
-    // }
 
-    // console.log('************ launchWaitForContentTimer');
+    console.log('launchWaitForContentTimer');
 
-    // const timeoutDuration: number = 1;
-    // this.waitForContentTimer = setTimeout(this.waitForContentTimeoutHandler, timeoutDuration * 1000, dispatch, this);
+    let waitForContentTimer: any = (mediaHState.data.mediaStateData! as MrssStateData).waitForContentTimer;
+
+    if (isNumber(waitForContentTimer)) {
+      clearTimeout(waitForContentTimer);
+    }
+
+    const timeoutDuration: number = 1;
+    const timeoutEventCallbackParams: TimeoutEventCallbackParams = {
+      dispatch,
+      getState,
+      mediaHState,
+    };
+
+    waitForContentTimer = setTimeout(waitForContentTimeoutHandler, timeoutDuration * 1000, timeoutEventCallbackParams);
+    dispatch(setMediaHStateParameter(mediaHState.id, 'waitForContentTimer', waitForContentTimer));
   };
 };
 
-export const waitForContentTimeoutHandler = (dispatch: any, mrssState: any) => {
-  // console.log('************ waitForContentTimeoutHandler');
+export const waitForContentTimeoutHandler = (dispatch: any, getState: any, mrssState: MediaHState) => {
+
+  console.log('************ waitForContentTimeoutHandler');
+
+  const mrssStateData: MrssStateData = mrssState.data.mediaStateData! as MrssStateData;
+
+  if (!isNil(mrssStateData.currentFeedId)) {
+    const currentFeed: ArMrssFeed = getDataFeedById(getState(), mrssStateData.currentFeedId) as ArMrssFeed;
+    const dataFeedItems = currentFeed.mrssItems as ArMrssItem[];
+    if ((dataFeedItems.length === 0 || (!allDataFeedContentExists(getState(), currentFeed)))) {
+      if (dataFeedContentExists(getState(), currentFeed)) {
+        if (isNil(mrssStateData.displayIndex)) {
+          mrssStateData.displayIndex = 0;
+        }
+        dispatch(advanceToNextMRSSItem(mrssState));
+      } else {
+        dispatch(launchWaitForContentTimer(mrssState));
+      }
+    }
+  }
 };
 
-export const launchMrssTimer = (): any => {
+// TEDTODO - mediaHState or displayItem or ??
+export const launchMrssTimer = (mediaHState: any): any => {
 
   return (dispatch: any, getState: any) => {
-    // console.log('launchMrssTimer');
+    console.log('launchMrssTimer');
+    const interval: number = 3;
+    const timeoutEventCallbackParams: TimeoutEventCallbackParams = {
+      dispatch,
+      getState,
+      mediaHState,
+    };
+
+    if (interval && interval > 0) {
+      // const timeout = setTimeout(mrssTimeoutHandler, interval * 1000, timeoutEventCallbackParams);
+      setTimeout(mrssTimeoutHandler, interval * 1000, timeoutEventCallbackParams);
+    }
   };
 };
 
 // equivalent to   'else if type(event) = "roTimerEvent" then' in autorun
-export const mrssTimeoutHandler = (mrssState: any) => {
+export const mrssTimeoutHandler = (mrssState: MediaHState) => {
+
+  debugger;
   // console.log('mrssTimeoutHandler');
+  // const atEndOfMrssFeed = atEndOfFeed(mrssState);
+  // const endOfFeed = atEndOfFeed();
+  // if (endOfFeed) {
+  //   console.log('******* - cc28');
+
+  //   const event: ArEventType = {
+  //     EventType: 'EndOfFeed',
+  //   };
+  //   reduxStore.dispatch(mrssState.stateMachine.dispatchEvent(event));
+  //   // return dispatch(this.mediaHStateEventHandler(event, stateData));
+
+  // }
+  // else {
+  //   console.log('******* - cc29');
+
+  //   reduxStore.dispatch(mrssState.advanceToNextMRSSItem().bind(mrssState));
+  // }
+
 };
 
 //  need to also consider the case where it's not at the end but there's no more content.
-export const atEndOfFeed = (): boolean => {
+export const atEndOfFeed = (mrssState: MediaHState): boolean => {
   // console.log('atEndOfFeed');
   return false;
 };
