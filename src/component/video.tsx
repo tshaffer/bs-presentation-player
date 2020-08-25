@@ -53,11 +53,11 @@ export class VideoComponent extends React.Component<any> {
         height={this.props.zoneHeight.toString()}
         autoPlay={true}
         ref={(videoElementRef) => {
-          console.log('videoElementRef retrieved');
+          // console.log('videoElementRef retrieved');
           self.handleSetVideoElementRef(videoElementRef);
         }}
         onEnded={() => {
-          console.log('**** - videoEnd');
+          // console.log('**** - videoEnd');
           self.props.onVideoEnd();
         }}
       />

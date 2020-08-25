@@ -34,7 +34,7 @@ export class MrssComponent extends React.Component<MrssProps> {
 
     const src: string = isomorphicPath.join('file://', this.props.filePath);
 
-    console.log(this.props.filePath);
+    // console.log(this.props.filePath);
 
     const dimensions = sizeOf(this.props.filePath);
     if (isNil(dimensions)) {

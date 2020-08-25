@@ -38,7 +38,7 @@ export function retrieveDataFeed(state: any, bsdm: DmState, dataFeed: DmcDataFee
 
   const dataFeedSource = dmGetDataFeedSourceForFeedId(bsdm, { id: dataFeed.id });
   if (isNil(dataFeedSource)) {
-    console.log('******** retrieveDataFeed - dataFeedSource not found.');
+    // console.log('******** retrieveDataFeed - dataFeedSource not found.');
     // debugger;
   }
 
@@ -54,7 +54,7 @@ export function retrieveDataFeed(state: any, bsdm: DmState, dataFeed: DmcDataFee
       fs.writeFileSync(getFeedCacheRoot(state) + dataFeed.id + '.xml', response.data);
       return xmlStringToJson(response.data);
     }).then((feedAsJson: ArFeed) => {
-      console.log(feedAsJson);
+      // console.log(feedAsJson);
       return Promise.resolve(feedAsJson);
     }).catch((err) => {
       console.log(err);
@@ -68,7 +68,7 @@ export function readCachedFeed(state: any, bsdmDataFeed: DmcDataFeed): Promise<A
 
   const feedFileName: string = getFeedCacheRoot(state) + bsdmDataFeed.id + '.xml';
 
-  console.log('Read existing content for feed ' + bsdmDataFeed.id);
+  // console.log('Read existing content for feed ' + bsdmDataFeed.id);
 
   let xmlFileContents: string;
 
@@ -78,7 +78,7 @@ export function readCachedFeed(state: any, bsdmDataFeed: DmcDataFeed): Promise<A
 
     return xmlStringToJson(xmlFileContents)
       .then((feed: ArFeed) => {
-        console.log(feed);
+        // console.log(feed);
         return Promise.resolve(feed);
       }).catch((err) => {
         // TODODF - if err is for file not found
@@ -123,7 +123,7 @@ function processMrssFeed(bsdmDataFeed: DmcDataFeed, feed: ArFeed): BsPpVoidPromi
     }
 
     const items: ArMrssItem[] = getMrssFeedItems(feed);
-    console.log(items);
+    // console.log(items);
 
     const assetList: Asset[] = generateMrssFeedAssetList(items);
 
@@ -187,24 +187,24 @@ export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed) {
     assetPoolFetcher.addEventListener('progressevent', (data: any) => {
       // ProgressEvent is defined at
       // https://docs.brightsign.biz/display/DOC/assetpoolfetcher#assetpoolfetcher-Events
-      console.log('progressEvent:');
-      console.log(data.detail.fileName);
-      console.log(data.detail.index);
-      console.log(data.detail.total);
-      console.log(data.detail.currentFileTransferred);
-      console.log(data.detail.currentFileTotal);
+      // console.log('progressEvent:');
+      // console.log(data.detail.fileName);
+      // console.log(data.detail.index);
+      // console.log(data.detail.total);
+      // console.log(data.detail.currentFileTransferred);
+      // console.log(data.detail.currentFileTotal);
     });
 
     assetPoolFetcher.addEventListener('fileevent', (data: any) => {
       // FileEvent is at data.detail
       // https://docs.brightsign.biz/display/DOC/assetpoolfetcher#assetpoolfetcher-Events
-      console.log('fileEvent:');
-      console.log(data.detail.fileName);
-      console.log(data.detail.index);
-      console.log(data.detail.responseCode);
+      // console.log('fileEvent:');
+      // console.log(data.detail.fileName);
+      // console.log(data.detail.index);
+      // console.log(data.detail.responseCode);
     });
 
-    console.log('post MRSS_SPEC_UPDATED message');
+    // console.log('post MRSS_SPEC_UPDATED message');
 
     // indicate that the mrss spec has been updated
     const event: HsmEventType = {
@@ -215,10 +215,10 @@ export function downloadMRSSFeedContent(arDataFeed: ArMrssFeed) {
     const action: any = addHsmEvent(event);
     dispatch(action);
 
-    console.log('assetPoolFetcher.start');
+    // console.log('assetPoolFetcher.start');
     assetPoolFetcher.start((dataFeed as ArMrssFeed).assetList)
       .then(() => {
-        console.log('assetPoolFetcher promise resolved');
+        // console.log('assetPoolFetcher promise resolved');
 
         // after all files complete
         const actionEvent: HsmEventType = {
@@ -282,41 +282,41 @@ export function downloadContentFeedContent(arDataFeed: ArContentFeed) {
 
   return (dispatch: any, getState: any) => {
 
-    console.log('downloadContentFeedContent - entry');
+    // console.log('downloadContentFeedContent - entry');
 
     const feedAssetPool: AssetPool = getFeedAssetPool(getState());
     assetPoolFetcher = new AssetPoolFetcher(feedAssetPool);
 
     assetPoolFetcher.addEventListener('progressevent', (data: any) => {
-      console.log('progressEvent:');
-      console.log(data.detail.fileName);
-      console.log(data.detail.index);
-      console.log(data.detail.total);
-      console.log(data.detail.currentFileTransferred);
-      console.log(data.detail.currentFileTotal);
+      // console.log('progressEvent:');
+      // console.log(data.detail.fileName);
+      // console.log(data.detail.index);
+      // console.log(data.detail.total);
+      // console.log(data.detail.currentFileTransferred);
+      // console.log(data.detail.currentFileTotal);
     });
 
     assetPoolFetcher.addEventListener('fileevent', (data: any) => {
       // FileEvent is at data.detail
       // https://docs.brightsign.biz/display/DOC/assetpoolfetcher#assetpoolfetcher-Events
-      console.log('fileEvent:');
-      console.log(data.detail.fileName);
-      console.log(data.detail.index);
-      console.log(data.detail.responseCode);
+      // console.log('fileEvent:');
+      // console.log(data.detail.fileName);
+      // console.log(data.detail.index);
+      // console.log(data.detail.responseCode);
     });
 
-    console.log('assetPoolFetcher.start');
+    // console.log('assetPoolFetcher.start');
     assetPoolFetcher.start(arDataFeed.assetList)
       .then(() => {
 
-        console.log('assetPoolFetcher promise resolved');
+        // console.log('assetPoolFetcher promise resolved');
 
         // post message indicating load complete
         const event: HsmEventType = {
           EventType: 'CONTENT_DATA_FEED_LOADED',
           EventData: arDataFeed.id,
         };
-        console.log('POST CONTENT_DATA_FEED_LOADED');
+        // console.log('POST CONTENT_DATA_FEED_LOADED');
         const action: any = addHsmEvent(event);
         dispatch(action);
       })

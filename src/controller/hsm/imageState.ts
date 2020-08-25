@@ -41,7 +41,7 @@ export const STImageStateEventHandler = (
 ): BsPpVoidThunkAction => {
   return (dispatch: BsPpDispatch) => {
     if (event.EventType === 'ENTRY_SIGNAL') {
-      console.log('STImageStateEventHandler: entry signal');
+      // console.log('STImageStateEventHandler: entry signal');
       dispatch(launchTimer(hState));
       return 'HANDLED';
     } else if (event.EventType === 'EXIT_SIGNAL') {

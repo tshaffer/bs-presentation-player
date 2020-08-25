@@ -41,7 +41,7 @@ export const STSuperStateEventHandler = (
 ): BsPpVoidThunkAction => {
   return (dispatch: BsPpDispatch) => {
     if (event.EventType === 'ENTRY_SIGNAL') {
-      console.log('STSuperStateEventHandler: entry signal');
+      // console.log('STSuperStateEventHandler: entry signal');
       dispatch(launchTimer(hState));
       return 'HANDLED';
     } else if (event.EventType === 'EXIT_SIGNAL') {

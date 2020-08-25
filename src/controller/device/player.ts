@@ -10,7 +10,7 @@ import { addHsmEvent } from '../hsmController';
 /** @private */
 export const postVideoEnd = (): any => {
   return (dispatch: any, getState: () => any) => {
-    console.log('postMediaEndEvent');
+    // console.log('postMediaEndEvent');
     const event: HsmEventType = {
       EventType: EventType.MediaEnd,
     };

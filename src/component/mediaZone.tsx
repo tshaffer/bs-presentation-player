@@ -134,8 +134,8 @@ export default class MediaZoneComponent extends React.Component<MediaZoneProps> 
       dmGetMediaStateById(this.props.bsdm, { id: this.props.mediaStateId }) as DmMediaState;
     const contentItem: DmDerivedContentItem = mediaState.contentItem;
 
-    console.log('contentItemType:');
-    console.log(contentItem.type);
+    // console.log('contentItemType:');
+    // console.log(contentItem.type);
 
     switch (contentItem.type) {
       case ContentItemType.Image:

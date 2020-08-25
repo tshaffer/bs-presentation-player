@@ -62,7 +62,7 @@ export const STMrssStateEventHandler = (
 ): BsPpVoidThunkAction => {
   return (dispatch: BsPpDispatch, getState: any) => {
     if (event.EventType === 'ENTRY_SIGNAL') {
-      console.log('STMrssStateEventHandler: entry signal');
+      // console.log('STMrssStateEventHandler: entry signal');
 
       const mediaHState: MediaHState = hState as MediaHState;
 
@@ -73,8 +73,8 @@ export const STMrssStateEventHandler = (
 
       // // see if the designated feed has already been downloaded (doesn't imply content exists)
       // // TODODF - does the code below properly check to see if the designated feed has been downloaded?
-      console.log('mrssState.ts#STDisplayingMrssStateEventHandler: dataFeedId');
-      console.log((mediaHState.data.mediaStateData! as MrssStateData).dataFeedId);
+      // console.log('mrssState.ts#STDisplayingMrssStateEventHandler: dataFeedId');
+      // console.log((mediaHState.data.mediaStateData! as MrssStateData).dataFeedId);
 
       // // get the data feed associated with the state
       const dataFeedId: string = (mediaHState.data.mediaStateData! as MrssStateData).dataFeedId;
@@ -129,7 +129,7 @@ export const advanceToNextMRSSItem = () => {
 
   return (dispatch: any, getState: any) => {
 
-    console.log('************ AdvanceToNextMRSSItem');
+    // console.log('************ AdvanceToNextMRSSItem');
 
     // let displayedItem = false;
 
@@ -145,7 +145,7 @@ export const displayMRSSSItem = (displayItem: ArMrssItem) => {
 
   return (dispatch: any, getState: any) => {
 
-    console.log('displayMRSSItem');
+    // console.log('displayMRSSItem');
     // const filePath: string = getFeedPoolFilePath(displayItem.guid.toLowerCase());
 
     // const mediaZoneHSM: MediaZoneHSM = this.stateMachine as MediaZoneHSM;
@@ -159,7 +159,7 @@ export const displayMRSSSItem = (displayItem: ArMrssItem) => {
 
 export const launchWaitForContentTimer = (): any => {
   return (dispatch: any, getState: any) => {
-    console.log('launchWaitForContentTimer');
+    // console.log('launchWaitForContentTimer');
     // if (isNumber(this.waitForContentTimer)) {
     //   console.log('******* - cc22');
     //   clearTimeout(this.waitForContentTimer);
@@ -173,23 +173,23 @@ export const launchWaitForContentTimer = (): any => {
 };
 
 export const waitForContentTimeoutHandler = (dispatch: any, mrssState: any) => {
-  console.log('************ waitForContentTimeoutHandler');
+  // console.log('************ waitForContentTimeoutHandler');
 };
 
 export const launchMrssTimer = (): any => {
 
   return (dispatch: any, getState: any) => {
-    console.log('launchMrssTimer');
+    // console.log('launchMrssTimer');
   };
 };
 
 // equivalent to   'else if type(event) = "roTimerEvent" then' in autorun
 export const mrssTimeoutHandler = (mrssState: any) => {
-  console.log('mrssTimeoutHandler');
+  // console.log('mrssTimeoutHandler');
 };
 
 //  need to also consider the case where it's not at the end but there's no more content.
 export const atEndOfFeed = (): boolean => {
-  console.log('atEndOfFeed');
+  // console.log('atEndOfFeed');
   return false;
 };

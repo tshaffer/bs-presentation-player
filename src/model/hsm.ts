@@ -261,9 +261,9 @@ const hStateById = (
       return { ...state, [hStateId]: updatedHState };
     }
     case SET_MEDIA_H_STATE_PARAMETER_DATA: {
-      console.log('SET_MEDIA_H_STATE_PARAMETER_DATA');
+      // console.log('SET_MEDIA_H_STATE_PARAMETER_DATA');
       const hStateId: string = (action.payload as any).hStateId;
-      console.log(state[hStateId]);
+      // console.log(state[hStateId]);
       const updatedMediaHState: MediaHState =
         { ...state[hStateId], ...(state[hStateId] as MediaHState).data, ...action.payload } as MediaHState;
 
@@ -291,7 +291,7 @@ const hStateById = (
         mediaHStateData.mediaStateData = mediaHStateParamsData;
         updatedMediaHState.data.mediaStateData = mediaHStateParamsData;
       }
-      console.log(updatedMediaHState);
+      // console.log(updatedMediaHState);
       return { ...state, [hStateId]: updatedMediaHState };
     }
     default:

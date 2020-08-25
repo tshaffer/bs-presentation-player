@@ -76,8 +76,8 @@ function dispatchHsmEvent(
 
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
 
-    console.log('dispatchHsmEvent:');
-    console.log(event.EventType);
+    // console.log('dispatchHsmEvent:');
+    // console.log(event.EventType);
 
     const state: BsPpState = bsPpStateFromState(getState());
 

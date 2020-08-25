@@ -49,7 +49,7 @@ export const mediaHStateEventHandler = (
 
   return (dispatch: BsPpDispatch, getState: () => any) => {
 
-    console.log('mediaHStateEventHandler');
+    // console.log('mediaHStateEventHandler');
 
     const dmState: DmState = dmFilterDmState(bsPpStateFromState(getState()));
     const mediaState: DmMediaState = dmGetMediaStateById(
@@ -79,11 +79,11 @@ const executeEventMatchAction = (
   if (isNil(event.transitionList) || event.transitionList.length === 0) {
     switch (event.action) {
       case EventIntrinsicAction.None: {
-        console.log('remain on current state, playContinuous');
+        // console.log('remain on current state, playContinuous');
         return 'HANDLED';
       }
       case EventIntrinsicAction.ReturnToPriorState: {
-        console.log('return prior state');
+        // console.log('return prior state');
         return 'HANDLED';
       }
       // case EventIntrinsicAction.StopPlayback: {
@@ -173,7 +173,7 @@ export const mediaHStateExitHandler = (
   hStateId: string,
 ): BsPpVoidThunkAction => {
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    console.log('mediaHStateExitHandler');
+    // console.log('mediaHStateExitHandler');
     const hState: HState | null = getHStateById(bsPpStateFromState(getState()), hStateId);
     if (!isNil(hState)) {
       const mediaHState: MediaHState = hState as MediaHState;
@@ -216,8 +216,8 @@ export const launchTimer = (
             dispatch,
             hState,
           };
-          console.log('launchTimer');
-          console.log(interval);
+          // console.log('launchTimer');
+          // console.log(interval);
           const timeoutId: number =
             setTimeout(timeoutHandler, interval * 1000, timeoutEventCallbackParams) as unknown as number;
           dispatch(setMediaHStateTimeoutId(hState.id, timeoutId));
@@ -233,8 +233,8 @@ const timeoutHandler = (callbackParams: TimeoutEventCallbackParams): void => {
     EventType: EventType.Timer,
   };
 
-  console.log(event);
-  console.log(callbackParams);
+  // console.log(event);
+  // console.log(callbackParams);
 
   // const { store } = callbackParams;
   // const hsmId = hState.hsmId;

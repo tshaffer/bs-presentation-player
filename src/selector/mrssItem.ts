@@ -21,10 +21,10 @@ export function getMrssItemFilePath(state: any, mediaStateId: string): string {
     const hsm: Hsm = getHsmById(state, hsmId);
     if (hsm.type === 'VideoOrImages') {
       const mediaHState: MediaHState = getHStateByMediaStateId(state, hsm.id, mediaStateId) as MediaHState;
-      console.log(mediaHState);
+      // console.log(mediaHState);
       const data: MediaHStateData = mediaHState.data;
       const mediaStateData = data.mediaStateData!;
-      console.log(mediaStateData);
+      // console.log(mediaStateData);
 
       const bsPlayer: BsPpModelState = state.bsPlayer;
       const arDataFeeds: ArDataFeedMap = bsPlayer.arDataFeeds;

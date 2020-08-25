@@ -36,7 +36,7 @@ export const createHsm = (
   properties: HsmProperties,
 ): BsPpStringThunkAction => {
   return ((dispatch: BsPpDispatch) => {
-    console.log('***** HSM.ts#createHsm');
+    // console.log('***** HSM.ts#createHsm');
     const hsmId: string = newBsPpId();
     dispatch(addHsm({
       id: hsmId,
@@ -57,7 +57,7 @@ export function initializeHsm(
 
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
 
-    console.log('***** HSM.ts#initializeHsm');
+    // console.log('***** HSM.ts#initializeHsm');
 
     // is there a reason why the following call is necessary? It causes breakage....
     // dispatch(setActiveHState(hsmId, null));
@@ -69,8 +69,9 @@ export function initializeHsm(
         then((activeState: HState) => {
           dispatch(setActiveHState(hsmId, activeState));
           dispatch(completeHsmInitialization(hsmId));
-          const hsmInitializationComplete = getHsmInitialized(bsPpStateFromState(getState()), hsmId);
-          console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
+          // const hsmInitializationComplete = getHsmInitialized(bsPpStateFromState(getState()), hsmId);
+          getHsmInitialized(bsPpStateFromState(getState()), hsmId);
+          // console.log('69 - end of hsmInitialize-0, hsmInitializationComplete: ' + hsmInitializationComplete);
           return Promise.resolve();
         });
     }
@@ -105,7 +106,7 @@ function completeHsmInitialization(
     // if there is no activeState, the playlist is empty
     if (isNil(activeState)) {
       dispatch(setActiveHState(hsmId, null));
-      console.log('***** return from HSM.ts#completeHsmInitialization');
+      // console.log('***** return from HSM.ts#completeHsmInitialization');
       dispatch(setHsmInitialized(hsmId, true));
       return;
     }
@@ -160,7 +161,7 @@ function completeHsmInitialization(
         if (status !== 'TRANSITION') {
           activeState = sourceState;
           dispatch(setActiveHState(hsmId, activeState));
-          console.log('***** return from HSM.ts#completeHsmInitialization');
+          // console.log('***** return from HSM.ts#completeHsmInitialization');
           dispatch(setHsmInitialized(hsmId, true));
           return;
         }
@@ -190,8 +191,8 @@ export function hsmDispatch(
 
     let activeState = getHStateById(bsPpStateFromState(getState()), activeStateId);
 
-    console.log('***** HSM.ts#Dispatch');
-    console.log(event.EventType);
+    // console.log('***** HSM.ts#Dispatch');
+    // console.log(event.EventType);
 
     // if there is no activeState, the playlist is empty
     if (isNil(activeState)) {

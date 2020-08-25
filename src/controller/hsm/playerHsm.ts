@@ -74,7 +74,7 @@ import { ArContentFeed, ArMrssFeed, ArDataFeed } from '../../type/dataFeed';
 
 export const createPlayerHsm = (): any => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    console.log('invoke createPlayerHsm');
+    // console.log('invoke createPlayerHsm');
     const playerHsmId: string = dispatch(createHsm('player', HsmType.Player, {}));
 
     const stTopId = dispatch(createHState(
@@ -124,7 +124,7 @@ export const createPlayerHsm = (): any => {
 
 export const initializePlayerHsm = (): any => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    console.log('invoke initializePlayerHsm');
+    // console.log('invoke initializePlayerHsm');
     const playerHsm = getHsmByName(bsPpStateFromState(getState()), 'player');
     if (!isNil(playerHsm)) {
       dispatch(initializeHsm(playerHsm!.id));
@@ -134,10 +134,10 @@ export const initializePlayerHsm = (): any => {
 
 export const playerHsmGetInitialState = (): BsPpAnyPromiseThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    console.log('invoke playerHsmGetInitialState');
+    // console.log('invoke playerHsmGetInitialState');
     return dispatch(launchSchedulePlayback(''))
       .then(() => {
-        console.log('return from invoking playerHsmGetInitialState restartPlayback');
+        // console.log('return from invoking playerHsmGetInitialState restartPlayback');
         const hState = getHStateByName(bsPpStateFromState(getState()), 'playing');
         return Promise.resolve(hState);
       });
@@ -152,7 +152,7 @@ export const STPlayerEventHandler = (
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     stateData.nextStateId = hState.superStateId;
 
-    console.log('***** - STPlayerEventHandler, event type ' + event.EventType);
+    // console.log('***** - STPlayerEventHandler, event type ' + event.EventType);
 
     return 'SUPER';
   });
@@ -167,11 +167,11 @@ export const STPlayingEventHandler = (
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
     stateData.nextStateId = null;
 
-    console.log('***** - STPlayingEventHandler, event type ' + event.EventType);
+    // console.log('***** - STPlayingEventHandler, event type ' + event.EventType);
 
     if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
 
-      console.log(hState.id + ': entry signal');
+      // console.log(hState.id + ': entry signal');
 
       const readStoredFeedsAction: any = readCachedFeeds();
       dispatch(readStoredFeedsAction)
@@ -208,10 +208,10 @@ export const STWaitingEventHandler = (
     stateData.nextStateId = null;
 
     if (event.EventType && event.EventType === 'ENTRY_SIGNAL') {
-      console.log(hState.id + ': entry signal');
+      // console.log(hState.id + ': entry signal');
       return 'HANDLED';
     } else if (event.EventType && event.EventType === 'TRANSITION_TO_PLAYING') {
-      console.log(hState.id + ': TRANSITION_TO_PLAYING event received');
+      // console.log(hState.id + ': TRANSITION_TO_PLAYING event received');
       // const hsmId: string = hState.hsmId;
       // const hsm: PpHsm = getHsmById(bsPpStateFromBaApUiState(getState()), hsmId);
       const stPlayingState: HState | null = getHStateByName(bsPpStateFromState(getState()), 'Playing');
@@ -228,7 +228,7 @@ export const STWaitingEventHandler = (
 };
 
 export const launchSchedulePlayback = (presentationName: string): BsPpVoidPromiseThunkAction => {
-  console.log('invoke restartPlayback');
+  // console.log('invoke restartPlayback');
 
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
     const action = openSign(presentationName);
@@ -261,13 +261,13 @@ export const launchSchedulePlayback = (presentationName: string): BsPpVoidPromis
 };
 
 export const launchPresentationPlayback = (): BsPpVoidThunkAction => {
-  console.log('invoke startPlayback');
+  // console.log('invoke startPlayback');
 
   return (dispatch: BsPpDispatch, getState: () => BsPpState) => {
 
     const bsdm: DmState = bsPpStateFromState(getState()).bsdm;
-    console.log('startPlayback');
-    console.log(bsdm);
+    // console.log('startPlayback');
+    // console.log(bsdm);
 
     const zoneIds: BsDmId[] = dmGetZonesForSign(bsdm);
     zoneIds.forEach((zoneId: BsDmId) => {
@@ -285,8 +285,8 @@ export const launchPresentationPlayback = (): BsPpVoidThunkAction => {
     }
 
     Promise.all(promises).then(() => {
-      console.log('startPlayback nearly complete');
-      console.log('wait for HSM initialization complete');
+      // console.log('startPlayback nearly complete');
+      // console.log('wait for HSM initialization complete');
       const hsmInitializationComplete = getIsHsmInitialized(bsPpStateFromState(getState()));
       if (hsmInitializationComplete) {
         const event: HsmEventType = {
@@ -348,14 +348,14 @@ export const launchRetrieveFeedTimer = (dataFeedId: BsDmId): any => {
       dispatch,
       dataFeedId,
     };
-    console.log('launchRetrieveFeedTimer');
-    console.log(updateInterval);
+    // console.log('launchRetrieveFeedTimer');
+    // console.log(updateInterval);
     setTimeout(retrieveFeedTimeoutHandler, updateInterval * 1000, dataFeedTimeoutEventCallbackParams);
   };
 };
 
 const retrieveFeedTimeoutHandler = (callbackParams: DataFeedTimeoutEventCallbackParams): void => {
-  console.log(callbackParams);
+  // console.log(callbackParams);
   callbackParams.dispatch(queueRetrieveDataFeed(callbackParams.dataFeedId));
 };
 
@@ -419,7 +419,7 @@ function retrieveAndProcessDataFeed(bsdmDataFeedId: BsDmId) {
             } else if (arDataFeed.type === 'mrss') {
               dispatch(downloadMRSSFeedContent(arDataFeed as ArMrssFeed));
             } else if (arDataFeed.type === 'text') {
-              console.log('text feed: return from processFeed - no content to download');
+              // console.log('text feed: return from processFeed - no content to download');
             } else {
               debugger;
             }

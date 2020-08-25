@@ -159,10 +159,10 @@ export const initializeVideoOrImagesZoneHsm = (hsmId: string): BsPpVoidThunkActi
 
 export const videoOrImagesZoneHsmGetInitialState = (hsmId: string): BsPpAnyPromiseThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
-    console.log('videoOrImagesZoneGetInitialState');
-    console.log(bsPpStateFromState(getState()));
+    // console.log('videoOrImagesZoneGetInitialState');
+    // console.log(bsPpStateFromState(getState()));
     const hsm: Hsm = getHsmById(bsPpStateFromState(getState()), hsmId);
-    console.log(bsPpStateFromState(getState()));
+    // console.log(bsPpStateFromState(getState()));
     const initialState = getHStateById(bsPpStateFromState(getState()), hsm.activeStateId);
     return Promise.resolve(initialState);
   });
