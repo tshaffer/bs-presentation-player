@@ -32,8 +32,6 @@ export class MrssComponent extends React.Component<MrssProps> {
 
   render() {
 
-    debugger;
-
     const src: string = isomorphicPath.join('file://', this.props.filePath);
 
     console.log(this.props.filePath);
