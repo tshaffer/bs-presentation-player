@@ -23,6 +23,7 @@ import {
 import { STVideoStateEventHandler } from './videoState';
 import { STSuperStateEventHandler } from './superState';
 import { STMrssStateEventHandler } from './mrssState';
+import { BsPpModelState } from '../../..';
 
 export const hsmConstructorFunction = (hsmId: string): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -64,32 +65,55 @@ export const HStateEventHandler = (
   event: HsmEventType,
   stateData: HSMStateData
 ): any => {
-  return ((dispatch: BsPpDispatch) => {
+  return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
+
+    const bsPlayerStateBefore: BsPpModelState = getState().bsPlayer;
+    console.log('** HStateEventHandler');
+    console.log(hState.type);
+    console.log(event.EventType);
+    console.log(event.EventData);
+    console.log('bsPlayerState before:');
+    console.log(bsPlayerStateBefore);
+
+    let retVal: any = null;
+
     if (!isNil(hState)) {
       switch (hState.type) {
         case HStateType.Top:
-          return dispatch(STTopEventHandler(hState, event, stateData) as any);
+          retVal = dispatch(STTopEventHandler(hState, event, stateData) as any);
+          break;
         case HStateType.Player:
-          return dispatch(STPlayerEventHandler(hState, event, stateData));
+          retVal = dispatch(STPlayerEventHandler(hState, event, stateData));
+          break;
         case HStateType.Playing:
-          return dispatch(STPlayingEventHandler(hState, event, stateData));
+          retVal = dispatch(STPlayingEventHandler(hState, event, stateData));
+          break;
         case HStateType.Waiting:
-          return dispatch(STWaitingEventHandler(hState, event, stateData));
+          retVal = dispatch(STWaitingEventHandler(hState, event, stateData));
+          break;
         case HStateType.Image:
-          return dispatch(STImageStateEventHandler(hState, event, stateData));
+          retVal = dispatch(STImageStateEventHandler(hState, event, stateData));
+          break;
         case HStateType.Video:
-          return dispatch(STVideoStateEventHandler(hState, event, stateData));
+          retVal = dispatch(STVideoStateEventHandler(hState, event, stateData));
+          break;
         case HStateType.SuperState:
-          return dispatch(STSuperStateEventHandler(hState, event, stateData));
+          retVal = dispatch(STSuperStateEventHandler(hState, event, stateData));
+          break;
         case HStateType.Mrss:
-          return dispatch(STMrssStateEventHandler(hState, event, stateData));
+          retVal = dispatch(STMrssStateEventHandler(hState, event, stateData));
+          break;
         default:
           debugger;
           break;
       }
     }
 
-    return null;
+    const bsPlayerStateAfter: BsPpModelState = getState().bsPlayer;
+    console.log('bsPlayerState after:');
+    console.log(bsPlayerStateAfter);
+
+    return retVal;
   });
 };
 
