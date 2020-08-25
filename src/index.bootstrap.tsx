@@ -15,14 +15,27 @@ import { bsPpReducer } from './model';
 import { BsPp } from './component';
 import { initPlayer } from './controller';
 
+const logger = (store: any) => (next: any) => (action: any) => {
+  console.group(action.type);
+  console.info('dispatching', action);
+  const result = next(action);
+  console.log('next state', store.getState());
+  console.groupEnd();
+  return result;
+};
 const getStore = () => {
+  console.log('***************************** getStore() invoked');
   const reducers = combineReducers<BsPpState>({
     bsdm: bsDmReducer,
     bsPlayer: bsPpReducer,
   });
   return createStore<BsPpState>(
     reducers,
-    composeWithDevTools(applyMiddleware(thunk),
+    composeWithDevTools(
+      applyMiddleware(
+        thunk,
+        logger,
+      ),
     ));
 };
 
