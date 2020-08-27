@@ -263,36 +263,35 @@ const hStateById = (
     case SET_MEDIA_H_STATE_PARAMETER_DATA: {
       // console.log('SET_MEDIA_H_STATE_PARAMETER_DATA');
       const hStateId: string = (action.payload as any).hStateId;
-      // console.log(state[hStateId]);
-      const updatedMediaHState: MediaHState =
-        { ...state[hStateId], ...(state[hStateId] as MediaHState).data, ...action.payload } as MediaHState;
+      const hState: HState = state[hStateId];
+      const mediaHState: MediaHState = hState as MediaHState;
+      const newMediaHState: MediaHState = cloneDeep(mediaHState);
 
-      const mediaHState: MediaHState = cloneDeep(state[hStateId]) as MediaHState;
-      const mediaHStateData: MediaHStateData = mediaHState.data;
-      if (isNil(mediaHStateData.mediaStateData)) {
+      const newMediaHStateData: MediaHStateData = newMediaHState.data;
+      if (isNil(newMediaHStateData.mediaStateData)) {
         const keys = Object.keys(action.payload);
         for (const key of keys) {
           if (key !== 'hStateId') {
-            const mediaHStateParamsData: MediaHStateParamsData = {
+            const newMediaHStateParamsData: MediaHStateParamsData = {
               [key]: action.payload[key]
             };
-            mediaHStateData.mediaStateData = mediaHStateParamsData;
-            updatedMediaHState.data.mediaStateData = mediaHStateParamsData;
+            newMediaHStateData.mediaStateData = newMediaHStateParamsData;
+            newMediaHState.data = newMediaHStateData;
           }
         }
       } else {
-        const mediaHStateParamsData: MediaHStateParamsData = mediaHStateData.mediaStateData;
+        const newMediaHStateParamsData: MediaHStateParamsData = newMediaHStateData.mediaStateData;
         const keys = Object.keys(action.payload);
         for (const key of keys) {
           if (key !== 'hStateId') {
-            mediaHStateParamsData[key] = action.payload[key];
+            newMediaHStateParamsData[key] = action.payload[key];
           }
         }
-        mediaHStateData.mediaStateData = mediaHStateParamsData;
-        updatedMediaHState.data.mediaStateData = mediaHStateParamsData;
       }
-      // console.log(updatedMediaHState);
-      return { ...state, [hStateId]: updatedMediaHState };
+
+      const newState = cloneDeep(state);
+      newState[hStateId] = newMediaHState;
+      return newState;
     }
     default:
       return state;

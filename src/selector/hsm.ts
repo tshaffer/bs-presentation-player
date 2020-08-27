@@ -8,9 +8,12 @@ import {
   ZoneHsmProperties,
   bsPpStateFromState,
   MediaHState,
+  MrssStateData,
 } from '../type';
 import { find, isNil, isString } from 'lodash';
 import { HsmMap } from '../type';
+import { dmGetMediaStateById, dmFilterDmState, DmDerivedContentItem } from '@brightsign/bsdatamodel';
+import { ContentItemType } from '@brightsign/bscore';
 
 // ------------------------------------
 // Selectors
@@ -87,7 +90,14 @@ export function getHStateByMediaStateId(state: any, hsmId: string, mediaStateId:
   }
 
   const hsm: Hsm = getHsmById(bsPpState, hsmId);
-  return (hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState[mediaStateId as string];
+
+  // TEDTODO - near term hack...
+  const staleHState = (hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState[mediaStateId as string];
+  const hStateId = staleHState.id;
+  const hState = getHStateById(state, hStateId);
+  return hState;
+  // the following may return a stale hState. why? after properties are set on hState?
+  // return (hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState[mediaStateId as string];
 }
 
 export function getHsmInitialized(state: any, hsmId: string): boolean {
@@ -112,25 +122,55 @@ export function getZoneHsmList(state: any): Hsm[] {
   return hsmList;
 }
 
-export function getActiveMediaStateId(state: any, zoneId: string): string {
+export function getZoneHsmFromZoneId(state: any, zoneId: string): Hsm | null {
   const bsPpState: BsPpState = bsPpStateFromState(state);
-
   const zoneHsmList: Hsm[] = getZoneHsmList(bsPpState);
   for (const zoneHsm of zoneHsmList) {
     if (!isNil(zoneHsm.properties)) {
       if (isString((zoneHsm.properties as ZoneHsmProperties).zoneId)) {
         if ((zoneHsm.properties as ZoneHsmProperties).zoneId === zoneId) {
-          const activeHStateId: string = zoneHsm.activeStateId as string;
-          const activeHState = getHStateById(bsPpState, activeHStateId);
-          if (!isNil(activeHState)) {
-            return (activeHState as MediaHState).data.mediaStateId;
-          }
-          return zoneHsm.activeStateId as string;
+          return zoneHsm;
         }
       }
     }
   }
+  return null;
+}
+
+export function getActiveMediaStateId(state: any, zoneId: string): string {
+  const bsPpState: BsPpState = bsPpStateFromState(state);
+  const zoneHsm: Hsm | null = getZoneHsmFromZoneId(state, zoneId);
+  if (!isNil(zoneHsm)) {
+    const activeHStateId: string = zoneHsm.activeStateId as string;
+    const activeHState = getHStateById(bsPpState, activeHStateId);
+    if (!isNil(activeHState)) {
+      return (activeHState as MediaHState).data.mediaStateId;
+    }
+    return zoneHsm.activeStateId as string;
+  }
   return '';
+}
+
+export function getActiveMrssDisplayIndex(state: any, zoneId: string): number {
+  // TEDTODO - the following is called here and in getActiveMediaStateId - fix this
+  const zoneHsm: Hsm | null = getZoneHsmFromZoneId(state, zoneId);
+  if (!isNil(zoneHsm)) {
+    const mediaStateId = getActiveMediaStateId(state, zoneId);
+    const mediaState = dmGetMediaStateById(dmFilterDmState(state), { id: mediaStateId });
+    if (!isNil(mediaState)) {
+      const contentItem: DmDerivedContentItem = mediaState.contentItem;
+      if (contentItem.type === ContentItemType.MrssFeed) {
+        const mrssState = getHStateByMediaStateId(state, zoneHsm.id, mediaStateId) as MediaHState;
+        if (!isNil(mrssState)) {
+          const mrssStateData: MrssStateData = mrssState.data.mediaStateData! as MrssStateData;
+          const displayIndex: number = mrssStateData.displayIndex;
+          return displayIndex;
+        }
+      }
+    }
+  }
+
+  return -1;
 }
 
 export function getEvents(state: any): HsmEventType[] {
