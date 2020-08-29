@@ -98,7 +98,6 @@ export const STMrssStateEventHandler = (
         // m.ProtectMRSSFeed("display-" + m.liveDataFeed.id$, m.assetCollection)
 
         dispatch(setMediaHStateParameter(mediaHState.id, 'displayIndex', 0));
-        console.log(getState());
         // distinguish between a feed that has no content and a feed in which no content has been downloaded
         const dataFeedItems = dataFeed.mrssItems as ArMrssItem[];
         if (dataFeedItems.length === 0 || (!allDataFeedContentExists(bsPpStateFromState(getState()), dataFeed))) {

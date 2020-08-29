@@ -21,6 +21,7 @@ import './bootstrap.css';
 import 'normalize.css/normalize.css';
 import 'flexboxgrid/dist/flexboxgrid.min.css';
 import 'font-awesome/css/font-awesome.min.css';
+import { initLogging } from '../src/utility/logger';
 
 const logger = (appStore: any) => (next: any) => (action: any) => {
   // console.group(action.type);
@@ -46,6 +47,8 @@ const getStore = () => {
       ),
     ));
 };
+
+initLogging();
 
 const store = getStore();
 

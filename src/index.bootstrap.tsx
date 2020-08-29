@@ -14,6 +14,7 @@ import { BsPpState } from './type/base';
 import { bsPpReducer } from './model';
 import { BsPp } from './component';
 import { initPlayer } from './controller';
+import { initLogging } from './utility/logger';
 
 const logger = (store: any) => (next: any) => (action: any) => {
   // console.group(action.type);
@@ -42,6 +43,8 @@ const getStore = () => {
 function bootstrapper() {
 
   console.log('bootstrapper');
+
+  initLogging();
 
   const store = getStore();
 

@@ -6,6 +6,7 @@ import {
   HStateType,
   HsmType,
   bsPpStateFromState,
+  HsmState,
 } from '../../type';
 import { isNil } from 'lodash';
 import {
@@ -23,7 +24,7 @@ import {
 import { STVideoStateEventHandler } from './videoState';
 import { STSuperStateEventHandler } from './superState';
 import { STMrssStateEventHandler } from './mrssState';
-import { BsPpModelState } from '../../..';
+import { logHsmEvent } from '../../utility/logger';
 
 export const hsmConstructorFunction = (hsmId: string): BsPpVoidThunkAction => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
@@ -67,13 +68,7 @@ export const HStateEventHandler = (
 ): any => {
   return ((dispatch: BsPpDispatch, getState: () => BsPpState) => {
 
-    const bsPlayerStateBefore: BsPpModelState = getState().bsPlayer;
-    console.log('** HStateEventHandler');
-    console.log(hState.type);
-    console.log(event.EventType);
-    console.log(event.EventData);
-    console.log('bsPlayerState before:');
-    console.log(bsPlayerStateBefore);
+    const hsmStateBefore: HsmState = getState().bsPlayer.hsmState;
 
     let retVal: any = null;
 
@@ -109,9 +104,18 @@ export const HStateEventHandler = (
       }
     }
 
-    const bsPlayerStateAfter: BsPpModelState = getState().bsPlayer;
-    console.log('bsPlayerState after:');
-    console.log(bsPlayerStateAfter);
+    console.log('** HStateEventHandler');
+    console.log(hState.type);
+    console.log(event.EventType);
+    console.log(event.EventData);
+    console.log('bsPlayerState before:');
+    console.log(hsmStateBefore);
+
+    const hsmStateAfter: HsmState = getState().bsPlayer.hsmState;
+    console.log('hsmState after:');
+    console.log(hsmStateAfter);
+
+    logHsmEvent(hsmStateBefore, event, hState, hsmStateAfter);
 
     return retVal;
   });

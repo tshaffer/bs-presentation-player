@@ -95,7 +95,6 @@ const createMediaHState = (
             dmGetDataFeedById(dmFilterDmState(bsPpStateFromState(getState())), { id: dataFeedId });
           if (!isNil(dataFeed)) {
             const mrssHStateId: string = dispatch(createMrssState(hsmId, bsdmMediaState, dataFeed.id, superStateId));
-            console.log(getState());
             const mrssHState: HState | null = getHStateById(bsPpStateFromState(getState()), mrssHStateId);
             const mrssStateIdToHState: LUT = cloneDeep(hsm.properties as MediaZoneHsmProperties).mediaStateIdToHState;
             mrssStateIdToHState[bsdmMediaState.id] = mrssHState;
