@@ -10,6 +10,7 @@ import {
   ArDataFeed,
   ArMrssItem,
   bsPpStateFromState,
+  HsmTimerType,
   // ArDataFeed,
 } from '../../type';
 import {
@@ -31,6 +32,7 @@ import {
 } from '../../selector';
 import { isNil, isString, isNumber } from 'lodash';
 import { addHsmEvent } from '../hsmController';
+import { EventType } from '@brightsign/bscore';
 // import { getDataFeedById } from '../../selector';
 
 export const createMrssState = (
@@ -116,6 +118,10 @@ export const STMrssStateEventHandler = (
 
       }
       dispatch(launchTimer(hState));
+      return 'HANDLED';
+    } else if (event.EventType === 'Timer') {
+      // event.data === mrssState.id
+      dispatch(advanceToNextMRSSItem(event.data));
       return 'HANDLED';
     } else if (event.EventType === 'EXIT_SIGNAL') {
       dispatch(mediaHStateExitHandler(hState.id));
@@ -307,7 +313,16 @@ export const launchMrssTimer = (mrssState: MediaHState): any => {
 // equivalent to   'else if type(event) = "roTimerEvent" then' in autorun
 export const mrssTimeoutHandler = (callbackParams: TimeoutEventCallbackParams) => {
 
-  callbackParams.dispatch(advanceToNextMRSSItem(callbackParams.mrssState.id));
+  // TEDTODO - identify which mrssState
+  const event: HsmEventType = {
+    EventType: EventType.Timer,
+    EventData: HsmTimerType.MrssState,
+    data: callbackParams.mrssState.id,
+  };
+
+  callbackParams.dispatch(addHsmEvent(event));
+
+  // callbackParams.dispatch(advanceToNextMRSSItem(callbackParams.mrssState.id));
 
   // console.log('mrssTimeoutHandler');
   // const atEndOfMrssFeed = atEndOfFeed(mrssState);

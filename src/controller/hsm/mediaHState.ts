@@ -7,6 +7,7 @@ import {
   MediaZoneHsmProperties,
   bsPpStateFromState,
   MediaHState,
+  HsmTimerType,
 } from '../../type';
 import {
   BsPpDispatch,
@@ -231,6 +232,7 @@ const timeoutHandler = (callbackParams: TimeoutEventCallbackParams): void => {
 
   const event: HsmEventType = {
     EventType: EventType.Timer,
+    EventData: HsmTimerType.MediaHState,
   };
 
   // console.log(event);

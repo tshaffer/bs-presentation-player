@@ -43,6 +43,7 @@ export interface MediaZoneHsmProperties extends ZoneHsmProperties {
   mediaStateIdToHState: LUT;
 }
 
+// TEDTODO - review and update
 export interface HsmEventType {
   EventType: string;
   data?: any;
