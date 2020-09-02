@@ -26,7 +26,7 @@ import {
 
 import {
   getHsmMap,
-  getActiveStateIdByHsmId,
+  getActiveHStateIdByHsmId,
   getHsmByName,
   getIsHsmInitialized,
   getEvents,
@@ -87,7 +87,7 @@ function dispatchHsmEvent(
       const hsmMap: HsmMap = getHsmMap(state);
       for (const hsmId in hsmMap) {
         if (hsmId !== playerHsm!.id) {
-          const activeState: HState | null = getActiveStateIdByHsmId(state, hsmId);
+          const activeState: HState | null = getActiveHStateIdByHsmId(state, hsmId);
           if (!isNil(activeState)) {
             dispatch(hsmDispatch(event, hsmId, activeState!.id) as any);
           } else {

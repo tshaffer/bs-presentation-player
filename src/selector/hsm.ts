@@ -38,7 +38,7 @@ export function getHsmByName(
   return hsmId ? getHsmById(bsPpState, hsmId) : null;
 }
 
-export const getActiveStateIdByHsmId = (
+export const getActiveHStateIdByHsmId = (
   state: BsPpState,
   hsmId: string
 ): HState | null => {

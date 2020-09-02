@@ -17,7 +17,7 @@ import {
 } from './playerHsm';
 import { initializeVideoOrImagesZoneHsm, videoOrImagesZoneHsmGetInitialState } from './mediaZoneHsm';
 import { STImageStateEventHandler } from './imageState';
-import { getHsmById } from '../../selector';
+import { getHsmById, getActiveHStateIdByHsmId } from '../../selector';
 import {
   BsPpDispatch, BsPpVoidThunkAction,
 } from '../../model';
@@ -111,11 +111,12 @@ export const HStateEventHandler = (
     console.log('bsPlayerState before:');
     console.log(hsmStateBefore);
 
+    const hStateAfter: HState = getActiveHStateIdByHsmId(getState(), hState.hsmId) as HState;
     const hsmStateAfter: HsmState = getState().bsPlayer.hsmState;
     console.log('hsmState after:');
     console.log(hsmStateAfter);
 
-    logHsmEvent(hsmStateBefore, event, hState, hsmStateAfter);
+    logHsmEvent(getState(), hState, hsmStateBefore, event, hStateAfter, hsmStateAfter);
 
     return retVal;
   });
